@@ -596,6 +596,38 @@ public protocol WalletServiceProtocol: AnyObject, Sendable {
     func fetchEvmHistoryPage(chainId: UInt32, address: String, tokensJson: String, page: UInt32, pageSize: UInt32) async throws  -> String
     
     /**
+     * Fetch a transaction receipt by hash on an EVM chain.
+     *
+     * Returns the receipt JSON when the transaction has been mined, or
+     * `"null"` (JSON null as a string) when it is still pending.
+     */
+    func fetchEvmReceipt(chainId: UInt32, txHash: String) async throws  -> String
+    
+    /**
+     * Compute an EVM send preview: fetches nonce, EIP-1559 fees, gas
+     * estimate, and native balance concurrently, then returns a single
+     * JSON bundle that Swift can map directly to `EthereumSendPreview`.
+     *
+     * `value_wei` is the native amount as a decimal string (`"0"` for token
+     * sends). `data_hex` is the ABI-encoded call data (`"0x"` for native
+     * transfers, e.g. `"0xa9059cbb…"` for ERC-20 transfers).
+     *
+     * ```json
+     * {
+     * "nonce": 42,
+     * "gas_limit": 65000,
+     * "max_fee_per_gas_gwei": 15.5,
+     * "max_priority_fee_per_gas_gwei": 1.0,
+     * "estimated_fee_eth": 0.00101,
+     * "balance_eth": 0.5,
+     * "spendable_eth": 0.49899,
+     * "fee_rate_description": "Max 15.50 gwei / Priority 1.00 gwei"
+     * }
+     * ```
+     */
+    func fetchEvmSendPreview(chainId: UInt32, from: String, to: String, valueWei: String, dataHex: String) async throws  -> String
+    
+    /**
      * Fetch balances for multiple ERC-20 tokens in a single call.
      *
      * `tokens_json` is a JSON array of objects:
@@ -681,6 +713,43 @@ public protocol WalletServiceProtocol: AnyObject, Sendable {
     func fetchTokenBalance(chainId: UInt32, paramsJson: String) async throws  -> String
     
     /**
+     * Fetch balances for a list of tokens in one call.
+     *
+     * `tokens_json` is a JSON array of objects:
+     * `[{"contract": "<address>", "symbol": "<SYM>", "decimals": <u8>}, …]`
+     *
+     * For Solana (chain_id=2) `"contract"` is the mint address.
+     *
+     * Returns a JSON array in the same shape with additional fields:
+     * `"balance_raw"` and `"balance_display"`.
+     * Tokens that fail to fetch are returned with `"balance_raw": "0"` so the
+     * caller always gets back the full list.
+     */
+    func fetchTokenBalances(chainId: UInt32, address: String, tokensJson: String) async throws  -> String
+    
+    /**
+     * Compute a Tron send preview for TRX or TRC-20 sends.
+     *
+     * For TRX native sends: fetches the TRX balance and applies a conservative
+     * static 1 TRX fee (typical plain-transfer bandwidth cost).
+     *
+     * For TRC-20 sends: additionally fetches the token balance via `fetch_trc20_balance`.
+     * Uses a static ~15 TRX fee (typical USDT transfer energy cost).
+     *
+     * Returns:
+     * ```json
+     * {
+     * "estimated_fee_trx": 1.0,
+     * "fee_limit_sun": 0,
+     * "spendable_balance": 99.0,
+     * "max_sendable": 99.0,
+     * "fee_rate_description": "Static bandwidth estimate"
+     * }
+     * ```
+     */
+    func fetchTronSendPreview(address: String, symbol: String, contractAddress: String) async throws  -> String
+    
+    /**
      * Compute a fee-capacity preview for a UTXO-based chain.
      *
      * Fetches UTXOs for `address`, estimates the fee for a max-send transaction
@@ -702,9 +771,22 @@ public protocol WalletServiceProtocol: AnyObject, Sendable {
      * Blockbook endpoint (falls back to 1 sat/vB). Otherwise the caller-
      * supplied rate is used directly.
      *
-     * Supported chain IDs: 5 (LTC), 6 (BCH), 22 (BSV).
+     * Supported chain IDs: 0 (BTC), 5 (LTC), 6 (BCH), 22 (BSV).
      */
     func fetchUtxoFeePreview(chainId: UInt32, address: String, feeRateSvb: UInt64) async throws  -> String
+    
+    /**
+     * Fetch confirmation status for a UTXO chain transaction.
+     * Returns JSON `{"txid","confirmed","block_height","block_time"}`.
+     * Supported chain_ids: 0 (BTC), 3 (DOGE), 5 (LTC), 6 (BCH), 22 (BSV).
+     */
+    func fetchUtxoTxStatus(chainId: UInt32, txid: String) async throws  -> String
+    
+    /**
+     * Return the built-in token catalog for the given chain as a JSON array.
+     * Pass `chain_id = 4294967295` (u32::MAX) to return all chains.
+     */
+    func listBuiltinTokens(chainId: UInt32) async throws  -> String
     
     /**
      * Load the JSON state blob stored under `key` in the SQLite database at
@@ -1011,6 +1093,68 @@ open func fetchEvmHistoryPage(chainId: UInt32, address: String, tokensJson: Stri
 }
     
     /**
+     * Fetch a transaction receipt by hash on an EVM chain.
+     *
+     * Returns the receipt JSON when the transaction has been mined, or
+     * `"null"` (JSON null as a string) when it is still pending.
+     */
+open func fetchEvmReceipt(chainId: UInt32, txHash: String)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_spectra_derivation_fn_method_walletservice_fetch_evm_receipt(
+                    self.uniffiClonePointer(),
+                    FfiConverterUInt32.lower(chainId),FfiConverterString.lower(txHash)
+                )
+            },
+            pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
+            completeFunc: ffi_spectra_derivation_rust_future_complete_rust_buffer,
+            freeFunc: ffi_spectra_derivation_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeSpectraBridgeError_lift
+        )
+}
+    
+    /**
+     * Compute an EVM send preview: fetches nonce, EIP-1559 fees, gas
+     * estimate, and native balance concurrently, then returns a single
+     * JSON bundle that Swift can map directly to `EthereumSendPreview`.
+     *
+     * `value_wei` is the native amount as a decimal string (`"0"` for token
+     * sends). `data_hex` is the ABI-encoded call data (`"0x"` for native
+     * transfers, e.g. `"0xa9059cbb…"` for ERC-20 transfers).
+     *
+     * ```json
+     * {
+     * "nonce": 42,
+     * "gas_limit": 65000,
+     * "max_fee_per_gas_gwei": 15.5,
+     * "max_priority_fee_per_gas_gwei": 1.0,
+     * "estimated_fee_eth": 0.00101,
+     * "balance_eth": 0.5,
+     * "spendable_eth": 0.49899,
+     * "fee_rate_description": "Max 15.50 gwei / Priority 1.00 gwei"
+     * }
+     * ```
+     */
+open func fetchEvmSendPreview(chainId: UInt32, from: String, to: String, valueWei: String, dataHex: String)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_spectra_derivation_fn_method_walletservice_fetch_evm_send_preview(
+                    self.uniffiClonePointer(),
+                    FfiConverterUInt32.lower(chainId),FfiConverterString.lower(from),FfiConverterString.lower(to),FfiConverterString.lower(valueWei),FfiConverterString.lower(dataHex)
+                )
+            },
+            pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
+            completeFunc: ffi_spectra_derivation_rust_future_complete_rust_buffer,
+            freeFunc: ffi_spectra_derivation_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeSpectraBridgeError_lift
+        )
+}
+    
+    /**
      * Fetch balances for multiple ERC-20 tokens in a single call.
      *
      * `tokens_json` is a JSON array of objects:
@@ -1201,6 +1345,73 @@ open func fetchTokenBalance(chainId: UInt32, paramsJson: String)async throws  ->
 }
     
     /**
+     * Fetch balances for a list of tokens in one call.
+     *
+     * `tokens_json` is a JSON array of objects:
+     * `[{"contract": "<address>", "symbol": "<SYM>", "decimals": <u8>}, …]`
+     *
+     * For Solana (chain_id=2) `"contract"` is the mint address.
+     *
+     * Returns a JSON array in the same shape with additional fields:
+     * `"balance_raw"` and `"balance_display"`.
+     * Tokens that fail to fetch are returned with `"balance_raw": "0"` so the
+     * caller always gets back the full list.
+     */
+open func fetchTokenBalances(chainId: UInt32, address: String, tokensJson: String)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_spectra_derivation_fn_method_walletservice_fetch_token_balances(
+                    self.uniffiClonePointer(),
+                    FfiConverterUInt32.lower(chainId),FfiConverterString.lower(address),FfiConverterString.lower(tokensJson)
+                )
+            },
+            pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
+            completeFunc: ffi_spectra_derivation_rust_future_complete_rust_buffer,
+            freeFunc: ffi_spectra_derivation_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeSpectraBridgeError_lift
+        )
+}
+    
+    /**
+     * Compute a Tron send preview for TRX or TRC-20 sends.
+     *
+     * For TRX native sends: fetches the TRX balance and applies a conservative
+     * static 1 TRX fee (typical plain-transfer bandwidth cost).
+     *
+     * For TRC-20 sends: additionally fetches the token balance via `fetch_trc20_balance`.
+     * Uses a static ~15 TRX fee (typical USDT transfer energy cost).
+     *
+     * Returns:
+     * ```json
+     * {
+     * "estimated_fee_trx": 1.0,
+     * "fee_limit_sun": 0,
+     * "spendable_balance": 99.0,
+     * "max_sendable": 99.0,
+     * "fee_rate_description": "Static bandwidth estimate"
+     * }
+     * ```
+     */
+open func fetchTronSendPreview(address: String, symbol: String, contractAddress: String)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_spectra_derivation_fn_method_walletservice_fetch_tron_send_preview(
+                    self.uniffiClonePointer(),
+                    FfiConverterString.lower(address),FfiConverterString.lower(symbol),FfiConverterString.lower(contractAddress)
+                )
+            },
+            pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
+            completeFunc: ffi_spectra_derivation_rust_future_complete_rust_buffer,
+            freeFunc: ffi_spectra_derivation_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeSpectraBridgeError_lift
+        )
+}
+    
+    /**
      * Compute a fee-capacity preview for a UTXO-based chain.
      *
      * Fetches UTXOs for `address`, estimates the fee for a max-send transaction
@@ -1222,7 +1433,7 @@ open func fetchTokenBalance(chainId: UInt32, paramsJson: String)async throws  ->
      * Blockbook endpoint (falls back to 1 sat/vB). Otherwise the caller-
      * supplied rate is used directly.
      *
-     * Supported chain IDs: 5 (LTC), 6 (BCH), 22 (BSV).
+     * Supported chain IDs: 0 (BTC), 5 (LTC), 6 (BCH), 22 (BSV).
      */
 open func fetchUtxoFeePreview(chainId: UInt32, address: String, feeRateSvb: UInt64)async throws  -> String  {
     return
@@ -1231,6 +1442,49 @@ open func fetchUtxoFeePreview(chainId: UInt32, address: String, feeRateSvb: UInt
                 uniffi_spectra_derivation_fn_method_walletservice_fetch_utxo_fee_preview(
                     self.uniffiClonePointer(),
                     FfiConverterUInt32.lower(chainId),FfiConverterString.lower(address),FfiConverterUInt64.lower(feeRateSvb)
+                )
+            },
+            pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
+            completeFunc: ffi_spectra_derivation_rust_future_complete_rust_buffer,
+            freeFunc: ffi_spectra_derivation_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeSpectraBridgeError_lift
+        )
+}
+    
+    /**
+     * Fetch confirmation status for a UTXO chain transaction.
+     * Returns JSON `{"txid","confirmed","block_height","block_time"}`.
+     * Supported chain_ids: 0 (BTC), 3 (DOGE), 5 (LTC), 6 (BCH), 22 (BSV).
+     */
+open func fetchUtxoTxStatus(chainId: UInt32, txid: String)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_spectra_derivation_fn_method_walletservice_fetch_utxo_tx_status(
+                    self.uniffiClonePointer(),
+                    FfiConverterUInt32.lower(chainId),FfiConverterString.lower(txid)
+                )
+            },
+            pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
+            completeFunc: ffi_spectra_derivation_rust_future_complete_rust_buffer,
+            freeFunc: ffi_spectra_derivation_rust_future_free_rust_buffer,
+            liftFunc: FfiConverterString.lift,
+            errorHandler: FfiConverterTypeSpectraBridgeError_lift
+        )
+}
+    
+    /**
+     * Return the built-in token catalog for the given chain as a JSON array.
+     * Pass `chain_id = 4294967295` (u32::MAX) to return all chains.
+     */
+open func listBuiltinTokens(chainId: UInt32)async throws  -> String  {
+    return
+        try  await uniffiRustCallAsync(
+            rustFutureFunc: {
+                uniffi_spectra_derivation_fn_method_walletservice_list_builtin_tokens(
+                    self.uniffiClonePointer(),
+                    FfiConverterUInt32.lower(chainId)
                 )
             },
             pollFunc: ffi_spectra_derivation_rust_future_poll_rust_buffer,
@@ -1987,6 +2241,18 @@ public func generateMnemonic(wordCount: UInt32) -> String  {
 })
 }
 /**
+ * Return the built-in token catalog as a JSON array string.
+ * Pass `chain_id = 4294967295` (u32::MAX) to get all chains.
+ * This is a synchronous free function so Swift can call it from a `static let`.
+ */
+public func listBuiltinTokensJson(chainId: UInt32) -> String  {
+    return try!  FfiConverterString.lift(try! rustCall() {
+    uniffi_spectra_derivation_fn_func_list_builtin_tokens_json(
+        FfiConverterUInt32.lower(chainId),$0
+    )
+})
+}
+/**
  * Validate a BIP-39 mnemonic phrase.
  *
  * Returns `true` if `phrase` is a valid English BIP-39 mnemonic (correct
@@ -2196,6 +2462,9 @@ private let initializationResult: InitializationResult = {
     if (uniffi_spectra_derivation_checksum_func_generate_mnemonic() != 39172) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_spectra_derivation_checksum_func_list_builtin_tokens_json() != 30265) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_spectra_derivation_checksum_func_validate_mnemonic() != 27248) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -2223,6 +2492,12 @@ private let initializationResult: InitializationResult = {
     if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_evm_history_page() != 20884) {
         return InitializationResult.apiChecksumMismatch
     }
+    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_evm_receipt() != 22602) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_evm_send_preview() != 38832) {
+        return InitializationResult.apiChecksumMismatch
+    }
     if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_evm_token_balances_batch() != 60573) {
         return InitializationResult.apiChecksumMismatch
     }
@@ -2244,7 +2519,19 @@ private let initializationResult: InitializationResult = {
     if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_token_balance() != 63267) {
         return InitializationResult.apiChecksumMismatch
     }
-    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_utxo_fee_preview() != 1874) {
+    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_token_balances() != 15634) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_tron_send_preview() != 52056) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_utxo_fee_preview() != 31374) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_spectra_derivation_checksum_method_walletservice_fetch_utxo_tx_status() != 63431) {
+        return InitializationResult.apiChecksumMismatch
+    }
+    if (uniffi_spectra_derivation_checksum_method_walletservice_list_builtin_tokens() != 46420) {
         return InitializationResult.apiChecksumMismatch
     }
     if (uniffi_spectra_derivation_checksum_method_walletservice_load_state() != 16054) {
