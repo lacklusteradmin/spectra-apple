@@ -1,0 +1,122 @@
+[
+  {
+    "id": "bitcoin",
+    "colorName": "orange",
+    "assetName": "bitcoin"
+  },
+  {
+    "id": "bitcoin-cash",
+    "colorName": "orange",
+    "assetName": "bitcoincash"
+  },
+  {
+    "id": "bitcoin-sv",
+    "colorName": "orange",
+    "assetName": "bitcoinsv"
+  },
+  {
+    "id": "litecoin",
+    "colorName": "blue",
+    "assetName": "litecoin"
+  },
+  {
+    "id": "dogecoin",
+    "colorName": "yellow",
+    "assetName": "dogecoin"
+  },
+  {
+    "id": "ethereum",
+    "colorName": "purple",
+    "assetName": "ethereum"
+  },
+  {
+    "id": "ethereum-classic",
+    "colorName": "green",
+    "assetName": "ethereumclassic"
+  },
+  {
+    "id": "arbitrum",
+    "colorName": "cyan",
+    "assetName": "arbitrum"
+  },
+  {
+    "id": "optimism",
+    "colorName": "red",
+    "assetName": "optimism"
+  },
+  {
+    "id": "bnb",
+    "colorName": "yellow",
+    "assetName": "bnb"
+  },
+  {
+    "id": "avalanche",
+    "colorName": "red",
+    "assetName": "avax"
+  },
+  {
+    "id": "hyperliquid",
+    "colorName": "mint",
+    "assetName": "hyperliquid"
+  },
+  {
+    "id": "tron",
+    "colorName": "red",
+    "assetName": "tron"
+  },
+  {
+    "id": "solana",
+    "colorName": "green",
+    "assetName": "solana"
+  },
+  {
+    "id": "stellar",
+    "colorName": "teal",
+    "assetName": "stellar"
+  },
+  {
+    "id": "aptos",
+    "colorName": "cyan",
+    "assetName": "aptos"
+  },
+  {
+    "id": "ton",
+    "colorName": "blue",
+    "assetName": "ton"
+  },
+  {
+    "id": "internet-computer",
+    "colorName": "indigo",
+    "assetName": "icp"
+  },
+  {
+    "id": "near",
+    "colorName": "indigo",
+    "assetName": "near"
+  },
+  {
+    "id": "polkadot",
+    "colorName": "pink",
+    "assetName": "polkadot"
+  },
+  {
+    "id": "sui",
+    "colorName": "mint",
+    "assetName": "sui"
+  },
+  {
+    "id": "cardano",
+    "colorName": "indigo",
+    "assetName": "cardano"
+  },
+  {
+    "id": "monero",
+    "colorName": "orange",
+    "assetName": "monero"
+  },
+  {
+    "id": "xrp",
+    "colorName": "cyan",
+    "assetName": "xrp"
+  }
+]
