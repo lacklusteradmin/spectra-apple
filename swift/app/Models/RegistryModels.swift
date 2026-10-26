@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
-#if canImport(UIKit)
-    import UIKit
-#endif
+import UIKit
 extension TokenPreferenceEntry: Identifiable {
     public var id: String { token.deploymentId }
     /// The chain hosting this token.

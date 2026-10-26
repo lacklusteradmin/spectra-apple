@@ -10,8 +10,7 @@ extension SendFlowState {
         let nonce = try explicitEvmNonce().map(Int64.init)
         let fees = customEvmFeeConfiguration()
         let overrides = nonce == nil && fees == nil ? nil : EvmSendOverridesInput(
-            nonce: nonce, customFees: fees, gasLimit: nil, calldataHex: nil,
-            signOnly: nil, accessListJson: nil)
+            nonce: nonce, customFees: fees, gasLimit: nil, calldataHex: nil, accessListJson: nil)
         return SendReviewInput(walletId: walletId, holdingKey: holdingKey,
             amount: amountInput, destination: address, overrides: overrides, memo: paymentMemo)
     }

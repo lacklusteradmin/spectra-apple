@@ -56,7 +56,7 @@ struct WalletTokenAccountsView: View {
                     Text(verbatim: "Token-2022").font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text(verbatim: "\(account.rent) SOL").font(.subheadline).monospacedDigit()
+                Text(verbatim: store.amounts.formattedNativeAmount(account.rent, chain: wallet.chain)).font(.subheadline).monospacedDigit()
             }
             Text(verbatim: account.address).font(.caption2.monospaced()).foregroundStyle(.secondary)
                 .lineLimit(1).truncationMode(.middle)
@@ -94,8 +94,8 @@ private struct CloseTokenAccountsView: View {
                     LabeledContent(
                         AppLocalization.string("Accounts"),
                         value: AppLocalization.format("%lld accounts", count: accounts.count, accounts.count))
-                    LabeledContent(AppLocalization.string("Rent Returned"), value: "\(rent) SOL")
-                    LabeledContent(AppLocalization.string("Network Fee"), value: "\(networkFee) SOL")
+                    LabeledContent(AppLocalization.string("Rent Returned"), value: store.amounts.formattedNativeAmount(rent, chain: wallet.chain))
+                    LabeledContent(AppLocalization.string("Network Fee"), value: store.amounts.formattedNativeAmount(networkFee, chain: wallet.chain))
                 } footer: {
                     Text(AppLocalization.string("The accounts are deleted and their rent comes back to this wallet. A token sent here later opens a new account."))
                 }

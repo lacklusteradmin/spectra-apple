@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
-#if canImport(UIKit)
-    import UIKit
-#endif
+import UIKit
 extension SendPreview {
     /// Whether the preview says anything the fee rows and the amount page
     /// have not: an EVM fee rate is already rows of its own, and the balance
@@ -114,6 +112,8 @@ enum HistorySortOrder: String, CaseIterable, Identifiable {
     var localizedTitle: String { AppLocalization.string(rawValue) }
 }
 extension PriceAlertCondition {
+    static let allCases: [PriceAlertCondition] = [.above, .below]
+
     var displayName: String {
         switch self {
         case .above: return AppLocalization.string("Above")

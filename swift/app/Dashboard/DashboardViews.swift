@@ -302,7 +302,9 @@ enum AppNoticeSeverity {
     }
 }
 struct AppNoticeItem: Identifiable {
-    let id = UUID()
+    /// The notice's own words: `appNoticeItems` is recomputed on every read,
+    /// so a generated id would make every notice a new row each time.
+    var id: String { "\(title)\u{1F}\(message)" }
     let title: String
     let message: String
     let severity: AppNoticeSeverity

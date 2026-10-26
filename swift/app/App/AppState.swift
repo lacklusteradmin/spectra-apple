@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
-#if canImport(Network)
-    import Network
-#endif
+import Network
 
 // MARK: - @Observable opt-in convention
 //
@@ -258,10 +256,8 @@ final class AppState {
     @ObservationIgnored var appIsActive = true
     @ObservationIgnored var deviceConditionsTask: Task<Void, Never>? // Orders reports to core's engine.
     @ObservationIgnored var refreshEventsTask: Task<Void, Never>? // Drains core's refresh events in order.
-    #if canImport(Network)
-        let networkPathMonitor = NWPathMonitor()
-        let networkPathMonitorQueue = DispatchQueue(label: "spectra.network.monitor")
-    #endif
+    let networkPathMonitor = NWPathMonitor()
+    let networkPathMonitorQueue = DispatchQueue(label: "spectra.network.monitor")
     init(bridge: WalletServiceBridge = .shared, startServices: Bool = true) {
         self.bridge = bridge
         self.servicesEnabled = startServices
@@ -321,9 +317,7 @@ final class AppState {
         balanceProgressTask?.cancel()
         deviceConditionsTask?.cancel()
         refreshEventsTask?.cancel()
-        #if canImport(Network)
-            networkPathMonitor.cancel()
-        #endif
+        networkPathMonitor.cancel()
     }
     var canImportWallet: Bool {
         walletImport.draft.canImportWallet

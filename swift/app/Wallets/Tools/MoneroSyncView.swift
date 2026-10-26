@@ -4,7 +4,7 @@ import SwiftUI
 struct MoneroSyncView: View {
     let store: AppState
     let walletId: String
-    @State private var vm = MoneroSyncViewModel()
+    @State private var vm = MoneroSyncState()
     @State private var statusAttempt = 0
 
     var body: some View {

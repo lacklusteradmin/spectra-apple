@@ -25,7 +25,7 @@ struct WalletTokenStorageView: View {
                 }
                 if !storage.deposits.isEmpty {
                     Section {
-                        LabeledContent(AppLocalization.string("Refundable"), value: "\(storage.refundable) NEAR")
+                        LabeledContent(AppLocalization.string("Refundable"), value: store.amounts.formattedNativeAmount(storage.refundable, chain: wallet.chain))
                     }
                 }
             } else if let error {
@@ -48,7 +48,7 @@ struct WalletTokenStorageView: View {
                 Text(verbatim: deposit.symbol).font(.subheadline.weight(.semibold)).lineLimit(1)
                     .truncationMode(.middle)
                 Spacer()
-                Text(verbatim: "\(deposit.refund) NEAR").font(.subheadline).monospacedDigit()
+                Text(verbatim: store.amounts.formattedNativeAmount(deposit.refund, chain: wallet.chain)).font(.subheadline).monospacedDigit()
             }
             Text(verbatim: deposit.contract).font(.caption2.monospaced()).foregroundStyle(.secondary)
                 .lineLimit(1).truncationMode(.middle)
@@ -92,8 +92,8 @@ private struct RefundTokenStorageView: View {
                         .truncationMode(.middle)
                 }
                 if case let .refundTokenStorage(_, refund, networkFee) = session.artifact?.operation {
-                    LabeledContent(AppLocalization.string("Deposit Returned"), value: "\(refund) NEAR")
-                    LabeledContent(AppLocalization.string("Network Fee"), value: "≤ \(networkFee) NEAR")
+                    LabeledContent(AppLocalization.string("Deposit Returned"), value: store.amounts.formattedNativeAmount(refund, chain: wallet.chain))
+                    LabeledContent(AppLocalization.string("Network Fee"), value: "≤ " + store.amounts.formattedNativeAmount(networkFee, chain: wallet.chain))
                 }
             } footer: {
                 Text(AppLocalization.string("The contract unregisters this account and returns its deposit. Receiving the token again registers the account anew, for a new deposit."))

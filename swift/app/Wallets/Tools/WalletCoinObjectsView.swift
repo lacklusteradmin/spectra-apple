@@ -84,7 +84,7 @@ private struct MergeCoinsView: View {
                     LabeledContent(
                         AppLocalization.string("Objects Merged"),
                         value: AppLocalization.format("%lld objects", count: Int(objects), Int(objects)))
-                    LabeledContent(AppLocalization.string("Network Fee"), value: "≤ \(networkFee) SUI")
+                    LabeledContent(AppLocalization.string("Network Fee"), value: "≤ " + store.amounts.formattedNativeAmount(networkFee, chain: wallet.chain))
                 }
             } footer: {
                 Text(AppLocalization.string("The objects become one, and nothing leaves the wallet. Storage freed by the merged objects is refunded, which often covers the fee."))

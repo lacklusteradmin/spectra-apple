@@ -7,7 +7,7 @@ struct WalletStakingView: View {
     let chain: Chain
     let walletId: String
     @Bindable var store: AppState
-    @State private var vm: StakingViewModel
+    @State private var vm: StakingState
     @State private var showsValidators = false
     @State private var confirmsSigning = false
     @State private var confirmsBroadcast = false
@@ -16,7 +16,7 @@ struct WalletStakingView: View {
         chain = wallet.chain
         walletId = wallet.id
         self.store = store
-        _vm = State(wrappedValue: StakingViewModel(chain: wallet.chain, bridge: store.bridge))
+        _vm = State(wrappedValue: StakingState(chain: wallet.chain, bridge: store.bridge))
     }
 
     private var wallet: WalletView? { store.wallet(for: vm.walletId) }

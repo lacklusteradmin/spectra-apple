@@ -3,7 +3,7 @@ import SwiftUI
 /// Signing and submission are explicit steps over one immutable core review.
 struct StakingTransactionView: View {
     @Bindable var store: AppState
-    @Bindable var vm: StakingViewModel
+    @Bindable var vm: StakingState
     let artifact: SendArtifact
     @Binding var confirmsSigning: Bool
     @Binding var confirmsBroadcast: Bool

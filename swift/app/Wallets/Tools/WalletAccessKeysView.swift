@@ -66,7 +66,7 @@ struct WalletAccessKeysView: View {
                 ).font(.caption)
                 LabeledContent(
                     AppLocalization.string("Allowance"),
-                    value: key.allowance.map { "\($0) NEAR" } ?? AppLocalization.string("Unlimited")
+                    value: key.allowance.map { store.amounts.formattedNativeAmount($0, chain: wallet.chain) } ?? AppLocalization.string("Unlimited")
                 ).font(.caption)
                 if !wallet.signing.isWatchOnly {
                     Button(role: .destructive) { deleting = key } label: {
@@ -114,7 +114,7 @@ private struct DeleteAccessKeyView: View {
                     }
                 }
                 if case let .deleteAccessKey(_, _, networkFee) = session.artifact?.operation {
-                    LabeledContent(AppLocalization.string("Network Fee"), value: "≤ \(networkFee) NEAR")
+                    LabeledContent(AppLocalization.string("Network Fee"), value: "≤ " + store.amounts.formattedNativeAmount(networkFee, chain: wallet.chain))
                 }
             } footer: {
                 Text(AppLocalization.string("The contract can no longer act for this account with this key. The dapp asks you to sign in again to get a new one."))

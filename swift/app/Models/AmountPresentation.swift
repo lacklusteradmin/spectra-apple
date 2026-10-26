@@ -92,9 +92,10 @@ struct AmountPresentation {
 
     // MARK: - Network fees
 
-    /// A fee in the chain's gas token, exactly as core stated it.
-    func formattedNetworkFee(_ fee: String, chain: Chain) -> String {
-        "\(Self.localizedDecimal(fee)) \(chain.gasTokenSymbol)"
+    /// An amount of the chain's gas token — a fee, a deposit, rent — exactly
+    /// as core stated it.
+    func formattedNativeAmount(_ amount: String, chain: Chain) -> String {
+        "\(Self.localizedDecimal(amount)) \(chain.gasTokenSymbol)"
     }
     /// A fee as a compact row shows it: core's significant-digit policy at
     /// the gas token's precision, with its display-currency value when core
@@ -105,7 +106,7 @@ struct AmountPresentation {
             let amount = Self.localizedDecimal(text.value)
             native = "\(text.belowThreshold ? "<" : "")\(amount) \(chain.gasTokenSymbol)"
         } else {
-            native = formattedNetworkFee(fee, chain: chain)
+            native = formattedNativeAmount(fee, chain: chain)
         }
         guard let fiat = formattedFiatIfAvailable(value) else { return native }
         return "\(native) (~\(fiat))"
@@ -132,12 +133,12 @@ struct AmountPresentation {
     func receiptNetworkFeeText(for transaction: TransactionRecord) -> String? {
         guard let fee = transaction.receiptNetworkFee else { return nil }
         let chain = transaction.chain
-        return formattedNetworkFee(fee, chain: chain)
+        return formattedNativeAmount(fee, chain: chain)
     }
     func confirmedNetworkFeeText(for transaction: TransactionRecord) -> String? {
         guard let fee = transaction.confirmedNetworkFee else { return nil }
         let chain = transaction.chain
-        return formattedNetworkFee(fee, chain: chain)
+        return formattedNativeAmount(fee, chain: chain)
     }
     func storedFeeRateText(for transaction: TransactionRecord) -> String? {
         guard let description = transaction.feeRateDescription?.trimmingCharacters(in: .whitespacesAndNewlines),

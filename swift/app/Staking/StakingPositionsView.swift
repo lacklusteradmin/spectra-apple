@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct StakingPositionsView: View {
-    @Bindable var vm: StakingViewModel
+    @Bindable var vm: StakingState
     let canSign: Bool
     let requiresPassword: Bool
 

@@ -368,7 +368,7 @@ struct WalletDetailView: View {
                 openURL(url)
             }
         case .getTestCoins:
-            if let link = chainFaucetUrl(chain: displayedWallet.chain), let url = URL(string: link) {
+            if let url = displayedWallet.chain.faucetURL {
                 openURL(url)
             }
         case .addToNetwork, .rename, .revealPhrase, .exportKeys, .delete: isShowingManagePage = true

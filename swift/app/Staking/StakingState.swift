@@ -1,7 +1,7 @@
 import Foundation
 
 /// A transient form over core's persisted positions, reviews and broadcast journal.
-@MainActor @Observable final class StakingViewModel {
+@MainActor @Observable final class StakingState {
     enum Operation {
         case positions, build, sign, broadcast
         case resume(String)

@@ -129,7 +129,7 @@ extension CatalogColor {
         case .green: return .green
         case .indigo: return .indigo
         case .mint: return .mint
-        case .orange: return .orange
+        case .orange: return .orange  // design-tokens: artwork
         case .pink: return .pink
         case .purple: return .purple
         case .red: return .red

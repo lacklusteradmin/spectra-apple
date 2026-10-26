@@ -3,7 +3,7 @@ import Foundation
 /// Native scan controls and progress; each run has its own lifetime.
 @MainActor
 @Observable
-final class MoneroSyncViewModel {
+final class MoneroSyncState {
     var status: MoneroSyncStatus?
     var password = ""
     var error: String?
