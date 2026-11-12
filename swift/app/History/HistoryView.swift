@@ -201,7 +201,7 @@ struct HistoryListView: View {
                     .opacity(isLoadingPage && loadedFilterKey != filterKey ? 0.5 : 1)
                     if shouldShowPagingControls { historyPagingControls }
                 }.spectraScreenPadding()
-            }.refreshable {
+            }.pageRefreshable {
                 await store.performUserInitiatedRefresh()
             }.scrollBounceBehavior(.always)
         }
@@ -216,13 +216,13 @@ struct HistoryListView: View {
         }
         .spectraTransientNotice($actionNotice, seconds: 4)
         .animation(.snappy, value: actionNotice)
-        .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .always),
+        .searchable(text: $searchText, placement: .alwaysVisible,
                      prompt: AppLocalization.string("Search history"))
         .textInputAutocapitalization(.never).autocorrectionDisabled()
-        .navigationTitle(AppLocalization.string("History")).navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationTitle(AppLocalization.string("History")).inlineNavigationTitle()
+        .clearNavigationBar()
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) { historyFilterMenu }
+            ToolbarItem(placement: .barTrailing) { historyFilterMenu }
         }.task(id: queryKey) {
             // Typing searches once it pauses, not on every keystroke.
             if loadedFilterKey != nil, loadedFilterKey != filterKey, !searchText.isEmpty {

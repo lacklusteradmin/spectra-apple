@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 
 /// Receive starts on the wallet list; choosing a wallet pushes its address,
 /// so the navigation bar's back button and swipe return to the list.
@@ -118,14 +117,11 @@ private struct ReceiveAddressView: View {
             }
             receiveActionCard(address: address)
         }
-        .sheet(isPresented: $isShowingShareSheet) {
-            if let encoded {
-                // The text first, so a message or a note carries the address
-                // — or the whole request — itself; the image goes with it
-                // where it can.
-                ActivityItemSheet(activityItems: [encoded] + (qrImage.map { [$0] } ?? []))
-            }
-        }
+        // The text first, so a message or a note carries the address — or the
+        // whole request — itself; the image goes with it where it can.
+        .shareSheet(
+            isPresented: $isShowingShareSheet,
+            items: encoded.map { [$0] + (qrImage.map { [$0] } ?? []) } ?? [])
         .onChange(of: store.receiveFlow.holdingKey) {
             requestedAmount = ""
             requestMemo = ""
@@ -190,7 +186,7 @@ private struct ReceiveAddressView: View {
         .spectraCardFill()
     }
 
-    private func receiveAddressHero(address: String?, qrImage: UIImage?, isRequest: Bool) -> some View {
+    private func receiveAddressHero(address: String?, qrImage: PlatformImage?, isRequest: Bool) -> some View {
         let wallet = selectedWallet
         let coin = selectedCoin
         return VStack(spacing: SpectraLayout.Space.m) {
@@ -207,7 +203,7 @@ private struct ReceiveAddressView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             if let qrImage {
-                Image(uiImage: qrImage).interpolation(.none).resizable().scaledToFit()
+                Image(platformImage: qrImage).interpolation(.none).resizable().scaledToFit()
                     .frame(width: 184, height: 184)
                     .padding(SpectraLayout.Space.l)
                     .background(Color.white, in: RoundedRectangle(cornerRadius: SpectraLayout.Radius.inner, style: .continuous))
@@ -314,9 +310,9 @@ private struct ReceiveScreen<Content: View>: View {
             }
         }
         .navigationTitle(AppLocalization.string("Receive"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
+        .inlineNavigationTitle()
+        .clearNavigationBar()
+        .hidesTabBar()
     }
 }
 

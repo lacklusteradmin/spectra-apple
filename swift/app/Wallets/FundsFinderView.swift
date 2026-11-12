@@ -66,10 +66,10 @@ struct FundsFinderView: View {
             }
         }
         .navigationTitle(AppLocalization.string("Funds Finder"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .toolbar {
             if hasStarted && !isScanning {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .barTrailing) {
                     // Back to the phrase as it was: the next scan is most often
                     // the same phrase with a passphrase, or one word fixed.
                     Button(AppLocalization.string("New Scan")) {
@@ -352,7 +352,7 @@ struct FundsFinderView: View {
         ) { hit in
             FundsFinderHitRow(hit: hit) { importHit(hit) }
         }
-        .sheet(isPresented: $isImportingAll) {
+        .pageSheet(isPresented: $isImportingAll) {
             ImportAllFoundSheet(store: store, hits: hits) { hit, password in
                 importCommit(for: hit, password: password)
             }
@@ -499,7 +499,7 @@ private struct ImportAllFoundSheet: View {
                 }
             }
             .navigationTitle(AppLocalization.string("Import All"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 if isFinished {
                     ToolbarItem(placement: .confirmationAction) {

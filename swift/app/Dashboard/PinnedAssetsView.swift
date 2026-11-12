@@ -32,7 +32,7 @@ struct PinnedAssetsView: View {
         }.navigationTitle(AppLocalization.string("Pinned Assets")).searchable(
             text: $searchText, prompt: AppLocalization.string("Search assets")
         ).toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button(AppLocalization.string("Reset")) {
                     isConfirmingReset = true
                 }

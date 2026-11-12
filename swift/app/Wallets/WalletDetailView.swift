@@ -115,12 +115,12 @@ struct WalletDetailView: View {
         }.background(SpectraBackdrop().ignoresSafeArea())
             // Waits for the read to finish, as Home's does, so the spinner
             // means something; this wallet's network is what it reads.
-            .refreshable {
+            .pageRefreshable {
                 _ = await store.performUserInitiatedRefresh(forChain: displayedWallet.chain)
-            }.navigationTitle(AppLocalization.string("Wallet Details")).navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            }.navigationTitle(AppLocalization.string("Wallet Details")).inlineNavigationTitle()
+            .clearNavigationBar()
             .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 // Name, keys, other networks and deletion: managing the
                 // wallet, not settings for experts.
                 Button(AppLocalization.string("Manage"), systemImage: "slider.horizontal.3") {

@@ -18,13 +18,13 @@ struct AppearanceSettingsView: View {
                                 Image(systemName: "checkmark").font(.body.weight(.semibold)).foregroundStyle(.tint)
                             }
                         }.contentShape(Rectangle())
-                    }.foregroundStyle(Color.primary)
+                    }.foregroundStyle(Color.primary).formRowButtonStyle()
                 }
             } footer: {
                 Text(AppLocalization.string("Controls the color scheme used throughout the app. Defaults to System."))
                     .spectraHintText()
             }
-        }.navigationTitle(AppLocalization.string("Appearance")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(AppLocalization.string("Appearance")).inlineNavigationTitle()
     }
 
     private func iconName(for mode: AppearanceMode) -> String {

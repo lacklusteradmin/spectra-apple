@@ -1,9 +1,10 @@
 import Foundation
-import KeychainAccess
 import Security
 enum KeychainStoreError: Error, Equatable {
     case missingValue
     case invalidEncoding
+    /// The Keychain refused a read, a write or a delete.
+    case keychain(OSStatus)
     /// The Secure Enclave key could not be read, created or used. Core refuses
     /// rather than mint a device key over one it could not unwrap.
     case keyWrapping(String)
@@ -14,27 +15,62 @@ extension KeychainStoreError: LocalizedError {
         switch self {
         case .missingValue: return "No value is stored for this item."
         case .invalidEncoding: return "The stored value is not valid UTF-8."
+        case .keychain(let status):
+            let reason = SecCopyErrorMessageString(status, nil) as String? ?? "unknown Security framework error"
+            return "The Keychain failed: \(reason) (\(status))"
         case .keyWrapping(let detail): return "The device key could not be wrapped: \(detail)"
         }
     }
 }
 
-// Sound: KeychainAccess's `Keychain` stores only a `let` options value, and every call is a Security framework call, which is thread-safe.
-private struct KeychainBackedSecureStore: @unchecked Sendable {
-    private let keychain: Keychain
-    init(service: String) {
-        keychain = Keychain(service: service).accessibility(.whenPasscodeSetThisDeviceOnly)
+/// One service's generic passwords, readable only on this device and only
+/// while it has a passcode — on a Mac, a login password.
+///
+/// Every query names the data protection keychain. That is the only keychain
+/// iOS has; a Mac also has the file-based login keychain, which knows no
+/// accessibility class and hands its items to whoever unlocks the file.
+private struct KeychainBackedSecureStore: Sendable {
+    let service: String
+
+    private func query(for account: String) -> [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecUseDataProtectionKeychain as String: true,
+        ]
     }
-    func save(_ value: String, for account: String) throws { try keychain.set(Data(value.utf8), key: account) }
+
+    func save(_ value: String, for account: String) throws {
+        let stored: [String: Any] = [
+            kSecValueData as String: Data(value.utf8),
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+        ]
+        var status = SecItemUpdate(query(for: account) as CFDictionary, stored as CFDictionary)
+        if status == errSecItemNotFound {
+            status = SecItemAdd(query(for: account).merging(stored) { $1 } as CFDictionary, nil)
+        }
+        guard status == errSecSuccess else { throw KeychainStoreError.keychain(status) }
+    }
     /// `missingValue` only when the Keychain holds nothing under `account`. A
     /// failed read — the device locked, an entitlement missing — throws what
-    /// the Keychain threw.
+    /// the Keychain answered.
     func loadValue(for account: String) throws -> String {
-        guard let data = try keychain.getData(account) else { throw KeychainStoreError.missingValue }
+        var query = query(for: account)
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        if status == errSecItemNotFound { throw KeychainStoreError.missingValue }
+        guard status == errSecSuccess, let data = item as? Data else { throw KeychainStoreError.keychain(status) }
         guard let value = String(data: data, encoding: .utf8) else { throw KeychainStoreError.invalidEncoding }
         return value
     }
-    func deleteValue(for account: String) throws { try keychain.remove(account) }
+    /// Deleting what is not there is not a failure.
+    func deleteValue(for account: String) throws {
+        let status = SecItemDelete(query(for: account) as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainStoreError.keychain(status) }
+    }
 }
 
 /// Wraps core's device key with a P-256 key held by the Secure Enclave.
@@ -47,6 +83,10 @@ private struct KeychainBackedSecureStore: @unchecked Sendable {
 ///
 /// The simulator has no enclave. There the wrapping key is a software key: the
 /// logic is exercised, the hardware protection is not.
+///
+/// The key is asked for in the data protection keychain by name, as the items
+/// above are: a Mac keeps an enclave key nowhere else, and reaches that
+/// keychain only as an app signed with its keychain access group.
 enum DeviceKeyWrapping {
     static let tag = Data("com.spectra.seed.masterkey.wrapping".utf8)
     private static let algorithm = SecKeyAlgorithm.eciesEncryptionCofactorVariableIVX963SHA256AESGCM
@@ -80,6 +120,7 @@ enum DeviceKeyWrapping {
             kSecClass as String: kSecClassKey,
             kSecAttrApplicationTag as String: tag,
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+            kSecUseDataProtectionKeychain as String: true,
             kSecReturnRef as String: true,
         ]
         var item: CFTypeRef?
@@ -94,6 +135,7 @@ enum DeviceKeyWrapping {
         var attributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrKeySizeInBits as String: 256,
+            kSecUseDataProtectionKeychain as String: true,
         ]
         var privateAttributes: [String: Any] = [
             kSecAttrIsPermanent as String: true,

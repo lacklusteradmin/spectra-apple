@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 /// Core resolves the names; the reviewed addresses remain complete and copyable.
 /// The caller owns this content's card so fee rows can share the same surface.
@@ -91,7 +90,7 @@ private struct SendTransferPartyView: View {
                         .padding(.vertical, SpectraLayout.Space.s)
                 }
                 .buttonStyle(.glass)
-                .sheet(isPresented: $isSavingContact) {
+                .pageSheet(isPresented: $isSavingContact) {
                     SaveContactSheet(
                         addressBook: store.addressBook, chain: chain,
                         address: displayAddress(chain: chain, address: address), name: suggestedContactName)

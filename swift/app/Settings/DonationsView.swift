@@ -9,8 +9,8 @@ struct DonationsView: View {
                 addressesCard
             }.spectraScreenPadding()
         }.background(SpectraBackdrop().ignoresSafeArea())
-            .navigationTitle(copy.navigationTitle).navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationTitle(copy.navigationTitle).inlineNavigationTitle()
+            .clearNavigationBar()
     }
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {

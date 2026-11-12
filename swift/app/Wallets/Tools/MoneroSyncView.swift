@@ -107,7 +107,7 @@ struct WalletBlockScanView: View {
             }.spectraScreenPadding()
         }
         .background(SpectraBackdrop().ignoresSafeArea())
-        .navigationTitle(WalletAction.scanBlocks.title).navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationTitle(WalletAction.scanBlocks.title).inlineNavigationTitle()
+        .clearNavigationBar()
     }
 }

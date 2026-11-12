@@ -39,7 +39,7 @@ struct WalletSetupSummaryCard: View {
         // Read again whenever settings change: an endpoint added, or the
         // switch below, changes whom the first refresh asks.
         .task(id: store.appSettings) { await reload() }
-        .sheet(isPresented: $isAddingEndpoint, onDismiss: { Task { await reload() } }) {
+        .pageSheet(isPresented: $isAddingEndpoint, onDismiss: { Task { await reload() } }) {
             NavigationStack {
                 AddCustomEndpointView(store: store, initialChain: chain)
                     .toolbar {

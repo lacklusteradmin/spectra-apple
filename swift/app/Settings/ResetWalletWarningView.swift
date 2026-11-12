@@ -48,7 +48,7 @@ struct ResetWalletWarningView: View {
             }
         }
         .navigationTitle(AppLocalization.string("Reset Wallet"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .confirmationDialog(
             AppLocalization.string("Delete the selected data?"), isPresented: $isConfirming, titleVisibility: .visible
         ) {

@@ -173,10 +173,10 @@ struct StakingValidatorPicker: View {
             }
             .background(SpectraBackdrop().ignoresSafeArea())
             .navigationTitle(AppLocalization.string("Validators"))
-            .navigationBarTitleDisplayMode(.inline).toolbarBackground(.hidden, for: .navigationBar)
+            .inlineNavigationTitle().clearNavigationBar()
             .searchable(text: $search)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .barTrailing) {
                     Button(AppLocalization.string("Done")) { dismiss() }
                 }
             }

@@ -40,14 +40,13 @@ extension AppState {
     /// Device-local inputs to core's refresh policy. Core owns the profile,
     /// cadence, last-run times and pending-send polling decisions.
     func deviceConditions() -> DeviceConditions {
-        let battery = UIDevice.current.batteryLevel
         return DeviceConditions(
             appIsActive: appIsActive,
             isNetworkReachable: isNetworkReachable,
             isConstrainedNetwork: isConstrainedNetwork,
             isExpensiveNetwork: isExpensiveNetwork,
             isLowPowerMode: ProcessInfo.processInfo.isLowPowerModeEnabled,
-            batteryLevel: battery < 0 ? 1.0 : battery,
+            batteryLevel: DeviceBattery.level ?? 1.0,
             // Prices are on screen only on the home tab.
             wantsPriceRefresh: selectedMainTab == .home)
     }

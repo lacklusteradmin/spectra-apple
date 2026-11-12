@@ -86,7 +86,7 @@ struct WalletOperationSheet<Fields: View, Summary: View>: View {
                 store: store, wallet: wallet, session: session,
                 authenticationReason: authenticationReason, submittedText: submittedText, canSign: canSign)
         }
-        .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(title).inlineNavigationTitle()
         .sendSheetDismissal(session: session) { dismiss() }
         .task { if formIsComplete == nil { await load() } }
     }

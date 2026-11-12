@@ -1,5 +1,9 @@
 import SwiftUI
 
+#if os(macOS)
+    import AppKit
+#endif
+
 struct ContentView: View {
     let store: AppState
     @Environment(\.scenePhase) private var scenePhase
@@ -9,32 +13,48 @@ struct ContentView: View {
     /// app is not active, whatever the lock settings, so the app switcher
     /// never shows balances or addresses; it lifts on return without asking
     /// anything of the user. The lock guards use and stays until unlocked.
+    ///
+    /// A Mac has no such snapshot: a window behind another app's is still a
+    /// window in use, read while typing elsewhere.
     private var cover: AppCover? {
-        if scenePhase != .active { return .snapshot }
+        #if os(iOS)
+            if scenePhase != .active { return .snapshot }
+        #endif
         if store.isAppLocked { return .locked }
         return store.storeStatus == .unreadable ? .unreadableStore : nil
     }
 
-    private func handleScenePhase(_ phase: ScenePhase) {
-        switch phase {
-        case .active:
-            store.setAppIsActive(true)
-            // The first activation is the launch, whose refresh is the
-            // engine's first tick; only the activities left from a previous
-            // run need settling.
-            let isLaunch = !hasBeenActive
-            hasBeenActive = true
-            Task {
-                if isLaunch { await store.notifications.reconcileSendLiveActivities(amounts: store.amounts) }
-                else { await store.refreshForForegroundIfNeeded() }
+    #if os(iOS)
+        private func handleScenePhase(_ phase: ScenePhase) {
+            switch phase {
+            case .active: handleAppActivity(true)
+            case .background: handleAppActivity(false)
+            // Not leaving the app: the Face ID sheet, Control Center and the
+            // app switcher all pass through here. Locking on it locked the
+            // app behind every authentication it asked for.
+            case .inactive: break
+            @unknown default: break
             }
-        case .background:
-            store.setAppIsActive(false)
-        // Not leaving the app: the Face ID sheet, Control Center and the app
-        // switcher all pass through here. Locking on it locked the app behind
-        // every authentication it asked for.
-        case .inactive: break
-        @unknown default: break
+        }
+    #endif
+
+    /// The app came to the user, or went away from them.
+    private func handleAppActivity(_ isActive: Bool) {
+        store.setAppIsActive(isActive)
+        guard isActive else { return }
+        // The first activation is the launch, whose refresh is the engine's
+        // first tick; only the activities left from a previous run need
+        // settling.
+        let isLaunch = !hasBeenActive
+        hasBeenActive = true
+        Task {
+            if isLaunch {
+                #if os(iOS)
+                    await store.notifications.reconcileSendLiveActivities(amounts: store.amounts)
+                #endif
+            } else {
+                await store.refreshForForegroundIfNeeded()
+            }
         }
     }
 
@@ -59,9 +79,58 @@ struct ContentView: View {
         }
         .preferredColorScheme(store.preferences.appearanceMode.colorScheme)
         .environment(\.locale, AppLocalization.locale)
-        .onChange(of: scenePhase, initial: true) { _, phase in handleScenePhase(phase) }
+        #if os(macOS)
+            .modifier(MacAppActivity(onChange: handleAppActivity))
+        #else
+            .onChange(of: scenePhase, initial: true) { _, phase in handleScenePhase(phase) }
+        #endif
     }
 }
+
+#if os(macOS)
+    /// When a Mac app is with its user and when it is away. Losing focus to
+    /// another app is neither: the window stays on screen and in use. Away is
+    /// the app hidden, its window in the Dock, the display asleep or the
+    /// login session switched out — where iOS would say background, and where
+    /// auto-lock locks.
+    private struct MacAppActivity: ViewModifier {
+        let onChange: (Bool) -> Void
+        @State private var away: Set<Reason> = []
+
+        private enum Reason { case hidden, minimized, displayAsleep, sessionInactive }
+
+        func body(content: Content) -> some View {
+            content
+                .onAppear { onChange(true) }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didHideNotification)) { _ in
+                    set(.hidden, true)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didUnhideNotification)) { _ in
+                    set(.hidden, false)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSWindow.didMiniaturizeNotification)) { _ in
+                    set(.minimized, true)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSWindow.didDeminiaturizeNotification)) { _ in
+                    set(.minimized, false)
+                }
+                .onReceive(workspace(NSWorkspace.screensDidSleepNotification)) { _ in set(.displayAsleep, true) }
+                .onReceive(workspace(NSWorkspace.screensDidWakeNotification)) { _ in set(.displayAsleep, false) }
+                .onReceive(workspace(NSWorkspace.sessionDidResignActiveNotification)) { _ in set(.sessionInactive, true) }
+                .onReceive(workspace(NSWorkspace.sessionDidBecomeActiveNotification)) { _ in set(.sessionInactive, false) }
+        }
+
+        private func workspace(_ name: Notification.Name) -> NotificationCenter.Publisher {
+            NSWorkspace.shared.notificationCenter.publisher(for: name)
+        }
+
+        private func set(_ reason: Reason, _ isAway: Bool) {
+            let wasActive = away.isEmpty
+            if isAway { away.insert(reason) } else { away.remove(reason) }
+            if away.isEmpty != wasActive { onChange(away.isEmpty) }
+        }
+    }
+#endif
 
 private enum AppCover: Equatable {
     case snapshot, locked, unreadableStore

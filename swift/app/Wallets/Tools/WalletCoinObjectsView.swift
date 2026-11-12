@@ -26,10 +26,10 @@ struct WalletCoinObjectsView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.coinObjects.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.coinObjects.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(item: $merging, onDismiss: { Task { await load() } }) { type in
+        .pageSheet(item: $merging, onDismiss: { Task { await load() } }) { type in
             NavigationStack { MergeCoinsView(store: store, wallet: wallet, type: type) }
         }
     }

@@ -287,9 +287,9 @@ struct SetupView: View {
                 .scrollBounceBehavior(.basedOnSize)
             }
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .safeAreaBar(edge: .bottom) { setupBottomActionBar }
-        .toolbar(.hidden, for: .tabBar)
+        .hidesTabBar()
         .navigationDestination(item: $nextPage) { page in
             SetupView(store: store, draft: draft, page: page)
         }

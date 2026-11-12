@@ -29,14 +29,14 @@ struct WalletMwebFundsView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.mwebFunds.title).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(WalletAction.mwebFunds.title).inlineNavigationTitle()
         .task(id: wallet.id) { await load() }
         .task(id: scan.requestId) {
             guard let request = scan.requestId else { return }
             await run(request)
         }
         .onDisappear { scan.cancel() }
-        .sheet(item: $flow, onDismiss: { Task { await load() } }) { flow in
+        .pageSheet(item: $flow, onDismiss: { Task { await load() } }) { flow in
             NavigationStack { MwebTransactionView(store: store, wallet: wallet, flow: flow) }
         }
     }
@@ -94,7 +94,7 @@ struct WalletMwebFundsView: View {
         Section {
             QRCodeImage(address: address).frame(maxWidth: 220).frame(maxWidth: .infinity)
             Text(verbatim: address).font(.caption.monospaced()).textSelection(.enabled)
-            Button(AppLocalization.string("Copy Address")) { UIPasteboard.general.string = address }
+            Button(AppLocalization.string("Copy Address")) { copyToPasteboard(address) }
         } header: {
             Text(AppLocalization.string("MWEB Address"))
         } footer: {

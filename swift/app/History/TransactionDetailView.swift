@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 /// One stored transfer, most-read first: what moved and where it stands, the
 /// one action a pending send may still take, how it got there, who was on
 /// each end, and the few facts a reader checks. Everything else — gas, paths,
@@ -40,11 +39,11 @@ struct TransactionDetailView: View {
                     technicalDetailsCard
                 }.spectraScreenPadding()
             }
-        }.navigationTitle(AppLocalization.string("Transaction")).navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+        }.navigationTitle(AppLocalization.string("Transaction")).inlineNavigationTitle()
+            .clearNavigationBar()
             .task(id: refreshKey) { await rebuildDisplayedTransactionState() }
             .task(id: transaction.id) { await loadPaymentProof() }
-            .sheet(isPresented: $isShowingPaymentProof) {
+            .pageSheet(isPresented: $isShowingPaymentProof) {
                 if let paymentProof {
                     NavigationStack { MoneroPaymentProofView(proof: paymentProof) }
                 }
@@ -578,7 +577,7 @@ private struct CopyableValueRow<Content: View>: View {
 
     var body: some View {
         Button {
-            UIPasteboard.general.string = value
+            copyToPasteboard(value)
             didCopy = true
             spectraHaptic(.light)
         } label: {

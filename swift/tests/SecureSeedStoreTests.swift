@@ -11,6 +11,8 @@ struct SecureSeedStoreTests {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
             kSecAttrAccount as String: account, kSecReturnData as String: true,
+            // The store's keychain: on a Mac an unnamed query reads the login keychain.
+            kSecUseDataProtectionKeychain as String: true,
         ]
         var result: AnyObject?
         let status = SecItemCopyMatching(query as CFDictionary, &result)
@@ -63,6 +65,7 @@ struct SecureSeedStoreTests {
         #expect(try adapter.unwrapDeviceKey(wrapped: wrapped) == key)
         let keyQuery: [String: Any] = [
             kSecClass as String: kSecClassKey, kSecAttrApplicationTag as String: DeviceKeyWrapping.tag,
+            kSecUseDataProtectionKeychain as String: true,
         ]
         #expect(SecItemCopyMatching(keyQuery as CFDictionary, nil) == errSecSuccess, "the wrapping key is a Keychain key, not data")
     }

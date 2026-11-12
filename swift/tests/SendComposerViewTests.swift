@@ -1,7 +1,6 @@
 import Foundation
 import Testing
 import SwiftUI
-import UIKit
 
 @testable import Spectra
 
@@ -20,15 +19,8 @@ struct SendComposerViewTests: IsolatedAppStateSuite {
             ("05 Recipient accessibility3 dark", .recipient, .dark, .accessibility3, "0.25"),
             ("06 Long amount accessibility3 dark", .amount, .dark, .accessibility3, "0.250000000000000001")
         ]
-        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
-        let previousWindow = scene.windows.first(where: \.isKeyWindow)
-        let window = UIWindow(windowScene: scene)
-        window.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
-        defer {
-            window.isHidden = true
-            window.rootViewController = nil
-            previousWindow?.makeKey()
-        }
+        let window = try RenderWindow(takesKey: true)
+        defer { window.close() }
 
         for (name, page, appearance, typeSize, amount) in cases {
             state.sendFlow.amount = amount
@@ -43,56 +35,40 @@ struct SendComposerViewTests: IsolatedAppStateSuite {
                     }
                 }
                 .navigationTitle(AppLocalization.string("Send"))
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbarBackground(.hidden, for: .navigationBar)
+                .inlineNavigationTitle()
+                .clearNavigationBar()
             }
             .environment(\.colorScheme, appearance)
             .environment(\.dynamicTypeSize, typeSize)
-            let controller = UIHostingController(rootView: view)
-            controller.overrideUserInterfaceStyle = appearance == .dark ? .dark : .light
-            window.rootViewController = controller
-            window.makeKeyAndVisible()
+            window.show(view, colorScheme: appearance)
             try await Task.sleep(for: .milliseconds(350))
-            window.layoutIfNeeded()
+            window.layout()
             // Flush the first native render, then give the local core holder
             // lookup and its SwiftUI update a separate layout pass.
-            _ = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
-                _ = window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
-            }
+            window.render()
             try await Task.sleep(for: .milliseconds(750))
-            window.layoutIfNeeded()
-            try recordRender(window: window, name: name)
+            window.layout()
+            try window.record(named: name)
 
-            if typeSize.isAccessibilitySize {
-                let scrollView = try #require(scrollViews(in: controller.view)
-                    .filter { $0.contentSize.height > $0.bounds.height }
-                    .max { $0.bounds.height < $1.bounds.height })
-                let bottom = max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.adjustedContentInset.bottom)
-                scrollView.setContentOffset(CGPoint(x: scrollView.contentOffset.x, y: bottom), animated: false)
-                try await Task.sleep(for: .milliseconds(200))
-                window.layoutIfNeeded()
-                try recordRender(window: window, name: "\(name) bottom")
-            }
+            // A Mac has no Dynamic Type for a page to outgrow its screen in.
+            #if os(iOS)
+                if typeSize.isAccessibilitySize {
+                    let scrollView = try #require(window.scrollViews
+                        .filter { $0.contentSize.height > $0.bounds.height }
+                        .max { $0.bounds.height < $1.bounds.height })
+                    let bottom = max(0, scrollView.contentSize.height - scrollView.bounds.height + scrollView.adjustedContentInset.bottom)
+                    scrollView.setContentOffset(CGPoint(x: scrollView.contentOffset.x, y: bottom), animated: false)
+                    try await Task.sleep(for: .milliseconds(200))
+                    window.layout()
+                    try window.record(named: "\(name) bottom")
+                }
+            #endif
 
             #expect(state.sendFlow.amount == amount, "Rendering must leave the entered precision intact")
             #expect(state.sendFlow.address == recipient, "Rendering must leave the full recipient intact")
             #expect(state.sendFlow.session.artifact == nil, "Rendering must not build or sign a transaction")
             #expect(state.sendFlow.session.selectedEndpoints.isEmpty, "Rendering must not choose broadcast destinations")
         }
-    }
-
-    private func recordRender(window: UIWindow, name: String) throws {
-        let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
-            #expect(window.drawHierarchy(in: window.bounds, afterScreenUpdates: true))
-        }
-        let pixels = try #require(image.cgImage?.dataProvider?.data) as Data
-        #expect(Set(pixels).count > 16, "The attachment must contain rendered content")
-        Attachment.record(image, named: name)
-    }
-
-    private func scrollViews(in view: UIView) -> [UIScrollView] {
-        let own = (view as? UIScrollView).map { [$0] } ?? []
-        return own + view.subviews.flatMap { scrollViews(in: $0) }
     }
 
     private enum ComposerPage {

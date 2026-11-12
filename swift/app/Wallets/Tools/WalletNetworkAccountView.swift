@@ -30,10 +30,10 @@ struct WalletNetworkAccountView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.networkAccount.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.networkAccount.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(isPresented: $isClosing, onDismiss: { Task { await load() } }) {
+        .pageSheet(isPresented: $isClosing, onDismiss: { Task { await load() } }) {
             NavigationStack { CloseAccountView(store: store, wallet: wallet) }
         }
     }

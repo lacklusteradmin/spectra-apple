@@ -34,10 +34,10 @@ struct WalletTokenStorageView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.tokenStorage.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.tokenStorage.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(item: $refunding, onDismiss: { Task { await load() } }) { deposit in
+        .pageSheet(item: $refunding, onDismiss: { Task { await load() } }) { deposit in
             NavigationStack { RefundTokenStorageView(store: store, wallet: wallet, deposit: deposit) }
         }
     }

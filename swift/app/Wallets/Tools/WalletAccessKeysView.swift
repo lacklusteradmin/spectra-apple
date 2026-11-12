@@ -40,10 +40,10 @@ struct WalletAccessKeysView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.accessKeys.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.accessKeys.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(item: $deleting, onDismiss: { Task { await load() } }) { key in
+        .pageSheet(item: $deleting, onDismiss: { Task { await load() } }) { key in
             NavigationStack { DeleteAccessKeyView(store: store, wallet: wallet, key: key) }
         }
     }

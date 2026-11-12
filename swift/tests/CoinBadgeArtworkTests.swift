@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 import Testing
 
 @testable import Spectra
@@ -13,7 +12,7 @@ struct CoinBadgeArtworkTests {
     /// row that is behaving correctly.
     private func assertDrawsItsMark(_ badge: CoinBadge, _ what: @autoclosure () -> String) {
         guard !badge.artworkName.isEmpty else { return }
-        #expect(UIImage(named: badge.artworkName) != nil, "\(what()) drew a letter, not its mark")
+        #expect(PlatformImage(named: badge.artworkName) != nil, "\(what()) drew a letter, not its mark")
     }
 
     @Test func catalogTokenIdentityLoadsItsArtwork() {
@@ -42,7 +41,7 @@ struct CoinBadgeArtworkTests {
         for chain in CoreReferenceTables.chainWiki {
             let badge = CoinBadge(
                 artworkName: chain.face.artworkName, fallbackText: chain.name, color: .orange)
-            #expect(UIImage(named: badge.artworkName) != nil, "\(chain.name)'s wiki face drew a letter")
+            #expect(PlatformImage(named: badge.artworkName) != nil, "\(chain.name)'s wiki face drew a letter")
         }
     }
 
@@ -54,7 +53,7 @@ struct CoinBadgeArtworkTests {
             let native = try #require(AssetHolding.nativeChainBadge(for: chain), "\(chain.displayName)")
             let badge = CoinBadge(
                 artworkName: native.artworkName, fallbackText: chain.gasTokenSymbol, color: native.color)
-            #expect(UIImage(named: badge.artworkName) != nil, "\(chain.displayName) drew a letter")
+            #expect(PlatformImage(named: badge.artworkName) != nil, "\(chain.displayName) drew a letter")
         }
         let base = CoinBadge(
             artworkName: Chain.base.entry?.artworkName,

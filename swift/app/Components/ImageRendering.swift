@@ -1,8 +1,6 @@
 import Foundation
 import SwiftUI
 
-import UIKit
-
 // MARK: ─ Icon helpers
 
 /// Chain/token badge. Renders the bundled chain artwork when one exists;
@@ -11,7 +9,7 @@ import UIKit
 struct CoinBadge: View {
     /// The bundled artwork to draw, empty when the coin ships none. Not
     /// private: `CoinBadgeArtworkTests` asserts every coin the app can hold
-    /// resolves to one that `UIImage(named:)` can load, and the resolution is
+    /// resolves to one that `PlatformImage(named:)` can load, and the resolution is
     /// the whole of what broke.
     let artworkName: String
     private let fallbackText: String
@@ -27,10 +25,10 @@ struct CoinBadge: View {
     }
 
     var body: some View {
-        let displayImage: UIImage? = artworkName.isEmpty ? nil : UIImage(named: artworkName)
+        let displayImage: PlatformImage? = artworkName.isEmpty ? nil : PlatformImage(named: artworkName)
         return Group {
             if let displayImage {
-                Image(uiImage: displayImage).resizable().interpolation(.high).scaledToFit().frame(width: size, height: size)
+                Image(platformImage: displayImage).resizable().interpolation(.high).scaledToFit().frame(width: size, height: size)
             } else {
                 letterFallback
             }

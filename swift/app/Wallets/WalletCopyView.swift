@@ -53,17 +53,17 @@ struct WalletCopyView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(SpectraBackdrop().ignoresSafeArea())
-        .navigationTitle(WalletAction.addToNetwork.title).navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationTitle(WalletAction.addToNetwork.title).inlineNavigationTitle()
+        .clearNavigationBar()
         .task { await loadTargets() }
         // The chosen network's form opens over the list, where it is seen,
         // rather than above a row the list may have scrolled far from.
-        .sheet(isPresented: Binding(get: { chain != nil && added == nil }, set: { if !$0 { chain = nil } })) {
+        .pageSheet(isPresented: Binding(get: { chain != nil && added == nil }, set: { if !$0 { chain = nil } })) {
             if let chain {
                 NavigationStack {
                     ScrollView(showsIndicators: false) { form(chain).spectraScreenPadding() }
                         .background(SpectraBackdrop().ignoresSafeArea())
-                        .navigationTitle(chain.displayName).navigationBarTitleDisplayMode(.inline)
+                        .navigationTitle(chain.displayName).inlineNavigationTitle()
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button(AppLocalization.string("Cancel")) { self.chain = nil }

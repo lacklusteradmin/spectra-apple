@@ -28,10 +28,10 @@ struct WalletSecretStep: View {
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.m) { walletSecretStepSection }
             }
         }
-        .sheet(isPresented: $isShowingDerivationOptions) {
+        .pageSheet(isPresented: $isShowingDerivationOptions) {
             WalletDerivationOptionsView(draft: draft)
         }
-        .sheet(isPresented: $isFindingUsedAccounts) {
+        .pageSheet(isPresented: $isFindingUsedAccounts) {
             UsedAccountsSheet(store: store, draft: draft)
         }
         .onDisappear { isPhraseRevealed = false }

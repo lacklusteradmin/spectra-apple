@@ -26,7 +26,7 @@ struct MoneroPaymentProofView: View {
                 Text(AppLocalization.string("Any Monero wallet checks the proof with its transaction-key check, such as this command in monero-wallet-cli."))
             }
         }
-        .navigationTitle(AppLocalization.string("Payment Proof")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(AppLocalization.string("Payment Proof")).inlineNavigationTitle()
         // "Copied" says so for a moment, then the row is ready to copy again.
         .task(id: copied) {
             guard copied != nil else { return }
@@ -35,7 +35,7 @@ struct MoneroPaymentProofView: View {
             copied = nil
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button(AppLocalization.string("Done")) { dismiss() }
             }
         }
@@ -43,7 +43,7 @@ struct MoneroPaymentProofView: View {
 
     private func copyRow(_ title: String, _ value: String) -> some View {
         Button {
-            UIPasteboard.general.string = value
+            copyToPasteboard(value)
             copied = value
             spectraHaptic(.light)
         } label: {

@@ -37,12 +37,12 @@ struct TokenRegistryDetailView: View {
                     .spectraScreenPadding()
                 }
                 .background(SpectraBackdrop().ignoresSafeArea())
-                .toolbarBackground(.hidden, for: .navigationBar)
+                .clearNavigationBar()
                 .navigationTitle(entry.token.symbol)
-                .navigationBarTitleDisplayMode(.inline)
+                .inlineNavigationTitle()
                 .toolbar {
                     if !entry.isBuiltIn {
-                        ToolbarItem(placement: .topBarTrailing) {
+                        ToolbarItem(placement: .barTrailing) {
                             NavigationLink(AppLocalization.string("Edit")) {
                                 AddCustomTokenView(tokens: tokens, editing: entry)
                             }

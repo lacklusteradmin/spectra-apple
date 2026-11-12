@@ -29,11 +29,11 @@ struct AssetGroupDetailView: View {
                 }
             }.spectraScreenPadding()
         }.background(SpectraBackdrop().ignoresSafeArea())
-            .navigationTitle(assetGroup?.symbol ?? "").navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationTitle(assetGroup?.symbol ?? "").inlineNavigationTitle()
+            .clearNavigationBar()
             .toolbar {
                 if isKnownToken {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItem(placement: .barTrailing) {
                         NavigationLink {
                             TokenRegistryDetailView(tokens: store.tokenPreferences, groupKey: assetGroupId)
                         } label: {
@@ -43,7 +43,7 @@ struct AssetGroupDetailView: View {
                     }
                 }
             }
-            .refreshable { await store.performUserInitiatedRefresh() }
+            .pageRefreshable { await store.performUserInitiatedRefresh() }
     }
 }
 /// Send and Receive for this asset, from the wallets that can: Send opens on

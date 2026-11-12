@@ -13,8 +13,8 @@ struct AboutView: View {
                     aboutNarrativeCard
                 }.spectraScreenPadding()
             }
-        }.navigationTitle(AppLocalization.string("About Spectra")).navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar).onAppear {
+        }.navigationTitle(AppLocalization.string("About Spectra")).inlineNavigationTitle()
+            .clearNavigationBar().onAppear {
             isAnimatingHero = true
         }.onDisappear {
             // Stop the infinite rotation so the GPU isn't animating an

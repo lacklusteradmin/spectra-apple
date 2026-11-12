@@ -1,5 +1,8 @@
 import SwiftUI
-import UIKit
+
+#if os(iOS)
+    import UIKit
+#endif
 private struct SpectraInputFieldChrome: ViewModifier {
     let cornerRadius: CGFloat
     let borderColor: Color?
@@ -68,34 +71,60 @@ extension Color {
 // exists only to be mutated — more state for the same tap. Feedback driven by
 // a value changing rather than by a tap does use `.sensoryFeedback`; see the
 // tag picker in `CryptoWikiViews`.
-@MainActor
-private enum SpectraHaptics {
-    private static var impactByStyle: [UIImpactFeedbackGenerator.FeedbackStyle: UIImpactFeedbackGenerator] = [:]
-    private static let notification = UINotificationFeedbackGenerator()
+//
+// A Mac has no Taptic Engine under a click, so both calls do nothing there.
 
-    static func impact(_ style: UIImpactFeedbackGenerator.FeedbackStyle) {
-        let generator: UIImpactFeedbackGenerator
-        if let existing = impactByStyle[style] {
-            generator = existing
-        } else {
-            generator = UIImpactFeedbackGenerator(style: style)
-            impactByStyle[style] = generator
+/// How hard a tap's feedback lands.
+enum SpectraHapticImpact { case light, medium, heavy }
+/// What a finished action's feedback says about it.
+enum SpectraHapticOutcome { case success, warning, error }
+
+#if os(iOS)
+    @MainActor
+    private enum SpectraHaptics {
+        private static var impactByStyle: [SpectraHapticImpact: UIImpactFeedbackGenerator] = [:]
+        private static let notification = UINotificationFeedbackGenerator()
+
+        static func impact(_ impact: SpectraHapticImpact) {
+            let generator: UIImpactFeedbackGenerator
+            if let existing = impactByStyle[impact] {
+                generator = existing
+            } else {
+                let style: UIImpactFeedbackGenerator.FeedbackStyle
+                switch impact {
+                case .light: style = .light
+                case .medium: style = .medium
+                case .heavy: style = .heavy
+                }
+                generator = UIImpactFeedbackGenerator(style: style)
+                impactByStyle[impact] = generator
+            }
+            generator.impactOccurred()
+            generator.prepare()
         }
-        generator.impactOccurred()
-        generator.prepare()
-    }
 
-    static func notify(_ type: UINotificationFeedbackGenerator.FeedbackType) {
-        notification.notificationOccurred(type)
-        notification.prepare()
+        static func notify(_ outcome: SpectraHapticOutcome) {
+            let type: UINotificationFeedbackGenerator.FeedbackType
+            switch outcome {
+            case .success: type = .success
+            case .warning: type = .warning
+            case .error: type = .error
+            }
+            notification.notificationOccurred(type)
+            notification.prepare()
+        }
     }
-}
+#endif
 
-@MainActor func spectraHaptic(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
-    SpectraHaptics.impact(style)
+@MainActor func spectraHaptic(_ impact: SpectraHapticImpact = .medium) {
+    #if os(iOS)
+        SpectraHaptics.impact(impact)
+    #endif
 }
-@MainActor func spectraNotificationHaptic(_ type: UINotificationFeedbackGenerator.FeedbackType = .success) {
-    SpectraHaptics.notify(type)
+@MainActor func spectraNotificationHaptic(_ outcome: SpectraHapticOutcome = .success) {
+    #if os(iOS)
+        SpectraHaptics.notify(outcome)
+    #endif
 }
 
 // MARK: — Shimmer loading placeholder

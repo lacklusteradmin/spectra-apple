@@ -15,5 +15,8 @@ struct SpectraBottomActionBar<Content: View>: View {
         HStack(spacing: SpectraLayout.Space.m) { content }
             .padding(.horizontal, SpectraLayout.Space.l)
             .padding(.vertical, SpectraLayout.Space.s)
+            // As wide as the page's column above it, and centered under it.
+            .frame(maxWidth: SpectraLayout.pageMaxWidth)
+            .frame(maxWidth: .infinity)
     }
 }

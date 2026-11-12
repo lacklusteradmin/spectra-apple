@@ -2,8 +2,8 @@ import LocalAuthentication
 
 /// What this device proves its owner with, named as the device names it:
 /// every prompt and switch says Touch ID on a Touch ID phone. A device with
-/// no biometry falls back to its passcode, which the authentication policy
-/// accepts too.
+/// no biometry falls back to its passcode — a Mac's login password — which
+/// the authentication policy accepts too.
 enum DeviceBiometry {
     case faceID, touchID, opticID, passcode
 
@@ -27,7 +27,12 @@ enum DeviceBiometry {
         case .faceID: AppLocalization.string("Face ID")
         case .touchID: AppLocalization.string("Touch ID")
         case .opticID: AppLocalization.string("Optic ID")
-        case .passcode: AppLocalization.string("Passcode")
+        case .passcode:
+            #if os(macOS)
+                AppLocalization.string("Login Password")
+            #else
+                AppLocalization.string("Passcode")
+            #endif
         }
     }
 

@@ -17,8 +17,8 @@ struct ChainWikiDetailView: View {
             .spectraScreenPadding()
         }
         .background(SpectraBackdrop().ignoresSafeArea())
-        .navigationTitle(chain.name).navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationTitle(chain.name).inlineNavigationTitle()
+        .clearNavigationBar()
     }
 
     private var wikiHeroCard: some View {

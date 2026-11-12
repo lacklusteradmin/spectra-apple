@@ -1,7 +1,6 @@
 import Foundation
 import Testing
 import SwiftUI
-import UIKit
 @testable import Spectra
 
 @MainActor
@@ -46,30 +45,17 @@ struct SendStagesViewTests: IsolatedAppStateSuite {
         state.sendFlow.session.progress = progress
         let view = ScrollView {
             SendStagesView(store: state, progress: progress).padding()
-        }.frame(width: 393, height: 852).background(Color(.systemBackground))
-        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
-        let window = UIWindow(windowScene: scene)
-        window.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
-        window.rootViewController = UIHostingController(rootView: view)
+        }.frame(width: RenderWindow.phoneSize.width, height: RenderWindow.phoneSize.height).background(.background)
         // This independent render window never takes another parallel suite's key window.
-        window.isHidden = false
-        defer {
-            window.isHidden = true
-            window.rootViewController = nil
-        }
+        let window = try RenderWindow()
+        defer { window.close() }
         // Lay out the hosting hierarchy before allowing its native compositor
         // to settle. Taking the first layout and snapshot together can omit glyphs.
-        window.rootViewController?.view.layoutIfNeeded()
-        window.layoutIfNeeded()
+        window.show(view)
         try await Task.sleep(for: .milliseconds(300))
-        window.layoutIfNeeded()
+        window.layout()
         try await Task.sleep(for: .milliseconds(100))
-        let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
-            #expect(window.drawHierarchy(in: window.bounds, afterScreenUpdates: true))
-        }
-        let pixels = try #require(image.cgImage?.dataProvider?.data) as Data
-        #expect(Set(pixels).count > 16, "The render must contain content, not an empty canvas")
-        Attachment.record(image, named: "Send stage: \(stage.rawValue)")
+        try window.record(named: "Send stage: \(stage.rawValue)")
         #expect(state.sendFlow.session.selectedEndpoints.isEmpty, "Rendering must not select destinations or submit")
         #expect(state.sendFlow.session.artifact == artifact, "Rendering must leave the durable send unchanged")
     }

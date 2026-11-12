@@ -145,9 +145,9 @@ struct AllChainsSelectionView<Footer: View>: View {
                 .spectraScreenPadding()
             }
             .navigationTitle(AppLocalization.string("Chain Info"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .barTrailing) {
                     Button(AppLocalization.string("Done")) { isShowingInfo = false }
                 }
             }
@@ -166,10 +166,10 @@ struct AllChainsSelectionView<Footer: View>: View {
             }
         }
         .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .inlineNavigationTitle()
+        .clearNavigationBar()
         .searchable(
-            text: $chainSearchText, placement: .navigationBarDrawer(displayMode: .always),
+            text: $chainSearchText, placement: .alwaysVisible,
             prompt: AppLocalization.string("import_flow.search_chains")
         )
         .textInputAutocapitalization(.never).autocorrectionDisabled()
@@ -177,15 +177,15 @@ struct AllChainsSelectionView<Footer: View>: View {
         .sensoryFeedback(.selection, trigger: order)
         .sensoryFeedback(.selection, trigger: showsTestNetworks)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) { toolbarMenu }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) { toolbarMenu }
+            ToolbarItem(placement: .barTrailing) {
                 Button { isShowingInfo = true } label: {
                     Image(systemName: "info.circle")
                 }
                 .accessibilityLabel(AppLocalization.string("Chain Info"))
             }
         }
-        .sheet(isPresented: $isShowingInfo) { gasTokenInfoSheet }
+        .pageSheet(isPresented: $isShowingInfo) { gasTokenInfoSheet }
     }
 }
 

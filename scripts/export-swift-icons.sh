@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Syncs all icon sources from icons/ into swift/Assets.xcassets/:
 #
-#   icons/appicon/ → AppIcon.appiconset/ (SVG → 1024×1024 PNG)
+#   icons/appicon/ → AppIcon.appiconset/ (SVG → 1024×1024 PNG, and the
+#                    light icon again in the Mac's shape and sizes)
 #   icons/crypto/  → crypto/             (SVG imageset, no namespace)
 #
 # Rules (crypto):
@@ -13,6 +14,9 @@
 # Rules (appicon):
 #   - Converts each SVG to a 1024×1024 PNG using ImageMagick.
 #   - Only writes the PNG when the source SVG is newer than it.
+#   - Renders SpectraLogo-Light.svg as SpectraLogo-Mac-<pixels>.png for macOS:
+#     a Mac icon is not masked by the system, so the artwork is cut to the
+#     Mac's rounded rectangle inside its margin.
 #   - Never touches Contents.json.
 set -euo pipefail
 
@@ -155,10 +159,39 @@ sync_appicon() {
   echo "  [appicon] done: $converted converted, $skipped up-to-date."
 }
 
+# The pixel sizes a Mac icon ships in: 16 to 512 points, at 1x and 2x.
+MAC_ICON_PIXELS=(16 32 64 128 256 512 1024)
+
+# Render the light icon in the Mac icon grid: on a 1024 canvas the artwork is
+# an 824×824 rounded rectangle with a 100-pixel margin all round.
+sync_macicon() {
+  local svg_path="$1/SpectraLogo-Light.svg" dest="$2"
+  require_convert
+  local converted=0 skipped=0
+
+  for pixels in "${MAC_ICON_PIXELS[@]}"; do
+    local png_path="$dest/SpectraLogo-Mac-${pixels}.png"
+    if [[ -f "$png_path" && ! "$svg_path" -nt "$png_path" ]]; then
+      ((skipped += 1))
+      continue
+    fi
+    $MAGICK_BIN -density 144 -background none "$svg_path" -resize 824x824 \
+      \( -size 824x824 xc:none -fill white -draw "roundrectangle 0,0 823,823 185,185" \) \
+      -alpha set -compose DstIn -composite \
+      -compose Over -background none -gravity center -extent 1024x1024 \
+      -resize "${pixels}x${pixels}" -depth 8 "$png_path"
+    echo "  [appicon] converted SpectraLogo-Light → SpectraLogo-Mac-${pixels}.png"
+    ((converted += 1))
+  done
+
+  echo "  [appicon] mac done: $converted converted, $skipped up-to-date."
+}
+
 # ── main ───────────────────────────────────────────────────────────────────────
 
 echo "syncing appicon..."
 sync_appicon "$APPICON_SRC" "$APPICON_DEST"
+sync_macicon "$APPICON_SRC" "$APPICON_DEST"
 
 echo "syncing crypto..."
 sync_svg_group "$CRYPTO_SRC" "$CRYPTO_DEST" "crypto"

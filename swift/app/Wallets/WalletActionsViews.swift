@@ -130,7 +130,7 @@ struct WalletNetworkActionsCard: View {
                         }
                         Spacer(minLength: SpectraLayout.Space.s)
                         Image(systemName: "chevron.right").font(.footnote.weight(.semibold))
-                            .foregroundStyle(Color(.tertiaryLabel))
+                            .foregroundStyle(.tertiary)
                     }.padding(.vertical, SpectraLayout.Space.s).contentShape(Rectangle())
                 }.buttonStyle(.plain)
             }

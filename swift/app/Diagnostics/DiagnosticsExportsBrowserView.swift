@@ -22,8 +22,8 @@ struct DiagnosticsExportsBrowserView: View {
                         }.padding(.vertical, SpectraLayout.Space.xs)
                     }.onDelete(perform: deleteExports)
                 }
-            }.navigationTitle(AppLocalization.string("Past Exports")).navigationBarTitleDisplayMode(.inline).toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+            }.navigationTitle(AppLocalization.string("Past Exports")).inlineNavigationTitle().toolbar {
+                ToolbarItem(placement: .barLeading) {
                     Button(AppLocalization.string("Done")) {
                         dismiss()
                     }

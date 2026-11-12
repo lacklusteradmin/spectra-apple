@@ -1,5 +1,8 @@
 import SwiftUI
-import UIKit
+
+#if os(iOS)
+    import UIKit
+#endif
 
 /// The card a page brings into view when the keyboard comes up: the one
 /// holding the field being typed in, scrolled to the top of what the keyboard
@@ -35,17 +38,22 @@ private struct KeyboardAnchorScroller: ViewModifier {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
-        content
-            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
-                isKeyboardUp = true
-                scrollToAnchor()
-            }
-            .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
-                isKeyboardUp = false
-            }
-            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { _ in
-                if isKeyboardUp { scrollToAnchor() }
-            }
+        #if os(macOS)
+            // A Mac's keyboard covers nothing.
+            content
+        #else
+            content
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardDidShowNotification)) { _ in
+                    isKeyboardUp = true
+                    scrollToAnchor()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { _ in
+                    isKeyboardUp = false
+                }
+                .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { _ in
+                    if isKeyboardUp { scrollToAnchor() }
+                }
+        #endif
     }
 
     private func scrollToAnchor() {

@@ -70,7 +70,9 @@ struct PlatformNotifications {
         for change in changes where change.statusChanged {
             guard let transaction = try? await bridge.ready().transaction(id: change.id) else { continue }
             if change.notify { await postTransactionStatus(transaction, newStatus: change.newStatus) }
-            await finishSendLiveActivity(for: transaction, newStatus: change.newStatus, amounts: amounts)
+            #if os(iOS)
+                await finishSendLiveActivity(for: transaction, newStatus: change.newStatus, amounts: amounts)
+            #endif
         }
     }
     private func postTransactionStatus(_ transaction: TransactionRecord, newStatus: TransactionStatus) async {

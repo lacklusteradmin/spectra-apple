@@ -20,8 +20,8 @@ struct WalletCoinsView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.coins.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.coins.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
     }
 
@@ -99,7 +99,7 @@ struct WalletCoinsView: View {
 
     private func addressText(_ address: String) -> some View {
         Button {
-            UIPasteboard.general.string = address
+            copyToPasteboard(address)
             copiedAddress = address
             spectraHaptic(.light)
         } label: {

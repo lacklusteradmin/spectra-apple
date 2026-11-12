@@ -54,7 +54,7 @@ struct TorSettingsView: View {
             if !store.appSettings.torUseCustomProxy { aboutSection }
         }
         .navigationTitle(AppLocalization.string("Tor Network"))
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .clearNavigationBar()
         .onAppear { editingProxyAddress = store.appSettings.torCustomProxyAddress }
     }
 

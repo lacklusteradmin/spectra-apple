@@ -33,10 +33,10 @@ struct WalletApprovalsView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.tokenApprovals.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.tokenApprovals.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(item: $revoking, onDismiss: { Task { await load() } }) { approval in
+        .pageSheet(item: $revoking, onDismiss: { Task { await load() } }) { approval in
             NavigationStack { RevokeApprovalView(store: store, wallet: wallet, approval: approval) }
         }
     }

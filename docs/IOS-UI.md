@@ -4,7 +4,9 @@ Spectra uses the current iOS design system: system typography, rich color and
 Liquid Glass. Liquid Glass is how iOS looks, not a version-gated opt-in, so this
 document names no iOS version — the deployment target lives in the Xcode project.
 
-This document is the source of truth for Spectra's iOS UI rules.
+This document is the source of truth for Spectra's iOS UI rules. The Mac app is
+the same views built for macOS, so every rule here holds there too;
+[macOS](#macos) lists what the Mac does differently.
 
 ## Product decision
 
@@ -23,7 +25,7 @@ Official references:
 
 - **Backdrop:** Keep `SpectraBackdrop` behind every top-level tab. Re-add it at main business detail roots such as asset, wallet, staking, and receive destinations. Settings-style utility details may continue to use system `Form` layouts. Its ground is neutral and its clouds are faint — the accent and one cool counterweight — because a saturated or many-hued wash tints every card above it, pulls secondary text toward its hue and competes with the accent. The clouds drift slowly and must stay slow: motion that draws the eye competes with the content on the glass above it. The backdrop holds still under Reduce Motion and in Low Power Mode.
 - **Top-level tabs:** Use `ScrollView` plus glass cards with internal dividers. Do not use `List(.insetGrouped)` or `Form` for a main tab.
-- **Chrome:** Hide the navigation bar background with `.toolbarBackground(.hidden, for: .navigationBar)` when content should scroll beneath it.
+- **Chrome:** Hide the navigation bar background with `.clearNavigationBar()` when content should scroll beneath it, and put a detail's title in the bar with `.inlineNavigationTitle()`. A toolbar item sits at `.barLeading` or `.barTrailing`, and a search field that must stay on screen at `.alwaysVisible`.
 - **Toolbar actions:** Use standard `ToolbarItem` buttons and menus. The system places toolbar items on Liquid Glass automatically, so do not add `.buttonStyle(.glass)` inside a toolbar.
 - **Cards:** Use a subtle white glass tint, and only these two steps.
   `SpectraLayout.GlassTint.elevated` (`0.04`) covers hero and header cards.
@@ -54,8 +56,10 @@ Official references:
   `.safeAreaBar(edge: .bottom)` holding a `SpectraBottomActionBar`, which draws
   no background or divider of its own; the content scrolls under it and the
   bar rises with the keyboard. A flow hides the tab bar with
-  `.toolbar(.hidden, for: .tabBar)`, and Back in a multi-step flow is a step
-  back, never the whole flow.
+  `.hidesTabBar()`, and Back in a multi-step flow is a step back, never the
+  whole flow.
+- **Sheets and refresh:** a sheet is a `.pageSheet`, and a page that reads
+  again on the user's request is `.pageRefreshable`.
 - **Secrets:** a recovery phrase or a private key on screen sits behind
   `.secretShield()` and marks its text `.privacySensitive()`: blurred while
   the screen is captured, with a warning after a screenshot. A seed word is
@@ -103,6 +107,55 @@ Official references:
   orange in a view; artwork with a fixed palette of its own ends the line with
   `design-tokens: artwork`.
 - **Artwork exception:** Decorative icon artwork, including `SpectraLogo`, may use custom fonts, color opacity, and glass effects.
+
+## macOS
+
+One target builds both apps from the same views. A view names the platform
+only through the helpers in
+[`PlatformChrome.swift`](../swift/app/Components/PlatformChrome.swift), which
+say once what each means on either:
+
+| Helper | iOS | macOS |
+| --- | --- | --- |
+| `inlineNavigationTitle()` | An inline bar title | Nothing: a window's title is always in its toolbar |
+| `clearNavigationBar()` | No navigation bar background | No window toolbar background |
+| `hidesTabBar()` | The tab bar hidden during a flow | Nothing: the tabs are the sidebar, which stays |
+| `.barLeading`, `.barTrailing` | The top bar's two ends | The toolbar's navigation side and its primary actions |
+| `.alwaysVisible` | The search drawer under the bar | The toolbar's search field |
+| `pageSheet` | A system-sized sheet | A sheet given a page's size, since a Mac sheet is as large as its content asks |
+| `pageRefreshable` | Pull to refresh | A Refresh button in the toolbar, also ⌘R |
+| `formRowButtonStyle()` | Nothing | A plain button, where the default would draw a bezel across a `Form` row |
+
+What else differs is the platform's, not the design's:
+
+- **Window:** one window, not a group — the app has one `AppState`. The tabs
+  are its sidebar (`.sidebarAdaptable`), and ⌘, opens the settings tab.
+- **Width:** `spectraScreenPadding()` and `SpectraBottomActionBar` stop at
+  `SpectraLayout.pageMaxWidth` and center, so a wide window keeps its cards a
+  readable column.
+- **Forms and fields:** the root sets `.formStyle(.grouped)` and
+  `.textFieldStyle(.plain)`, so a settings page is grouped rows and a field
+  draws no bezel inside the card that holds it. A switch row ends in its
+  switch, laid out by the root toggle style.
+- **Type:** the system's text styles at the Mac's sizes. There is no Dynamic
+  Type, so nothing is scaled by hand.
+- **Input traits:** `keyboardType` and `textInputAutocapitalization` describe
+  a software keyboard. [`MacInputTraits.swift`](../swift/app/Components/MacInputTraits.swift)
+  declares them doing nothing, so a field says what it holds once.
+- **Haptics:** `spectraHaptic` and `spectraNotificationHaptic` do nothing.
+- **Away, not background:** losing focus to another app is not leaving — the
+  window is still read. The app is away, and auto-lock locks, when it is
+  hidden, its window is in the Dock, the display sleeps or the login session
+  is switched out. There is no app-switcher snapshot to cover.
+- **Secrets:** a Mac does not report screen capture or screenshots. A window
+  showing a secret is marked unshareable instead, which captures that honour
+  the mark draw without it. A copied secret is kept off Universal Clipboard
+  and cleared after a minute unless something else was copied since.
+- **Platform views:** `SecretWordField` and `AddressInput` are AppKit text
+  views with every typing aid off; `QRCodeScannerView` reads the Mac's camera
+  through AVFoundation; sharing opens the system sharing menu.
+- **Not on a Mac:** the send Live Activity. A send is followed by its
+  notification alone.
 
 ## Spacing
 
@@ -166,6 +219,7 @@ Shared values and helpers live in:
   [`secretShield`](../swift/app/Components/SecretShield.swift) and
   [`SecretWordField`](../swift/app/Components/SecretWordField.swift)
 - [`spectraInputFieldStyle` and `spectraDetailCard`](../swift/app/Components/ViewExtensions.swift)
+- [The bar, sheet and refresh helpers](../swift/app/Components/PlatformChrome.swift)
 
 ## Examples in the app
 

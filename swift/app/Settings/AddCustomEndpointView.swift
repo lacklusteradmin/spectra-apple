@@ -61,7 +61,7 @@ struct AddCustomEndpointView: View {
             if let errorMessage { Section { Text(errorMessage).foregroundStyle(.red) } }
         }
         .navigationTitle(editing == nil ? copy.addEndpointTitle : AppLocalization.string("Edit Endpoint"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .disabled(isSaving)
         .onAppear {
             guard chain == nil else { return }

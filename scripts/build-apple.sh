@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Build the Rust core for the iOS app and generate its Swift bindings.
+# Build the Rust core for the iOS or macOS app and generate its Swift bindings.
 #
 # Run by the Xcode "Build Rust Core" phase, which supplies PROJECT_TEMP_DIR,
 # CONFIGURATION and PLATFORM_NAME. Puts libspectra_core.a where the app
 # target's LIBRARY_SEARCH_PATHS look for it, then generates swift/generated/
 # from that same library, so the bindings always describe what the app links.
-# Simulators are arm64 only; the project excludes x86_64 to match.
+# Simulators and Macs are arm64 only; the project excludes x86_64 to match.
 #
 # This is the only writer of swift/generated/, and it patches nothing: a
 # Swift 6 problem there is a UniFFI version or API-shape problem. Keep UniFFI
@@ -30,13 +30,24 @@ else
   RELEASE_FLAG=""
 fi
 
-if [[ "${PLATFORM_NAME}" == *simulator* ]]; then
-  TARGET=aarch64-apple-ios-sim
-  OUT="${RUST_BUILD_ROOT}/apple/ios-simulator"
-else
-  TARGET=aarch64-apple-ios
-  OUT="${RUST_BUILD_ROOT}/apple/ios-device"
-fi
+case "${PLATFORM_NAME}" in
+  macosx)
+    TARGET=aarch64-apple-darwin
+    OUT="${RUST_BUILD_ROOT}/apple/macos"
+    ;;
+  iphonesimulator)
+    TARGET=aarch64-apple-ios-sim
+    OUT="${RUST_BUILD_ROOT}/apple/ios-simulator"
+    ;;
+  iphoneos)
+    TARGET=aarch64-apple-ios
+    OUT="${RUST_BUILD_ROOT}/apple/ios-device"
+    ;;
+  *)
+    echo "error: no Rust target for platform ${PLATFORM_NAME}" >&2
+    exit 1
+    ;;
+esac
 
 # Xcode build phases run in a minimal shell, so cargo may not be on PATH.
 export PATH="${HOME}/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:${PATH}"
@@ -47,7 +58,7 @@ if ! command -v cargo >/dev/null 2>&1; then
   exit 1
 fi
 
-source "${REPO_ROOT}/scripts/ios-rust-build-env.sh"
+source "${REPO_ROOT}/scripts/apple-rust-build-env.sh"
 
 if command -v rustup >/dev/null 2>&1; then
   rustup target add "${TARGET}" >/dev/null 2>&1 || true
@@ -66,7 +77,10 @@ cp "${CARGO_TARGET_DIR}/${TARGET}/${PROFILE}/libspectra_core.a" "${OUT}/libspect
 GENERATED="${RUST_BUILD_ROOT}/bindings"
 rm -rf "${GENERATED}"
 mkdir -p "${GENERATED}" "${BINDINGS_DIR}"
-cargo run --manifest-path "${REPO_ROOT}/tools/uniffi-bindgen/Cargo.toml" \
+# The generator is a host tool, not part of the app: it is built without the
+# app's macOS minimum, so the same build serves an iOS and a macOS app build.
+env -u MACOSX_DEPLOYMENT_TARGET \
+  cargo run --manifest-path "${REPO_ROOT}/tools/uniffi-bindgen/Cargo.toml" \
   -- generate --language swift --library "${OUT}/libspectra_core.a" --out-dir "${GENERATED}"
 cp "${GENERATED}/spectra_coreFFI.modulemap" "${GENERATED}/module.modulemap"
 for generated in "${GENERATED}"/*; do

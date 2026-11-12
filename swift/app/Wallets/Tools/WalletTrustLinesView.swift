@@ -47,10 +47,10 @@ struct WalletTrustLinesView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.trustLines.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.trustLines.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(item: $change, onDismiss: { Task { await load() } }) { change in
+        .pageSheet(item: $change, onDismiss: { Task { await load() } }) { change in
             NavigationStack { TrustLineChangeView(store: store, wallet: wallet, change: change) }
         }
     }

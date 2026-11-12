@@ -53,8 +53,8 @@ struct WalletStakingView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(SpectraBackdrop().ignoresSafeArea())
-        .navigationTitle(AppLocalization.string("Staking")).navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationTitle(AppLocalization.string("Staking")).inlineNavigationTitle()
+        .clearNavigationBar()
         .task {
             vm.selectWallet(walletId)
             await vm.loadValidators()
@@ -70,7 +70,7 @@ struct WalletStakingView: View {
             await vm.session.refresh()
         }
         .onDisappear { vm.cancel() }
-        .sheet(isPresented: $showsValidators) {
+        .pageSheet(isPresented: $showsValidators) {
             StakingValidatorPicker(
                 validators: vm.validators, isLoading: vm.isLoading,
                 selected: $vm.validatorId)

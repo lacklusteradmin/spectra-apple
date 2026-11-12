@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 /// A projection of core's durable artifact, its history record and the step
 /// core allows next. Node acceptance describes submission only; the history

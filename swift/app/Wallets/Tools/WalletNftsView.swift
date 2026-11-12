@@ -33,10 +33,10 @@ struct WalletNftsView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.nfts.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.nfts.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(item: $sending, onDismiss: { Task { await load() } }) { nft in
+        .pageSheet(item: $sending, onDismiss: { Task { await load() } }) { nft in
             NavigationStack { SendNftView(store: store, wallet: wallet, nft: nft) }
         }
     }

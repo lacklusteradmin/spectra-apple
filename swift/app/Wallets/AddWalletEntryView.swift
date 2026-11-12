@@ -95,7 +95,7 @@ struct WalletSetupMethodsView: View {
         }
         // The header names the network; the bar would say it a second time.
         .navigationTitle(upgrading == nil ? "" : WalletAction.addKeys.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .navigationDestination(
             isPresented: Binding(
                 get: { store.walletImport.isPresented && store.walletImport.editingWalletId == nil },

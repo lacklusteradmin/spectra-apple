@@ -76,7 +76,7 @@ struct WalletMessageView: View {
                 WalletToolErrorSection(message: error)
             }
         }
-        .navigationTitle((canSign ? WalletAction.signMessage : WalletAction.verifyMessage).title).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle((canSign ? WalletAction.signMessage : WalletAction.verifyMessage).title).inlineNavigationTitle()
         .task { scheme = try? await store.bridge.ready().walletMessageScheme(walletId: wallet.id) }
         .onChange(of: message) { _, _ in
             signed = nil
@@ -111,7 +111,7 @@ struct WalletMessageView: View {
             Section(AppLocalization.string("Signature")) {
                 Text(verbatim: signed.signature).font(.footnote.monospaced()).textSelection(.enabled)
                 Button {
-                    UIPasteboard.general.string = signed.signature
+                    copyToPasteboard(signed.signature)
                     didCopy = true
                     spectraHaptic(.light)
                 } label: {

@@ -27,6 +27,9 @@ enum SpectraLayout {
     /// Where a row divider starts: the row inset, a 36pt badge and the gap
     /// after it, so the line runs under the text rather than the badge.
     static let rowDividerInset: CGFloat = rowHorizontal + 36 + Space.m
+    /// The widest a page's column of cards grows. A phone never reaches it; a
+    /// Mac window dragged wide keeps its cards a readable width, centered.
+    static let pageMaxWidth: CGFloat = 720
 
     /// Corner radii. Three steps, named for the surface: a surface nested
     /// inside another takes the next step down.
@@ -83,6 +86,8 @@ extension View {
         padding(.horizontal, SpectraLayout.screenHorizontal)
             .padding(.top, SpectraLayout.screenTop)
             .padding(.bottom, SpectraLayout.screenBottom)
+            .frame(maxWidth: SpectraLayout.pageMaxWidth)
+            .frame(maxWidth: .infinity)
     }
 
     func spectraNumericTextLayout(minimumScaleFactor: CGFloat = 0.62) -> some View {

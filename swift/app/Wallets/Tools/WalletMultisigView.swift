@@ -61,8 +61,8 @@ struct WalletMultisigView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.multisig.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.multisig.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
         .navigationDestination(item: $opened) { session in
             if let account {
@@ -273,7 +273,7 @@ private struct MultisigSessionView: View {
             actions
             if let error { WalletToolErrorSection(message: error) }
         }
-        .navigationTitle(AppLocalization.string("Multisig Transaction")).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(AppLocalization.string("Multisig Transaction")).inlineNavigationTitle()
     }
 
     @ViewBuilder private var actions: some View {

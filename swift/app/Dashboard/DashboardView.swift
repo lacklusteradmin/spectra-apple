@@ -28,14 +28,14 @@ struct DashboardView: View {
                             assetsOrWalletsCard
                         }
                     }.spectraScreenPadding()
-                }.refreshable {
+                }.pageRefreshable {
                     await store.performUserInitiatedRefresh()
                 }.scrollBounceBehavior(.always)
             }
-            .navigationTitle(AppLocalization.string("Spectra")).navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationTitle(AppLocalization.string("Spectra")).inlineNavigationTitle()
+            .clearNavigationBar()
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .barLeading) {
                     NavigationLink {
                         AppNoticesView(store: store)
                     } label: {
@@ -45,7 +45,7 @@ struct DashboardView: View {
                 // Tor is off by default and lives in Settings; the toolbar
                 // reports it only while it is doing something.
                 if store.tor.status != .stopped {
-                    ToolbarItem(placement: .topBarLeading) {
+                    ToolbarItem(placement: .barLeading) {
                         NavigationLink {
                             TorSettingsView(store: store)
                         } label: {
@@ -53,7 +53,7 @@ struct DashboardView: View {
                         }
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .barTrailing) {
                     Button {
                         spectraHaptic(.light)
                         store.isShowingAddWalletEntry = true
@@ -120,7 +120,12 @@ struct DashboardView: View {
         case .error:
             color = .red; icon = "network.slash"
         case .stopped:
-            color = Color(.systemGray3); icon = "network"
+            #if os(macOS)
+                color = Color(.tertiaryLabelColor)
+            #else
+                color = Color(.systemGray3)
+            #endif
+            icon = "network"
         }
         return ZStack(alignment: .bottomTrailing) {
             Image(systemName: icon)

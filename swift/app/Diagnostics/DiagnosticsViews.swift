@@ -87,8 +87,8 @@ struct DiagnosticsHubView: View {
                     Text(diagnosticsNotice).font(.caption).foregroundStyle(.secondary)
                 }
             }
-        }.navigationTitle(copy.navigationTitle).navigationBarTitleDisplayMode(.inline).searchable(
-            text: $searchText, prompt: copy.searchPrompt).sheet(isPresented: $isShowingDiagnosticsExportsBrowser) {
+        }.navigationTitle(copy.navigationTitle).inlineNavigationTitle().searchable(
+            text: $searchText, prompt: copy.searchPrompt).pageSheet(isPresented: $isShowingDiagnosticsExportsBrowser) {
             DiagnosticsExportsBrowserView(store: store)
         }.fileImporter(
             isPresented: $isShowingDiagnosticsImporter, allowedContentTypes: [UTType.json], allowsMultipleSelection: false
@@ -150,7 +150,7 @@ struct StandardChainDiagnosticsView: View {
                 }.disabled(isRunningHistory)
                 Button(AppLocalization.string("Copy Diagnostics JSON")) {
                     if let document = recorded?.document {
-                        UIPasteboard.general.string = document
+                        copyToPasteboard(document)
                         copiedDiagnosticsNotice = SpectraTransientNotice(
                             AppLocalization.format("%@ diagnostics JSON copied.", diagnosticsLabel))
                     } else {

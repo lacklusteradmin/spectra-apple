@@ -64,8 +64,8 @@ struct NewAddressBookContactView: View {
             }
         }
         .navigationTitle(AppLocalization.string("New Contact"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .inlineNavigationTitle()
+        .clearNavigationBar()
         .navigationDestination(isPresented: $isChoosingChain) {
             AllChainsSelectionView(
                 chainSearchText: $chainSearchText,
@@ -230,10 +230,10 @@ struct AddressBookContactView: View {
             .scrollDismissesKeyboard(.interactively)
         }
         .navigationTitle(AppLocalization.string("Contact"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .inlineNavigationTitle()
+        .clearNavigationBar()
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button(AppLocalization.string("Save")) {
                     addressBook.rename(id: contact.id, to: editedName)
                     spectraHaptic(.light)
@@ -385,7 +385,7 @@ struct SaveContactSheet: View {
                 }
             }
             .navigationTitle(AppLocalization.string("Save Contact"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(AppLocalization.string("Cancel")) { dismiss() }

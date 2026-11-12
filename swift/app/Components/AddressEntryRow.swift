@@ -1,5 +1,4 @@
 import SwiftUI
-import VisionKit
 
 /// An address typed, pasted, scanned or picked from the address book: the
 /// field every page that asks for a recipient uses — the send composer, a
@@ -47,9 +46,9 @@ struct AddressEntryRow: View {
             .labelStyle(.iconOnly)
             .buttonBorderShape(.circle)
             .controlSize(.small)
-            if DataScannerViewController.isSupported {
+            if QRCodeScannerView.isSupported {
                 Button {
-                    if DataScannerViewController.isAvailable {
+                    if QRCodeScannerView.isAvailable {
                         isFocused = false
                         isScanning = true
                     } else {
@@ -82,7 +81,7 @@ struct AddressEntryRow: View {
                 .accessibilityLabel(AppLocalization.string("Contacts"))
             }
         }
-        .sheet(isPresented: $isScanning) {
+        .pageSheet(isPresented: $isScanning) {
             SendQRScannerSheet { payload in
                 do {
                     text = try readScan?(payload) ?? readScannedAddress(chain: chain, payload: payload)

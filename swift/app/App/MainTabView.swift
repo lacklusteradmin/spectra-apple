@@ -17,6 +17,11 @@ struct MainTabView: View {
                 SettingsView(store: store)
             }
         }
-        .tabBarMinimizeBehavior(.onScrollDown)
+        #if os(macOS)
+            // A Mac's tabs are a sidebar; the window is wide enough for one.
+            .tabViewStyle(.sidebarAdaptable)
+        #else
+            .tabBarMinimizeBehavior(.onScrollDown)
+        #endif
     }
 }

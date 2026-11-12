@@ -46,15 +46,15 @@ struct TokenRegistrySettingsView: View {
             .overlay { emptyState(isFilteredEmpty: groups.isEmpty) }
         }
         .navigationTitle(AppLocalization.string("Known Tokens"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .searchable(text: $searchText, prompt: AppLocalization.string("Search name, symbol, chain, or address"))
         .textInputAutocapitalization(.never).autocorrectionDisabled()
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .clearNavigationBar()
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 filterMenu
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 NavigationLink {
                     AddCustomTokenView(tokens: tokens)
                 } label: {

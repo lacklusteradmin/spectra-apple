@@ -139,7 +139,9 @@ extension AppState {
         // composer or the bounded history summary.
         if let transaction = try? await bridge.ready().transaction(id: submitted.id),
            submitted.attempts.contains(where: { $0.outcome == .accepted }) {
-            notifications.startSendLiveActivity(for: transaction, amounts: amounts)
+            #if os(iOS)
+                notifications.startSendLiveActivity(for: transaction, amounts: amounts)
+            #endif
             notifications.requestPermissionAfterSend(settings: committedAppSettings)
             // Broadcast acceptance alone does not establish confirmation.
             await performCoreRefresh(.afterSend(chainId: transaction.chainId))

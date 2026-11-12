@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 import Network
 
 extension AppState {
@@ -32,11 +31,13 @@ extension AppState {
     /// Watch the battery and the network path, which core's refresh policy
     /// reads through `deviceConditions()`. Domain state all arrives from core.
     func startDeviceMonitoring() {
-        UIDevice.current.isBatteryMonitoringEnabled = true
+        DeviceBattery.startMonitoring()
         startNetworkPathMonitorIfNeeded()
     }
     func refreshForForegroundIfNeeded() async {
         await performCoreRefresh(.foreground)
-        await notifications.reconcileSendLiveActivities(amounts: amounts)
+        #if os(iOS)
+            await notifications.reconcileSendLiveActivities(amounts: amounts)
+        #endif
     }
 }

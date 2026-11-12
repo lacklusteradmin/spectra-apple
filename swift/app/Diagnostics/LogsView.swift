@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 struct LogsView: View {
     let store: AppState
     @State private var searchText: String = ""
@@ -111,13 +110,13 @@ struct LogsView: View {
         }.onChange(of: searchText) { _, _ in
             rebuildLogPresentation()
         }.spectraTransientNotice($copiedNotice).toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button(AppLocalization.string("Copy")) {
-                    UIPasteboard.general.string = store.exportOperationalLogsText(events: filteredLogs)
+                    copyToPasteboard(store.exportOperationalLogsText(events: filteredLogs))
                     copiedNotice = SpectraTransientNotice(AppLocalization.format("Copied %lld log entries", count: filteredLogs.count, filteredLogs.count))
                 }.disabled(filteredLogs.isEmpty)
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button(AppLocalization.string("Clear"), role: .destructive) {
                     isConfirmingClear = true
                 }.disabled(diagnosticsState.operationalLogs.isEmpty)

@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 /// Copies `value` and says so for a moment: the glyph turns to a checkmark,
 /// and VoiceOver hears "Copied". With a title it is a glass button, drawn as
@@ -96,7 +95,7 @@ struct CopyButton<Row: View>: View {
     private var spokenState: String { AppLocalization.string(didCopy ? "Copied" : "Copy") }
 
     private func copy() {
-        UIPasteboard.general.string = value
+        copyToPasteboard(value)
         didCopy = true
         spectraHaptic(.light)
     }

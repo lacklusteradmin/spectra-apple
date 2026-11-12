@@ -65,9 +65,9 @@ struct SendView: View {
             }
         }
         .navigationTitle(AppLocalization.string(navigationTitle))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
-        .toolbar(.hidden, for: .tabBar)
+        .inlineNavigationTitle()
+        .clearNavigationBar()
+        .hidesTabBar()
         // Back is a step back, never the whole flow: the system button and
         // its edge swipe would pop the composer and wipe what was typed.
         .navigationBarBackButtonHidden(true)
@@ -75,7 +75,7 @@ struct SendView: View {
         // button, which already rides above the keyboard and dismisses it.
         .toolbar {
             if canStepBack {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .barLeading) {
                     Button {
                         spectraHaptic(.light)
                         goBack()
@@ -85,7 +85,7 @@ struct SendView: View {
                     .accessibilityLabel(AppLocalization.string("Back"))
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button {
                     store.cancelSend()
                 } label: {
@@ -372,7 +372,7 @@ struct SendView: View {
 
     private func go(to step: SendFlowStep) {
         flowDirection = step.rawValue >= currentStep.rawValue ? 1 : -1
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        endTextEditing()
         withAnimation(reduceMotion ? nil : .snappy(duration: 0.28)) {
             currentStep = step
         }

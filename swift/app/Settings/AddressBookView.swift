@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 
 /// Saved recipients, with adding a contact as a toolbar action.
 struct AddressBookView: View {
@@ -46,10 +45,10 @@ struct AddressBookView: View {
             }
         }
         .navigationTitle(AppLocalization.string("Address Book"))
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .inlineNavigationTitle()
+        .clearNavigationBar()
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Button {
                     spectraHaptic(.light)
                     isAddingContact = true

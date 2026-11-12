@@ -66,7 +66,7 @@ struct WalletKeyExportView: View {
                 Section { Text(error).foregroundStyle(.red) }
             }
         }
-        .navigationTitle(WalletAction.exportKeys.title).navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(WalletAction.exportKeys.title).inlineNavigationTitle()
         .task {
             kinds = (try? await store.bridge.ready().walletKeyExports(walletId: wallet.id)) ?? []
         }
@@ -80,7 +80,7 @@ struct WalletKeyExportView: View {
             password = ""
             shown = nil
         }
-        .sheet(item: $shown, onDismiss: { didCopy = false }) { export in
+        .pageSheet(item: $shown, onDismiss: { didCopy = false }) { export in
             exportSheet(export)
         }
     }
@@ -126,9 +126,9 @@ struct WalletKeyExportView: View {
                         .font(.caption).foregroundStyle(.secondary)
                 }.secretShield().padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill().padding(SpectraLayout.Space.l)
             }
-            .navigationTitle(export.kind.title).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(export.kind.title).inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .barTrailing) {
                     Button(AppLocalization.string("Done")) { shown = nil }
                 }
             }

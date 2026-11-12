@@ -36,7 +36,7 @@ struct UsedAccountsSheet: View {
                 }
             }
             .navigationTitle(AppLocalization.string("Find Used Accounts"))
-            .navigationBarTitleDisplayMode(.inline)
+            .inlineNavigationTitle()
             .toolbar {
                 // Done, where Done goes: the sheet reads and lists, and
                 // leaving it cancels nothing.

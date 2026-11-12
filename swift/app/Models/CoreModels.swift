@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 extension SendPreview {
     /// Whether the preview says anything the fee rows and the amount page
     /// have not: an EVM fee rate is already rows of its own, and the balance

@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import UIKit
 extension TokenStandard {
     /// The protocol's name, as core spells it.
     var name: String { tokenStandardName(standard: self) }

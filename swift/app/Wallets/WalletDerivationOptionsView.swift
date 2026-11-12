@@ -42,9 +42,9 @@ struct WalletDerivationOptionsView: View {
                     }
                 }.padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill().padding(SpectraLayout.Space.l)
             }
-            .navigationTitle(copy.advancedTitle).navigationBarTitleDisplayMode(.inline)
+            .navigationTitle(copy.advancedTitle).inlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .barTrailing) {
                     Button(AppLocalization.string("Done")) { dismiss() }
                 }
             }

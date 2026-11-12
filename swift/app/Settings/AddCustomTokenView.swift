@@ -91,7 +91,7 @@ struct AddCustomTokenView: View {
             }
         }
         .navigationTitle(AppLocalization.string(editing == nil ? "New Token" : "Edit Token"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .disabled(isSaving)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {

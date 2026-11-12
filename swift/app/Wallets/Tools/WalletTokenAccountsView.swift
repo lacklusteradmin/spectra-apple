@@ -39,10 +39,10 @@ struct WalletTokenAccountsView: View {
                 WalletToolLoadingSection()
             }
         }
-        .navigationTitle(WalletAction.tokenAccounts.title).navigationBarTitleDisplayMode(.inline)
-        .refreshable { await load() }
+        .navigationTitle(WalletAction.tokenAccounts.title).inlineNavigationTitle()
+        .pageRefreshable { await load() }
         .task { await load() }
-        .sheet(isPresented: $isClosing, onDismiss: { Task { await load() } }) {
+        .pageSheet(isPresented: $isClosing, onDismiss: { Task { await load() } }) {
             NavigationStack { CloseTokenAccountsView(store: store, wallet: wallet) }
         }
     }

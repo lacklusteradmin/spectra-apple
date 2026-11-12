@@ -74,8 +74,8 @@ struct SettingsView: View {
                 }.scrollBounceBehavior(.always)
             }
             .navigationTitle(AppLocalization.string("Settings"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .inlineNavigationTitle()
+            .clearNavigationBar()
             .navigationDestination(for: Route.self) { route in
                 switch route {
                 case .addressBook: AddressBookView(store: store)

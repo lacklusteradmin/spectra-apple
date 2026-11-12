@@ -93,13 +93,13 @@ struct CryptoWikiLibraryView: View {
             }
         }
         .navigationTitle(AppLocalization.string("Crypto Wiki"))
-        .navigationBarTitleDisplayMode(.inline)
+        .inlineNavigationTitle()
         .searchable(text: $searchText, prompt: AppLocalization.string("Search coins and chains"))
         .textInputAutocapitalization(.never).autocorrectionDisabled()
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .clearNavigationBar()
         .sensoryFeedback(.impact(weight: .light), trigger: selectedTag)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Menu {
                     Picker(AppLocalization.string("Tag"), selection: $selectedTag) {
                         Text(AppLocalization.string("All")).tag(WikiTag?.none)
@@ -154,8 +154,8 @@ struct AssetWikiDetailView: View {
             .spectraScreenPadding()
         }
         .background(SpectraBackdrop().ignoresSafeArea())
-        .navigationTitle(asset.name).navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationTitle(asset.name).inlineNavigationTitle()
+        .clearNavigationBar()
     }
 
     private var heroCard: some View {

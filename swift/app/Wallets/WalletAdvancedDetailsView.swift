@@ -47,8 +47,8 @@ struct WalletAdvancedDetailsView: View {
                             Spacer(minLength: SpectraLayout.Space.s)
                             // Concrete label colours: a button's hierarchical
                             // styles derive from its tint, which drew the name orange.
-                            Text(displayedWallet.name).foregroundStyle(Color(.secondaryLabel)).lineLimit(1)
-                            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Color(.tertiaryLabel))
+                            Text(displayedWallet.name).foregroundStyle(.secondary).lineLimit(1)
+                            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
                         }
                     }
                 }
@@ -114,7 +114,7 @@ struct WalletAdvancedDetailsView: View {
                     }
                 }
             }
-        }.navigationTitle(AppLocalization.string("Manage Wallet")).navigationBarTitleDisplayMode(.inline)
+        }.navigationTitle(AppLocalization.string("Manage Wallet")).inlineNavigationTitle()
         .navigationDestination(
             isPresented: Binding(
                 get: { store.walletImport.isPresented && store.walletImport.editingWalletId == wallet.id },
@@ -153,7 +153,7 @@ struct WalletAdvancedDetailsView: View {
         }
         .onAppear { seedReveal.activate(sceneIsActive: scenePhase == .active) }
         .onDisappear { seedReveal.deactivate() }
-        .sheet(
+        .pageSheet(
             isPresented: $seedReveal.isShowingPasswordPrompt,
             onDismiss: {
                 seedReveal.passwordInput = ""
@@ -182,15 +182,15 @@ struct WalletAdvancedDetailsView: View {
                             seedReveal.passwordInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                         Spacer()
                     }.padding(SpectraLayout.Space.l)
-                }.navigationTitle(AppLocalization.string("Wallet Password")).navigationBarTitleDisplayMode(.inline).toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                }.navigationTitle(AppLocalization.string("Wallet Password")).inlineNavigationTitle().toolbar {
+                    ToolbarItem(placement: .barTrailing) {
                         Button(AppLocalization.string("Cancel")) {
                             seedReveal.isShowingPasswordPrompt = false
                         }
                     }
                 }
             }
-        }.sheet(
+        }.pageSheet(
             isPresented: $seedReveal.isShowingPhraseSheet,
             onDismiss: {
                 seedReveal.clearPhrase()
@@ -211,8 +211,8 @@ struct WalletAdvancedDetailsView: View {
                         }.secretShield().padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill()
                             .padding(SpectraLayout.Space.l)
                     }
-                }.navigationTitle(AppLocalization.string("Seed Phrase")).navigationBarTitleDisplayMode(.inline).toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                }.navigationTitle(AppLocalization.string("Seed Phrase")).inlineNavigationTitle().toolbar {
+                    ToolbarItem(placement: .barTrailing) {
                         Button(AppLocalization.string("Done")) {
                             seedReveal.isShowingPhraseSheet = false
                         }

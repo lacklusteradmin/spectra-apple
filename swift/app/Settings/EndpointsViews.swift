@@ -96,13 +96,13 @@ struct EndpointCatalogSettingsView: View {
             AddCustomEndpointView(store: store, editing: entry)
         }
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 NavigationLink {
                     AddCustomEndpointView(store: store)
                 } label: { Image(systemName: "plus") }
                 .accessibilityLabel(copy.addEndpointTitle)
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .barTrailing) {
                 Menu {
                     Picker(AppLocalization.string("Source"), selection: $sourceFilter) {
                         Text(AppLocalization.string("All")).tag("All")

@@ -1,7 +1,6 @@
 import Foundation
 import Testing
 import SwiftUI
-import UIKit
 
 @testable import Spectra
 
@@ -57,26 +56,13 @@ struct TokenRegistryPresentationTests: IsolatedAppStateSuite {
             ("Token detail", AnyView(NavigationStack { TokenRegistryDetailView(tokens: state.tokenPreferences, groupKey: entry.token.tokenId) })),
             ("Custom token form", AnyView(NavigationStack { AddCustomTokenView(tokens: state.tokenPreferences) }))
         ]
-        let scene = try #require(UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first)
-        let previousWindow = scene.windows.first(where: \.isKeyWindow)
-        let window = UIWindow(windowScene: scene)
-        window.frame = CGRect(x: 0, y: 0, width: 393, height: 852)
-        defer {
-            window.isHidden = true
-            window.rootViewController = nil
-            previousWindow?.makeKey()
-        }
+        let window = try RenderWindow(takesKey: true)
+        defer { window.close() }
         for (name, view) in views {
-            window.rootViewController = UIHostingController(rootView: view)
-            window.makeKeyAndVisible()
+            window.show(view)
             try await Task.sleep(for: .milliseconds(300))
-            window.layoutIfNeeded()
-            let image = UIGraphicsImageRenderer(bounds: window.bounds).image { _ in
-                #expect(window.drawHierarchy(in: window.bounds, afterScreenUpdates: true))
-            }
-            let pixels = try #require(image.cgImage?.dataProvider?.data) as Data
-            #expect(Set(pixels).count > 16)
-            Attachment.record(image, named: name)
+            window.layout()
+            try window.record(named: name)
         }
     }
 }
