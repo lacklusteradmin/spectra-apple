@@ -171,9 +171,7 @@ struct SpectraLoadingGlyph: View {
                 .trim(from: 0.18, to: 0.84)
                 .stroke(tint.opacity(0.82), style: StrokeStyle(lineWidth: max(2, size * 0.09), lineCap: .round))
                 .rotationEffect(.degrees(isSpinning ? 360 : 0))
-            Text("S")
-                .font(.system(size: size * 0.44, weight: .black, design: .rounded))
-                .foregroundStyle(tint)
+            SpectraMark(size: size * 0.4, tint: tint)
         }
         .frame(width: size, height: size)
         .scaleEffect(reduceMotion ? 1 : (isPulsing ? 1.06 : 0.94))

@@ -43,29 +43,39 @@ struct CoinBadge: View {
         }
     }
 }
+/// The app icon's five bars in a square of side `size`. Widths and gaps both
+/// shrink by the golden ratio; the geometry and the palette are those of
+/// `icons/appicon/`, and change with it.
+struct SpectraMark: View {
+    var size: CGFloat
+    /// One colour for every bar. `nil` draws the icon's own palette.
+    var tint: Color? = nil
+
+    /// Each bar's leading edge and width, in 600ths of the side.
+    private static let bars: [(x: CGFloat, width: CGFloat)] = [(0, 185), (256, 115), (415, 71), (512, 44), (573, 27)]
+    private static let palette: [Color] = [
+        Color(red: 1, green: 0.5, blue: 0), Color(red: 1, green: 0, blue: 0.4), Color(red: 0.5, green: 0, blue: 1),
+        Color(red: 0, green: 0.4, blue: 1), Color(red: 0, green: 0.88, blue: 1),
+    ]
+
+    var body: some View {
+        Canvas { context, canvas in
+            let unit = canvas.width / 600
+            for (bar, color) in zip(Self.bars, Self.palette) {
+                let rect = CGRect(x: bar.x * unit, y: 0, width: bar.width * unit, height: canvas.height)
+                context.fill(Path(rect), with: .color(tint ?? color))
+            }
+        }.frame(width: size, height: size)
+    }
+}
+
+/// The app icon as a view: its bars on the icon's black tile.
 struct SpectraLogo: View {
     var size: CGFloat = 78
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: size * 0.28, style: .continuous).fill(Color.white.opacity(0.08)).frame(width: size, height: size)
-                .background(
-                    ZStack {
-                        Circle().fill(Color.red.opacity(0.75)).frame(width: size * 0.7, height: size * 0.7).blur(radius: size * 0.14)
-                            .offset(x: -size * 0.2, y: -size * 0.18)
-                        Circle().fill(Color.yellow.opacity(0.72)).frame(width: size * 0.6, height: size * 0.6).blur(radius: size * 0.14)
-                            .offset(x: size * 0.18, y: -size * 0.16)
-                        Circle().fill(Color.green.opacity(0.62)).frame(width: size * 0.58, height: size * 0.58).blur(radius: size * 0.14)
-                            .offset(x: -size * 0.16, y: size * 0.16)
-                        Circle().fill(Color.blue.opacity(0.68)).frame(width: size * 0.62, height: size * 0.62).blur(radius: size * 0.15)
-                            .offset(x: size * 0.2, y: size * 0.18)
-                        Circle().fill(Color.purple.opacity(0.55)).frame(width: size * 0.52, height: size * 0.52).blur(radius: size * 0.16)
-                    }
-                ).overlay(
-                    RoundedRectangle(cornerRadius: size * 0.28, style: .continuous).strokeBorder(Color.white.opacity(0.28), lineWidth: 1)
-                ).glassEffect(.regular.tint(SpectraLayout.GlassTint.elevated), in: .rect(cornerRadius: size * 0.28)) // design-tokens: artwork
-            Text("S").font(.system(size: size * 0.62, weight: .black, design: .rounded)).foregroundStyle(Color.primary).shadow(
-                color: .black.opacity(0.18), radius: 8, y: 2
-            ).rotationEffect(.degrees(-8))
-        }.shadow(color: .black.opacity(0.18), radius: 16, y: 8)
+        let tile = RoundedRectangle(cornerRadius: size * 0.225, style: .continuous)
+        // The bars fill the same share of the tile as they do of the icon.
+        SpectraMark(size: size * 600 / 1024).frame(width: size, height: size).background(Color.black, in: tile)
+            .overlay(tile.strokeBorder(Color.white.opacity(0.16), lineWidth: 1)).shadow(color: .black.opacity(0.18), radius: 16, y: 8)
     }
 }
