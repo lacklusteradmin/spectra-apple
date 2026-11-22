@@ -113,7 +113,7 @@ Official references:
 
 One target builds both apps from the same views. A view names the platform
 only through the helpers in
-[`PlatformChrome.swift`](../swift/app/Components/PlatformChrome.swift), which
+[`PlatformChrome.swift`](../app/Components/PlatformChrome.swift), which
 say once what each means on either:
 
 | Helper | iOS | macOS |
@@ -141,7 +141,7 @@ What else differs is the platform's, not the design's:
 - **Type:** the system's text styles at the Mac's sizes. There is no Dynamic
   Type, so nothing is scaled by hand.
 - **Input traits:** `keyboardType` and `textInputAutocapitalization` describe
-  a software keyboard. [`MacInputTraits.swift`](../swift/app/Components/MacInputTraits.swift)
+  a software keyboard. [`MacInputTraits.swift`](../app/Components/MacInputTraits.swift)
   declares them doing nothing, so a field says what it holds once.
 - **Haptics:** `spectraHaptic` and `spectraNotificationHaptic` do nothing.
 - **Away, not background:** losing focus to another app is not leaving — the
@@ -209,32 +209,32 @@ or draws glass in a shape only a surface inside a card has — `Radius.inner`,
 
 Shared values and helpers live in:
 
-- [`SpectraLayout`, `spectraCardFill`, `spectraElevatedFill`, `spectraInsetFill` and `spectraRowPadding`](../swift/app/Components/SpectraLayout.swift)
-- [`SpectraRowGroup` and `SpectraRowSection`](../swift/app/Components/SpectraRowGroup.swift)
-- [`SpectraEmptyStateCard` and `SpectraEmptyStateContent`](../swift/app/Components/ViewExtensions.swift)
-- [`AddressEntryRow`](../swift/app/Components/AddressEntryRow.swift)
-- [`SpectraDisclosureStyle`](../swift/app/Components/SpectraDisclosureStyle.swift) and
-  [`keyboardAnchor`](../swift/app/Components/KeyboardAnchor.swift)
-- [`SendCostRows` and `SendSummaryRow`](../swift/app/Send/SendCostRows.swift)
-- [`BalanceText`](../swift/app/Components/BalanceText.swift), [`CopyButton`](../swift/app/Components/CopyButton.swift),
-  [`secretShield`](../swift/app/Components/SecretShield.swift) and
-  [`SecretWordField`](../swift/app/Components/SecretWordField.swift)
-- [`spectraInputFieldStyle` and `spectraDetailCard`](../swift/app/Components/ViewExtensions.swift)
-- [The bar, sheet and refresh helpers](../swift/app/Components/PlatformChrome.swift)
+- [`SpectraLayout`, `spectraCardFill`, `spectraElevatedFill`, `spectraInsetFill` and `spectraRowPadding`](../app/Components/SpectraLayout.swift)
+- [`SpectraRowGroup` and `SpectraRowSection`](../app/Components/SpectraRowGroup.swift)
+- [`SpectraEmptyStateCard` and `SpectraEmptyStateContent`](../app/Components/ViewExtensions.swift)
+- [`AddressEntryRow`](../app/Components/AddressEntryRow.swift)
+- [`SpectraDisclosureStyle`](../app/Components/SpectraDisclosureStyle.swift) and
+  [`keyboardAnchor`](../app/Components/KeyboardAnchor.swift)
+- [`SendCostRows` and `SendSummaryRow`](../app/Send/SendCostRows.swift)
+- [`BalanceText`](../app/Components/BalanceText.swift), [`CopyButton`](../app/Components/CopyButton.swift),
+  [`secretShield`](../app/Components/SecretShield.swift) and
+  [`SecretWordField`](../app/Components/SecretWordField.swift)
+- [`spectraInputFieldStyle` and `spectraDetailCard`](../app/Components/ViewExtensions.swift)
+- [The bar, sheet and refresh helpers](../app/Components/PlatformChrome.swift)
 
 ## Examples in the app
 
-- [DashboardView.swift](../swift/app/Dashboard/DashboardView.swift) and
-  [AssetGroupDetailView.swift](../swift/app/Dashboard/AssetGroupDetailView.swift):
+- [DashboardView.swift](../app/Dashboard/DashboardView.swift) and
+  [AssetGroupDetailView.swift](../app/Dashboard/AssetGroupDetailView.swift):
   top-level tab, hero cards and asset detail rows.
-- [ReceiveFlowViews.swift](../swift/app/Receive/ReceiveFlowViews.swift): business detail layout.
-- [ChainWikiViews.swift](../swift/app/Wiki/ChainWikiViews.swift): compact interactive cards.
-- [HistoryView.swift](../swift/app/History/HistoryView.swift) and
-  [AddWalletEntryView.swift](../swift/app/Wallets/AddWalletEntryView.swift): lists as
+- [ReceiveFlowViews.swift](../app/Receive/ReceiveFlowViews.swift): business detail layout.
+- [ChainWikiViews.swift](../app/Wiki/ChainWikiViews.swift): compact interactive cards.
+- [HistoryView.swift](../app/History/HistoryView.swift) and
+  [AddWalletEntryView.swift](../app/Wallets/AddWalletEntryView.swift): lists as
   `SpectraRowGroup` rows.
-- [SettingsViews.swift](../swift/app/Settings/SettingsViews.swift): a top-level tab
+- [SettingsViews.swift](../app/Settings/SettingsViews.swift): a top-level tab
   of `SpectraRowSection` cards.
-- [SendView.swift](../swift/app/Send/SendView.swift): a flow with its
+- [SendView.swift](../app/Send/SendView.swift): a flow with its
   action bar in `safeAreaBar`.
 
 Pages use `spectraScreenPadding()` with `sectionSpacing` between cards, and

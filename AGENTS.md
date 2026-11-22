@@ -12,7 +12,7 @@ and Funds and keys there apply to everything here, and its paths are relative
 to that checkout.
 
 - Xcode compiles no Rust. `make core` builds core from that checkout into the
-  `swift/SpectraCore/` package the app links, so a core edit reaches the app
+  `SpectraCore/` package the app links, so a core edit reaches the app
   once `make core` runs; every Makefile build and test target runs it first.
   The source scans and the icon export read the same checkout.
 - Nothing here records which core commit the app builds against: it builds
@@ -71,7 +71,7 @@ pre-existing without evidence.
 - Check APIs, syntax and generated bindings against **UniFFI 0.31.2 and Swift 6**
   before changing FFI or Swift code. See [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md)
   and `../Spectra/docs/FFI-BOUNDARY.md`.
-- Never hand-edit `swift/SpectraCore/`. Change the Rust API in the core
+- Never hand-edit `SpectraCore/`. Change the Rust API in the core
   checkout and run `make core`. A Swift file that uses core says `import SpectraCore`.
 - [docs/IOS-UI.md](docs/IOS-UI.md) is the authority for Liquid Glass,
   typography, color, layout and corner radii.
@@ -96,7 +96,7 @@ pre-existing without evidence.
   the preceding line explains why the task must keep the state alive.
 - Pure transformations belong in core or free functions; `AppState` methods
   are thin adapters. Constructing `AppState` pulls in SQLite, Keychain and Rust.
-- `swift/app/` holds every app source, grouped by feature: `App/` (the
+- `app/` holds every app source, grouped by feature: `App/` (the
   `AppState` core, lifecycle and platform services), `Models/` (extensions of
   core records and the catalogs built from them), `Components/` (shared views
   and design tokens), then one folder per feature — `Dashboard/`, `Wallets/`
@@ -104,7 +104,7 @@ pre-existing without evidence.
   `Diagnostics/`, `Wiki/` — with a feature's state beside its views. The
   folder is an Xcode synchronized group: adding or moving a file under it needs
   no project edit, and file names stay unique across the module. The Live
-  Activity extension is in `swift/extensions/`, the tests in `swift/tests/`.
+  Activity extension is in `extensions/`, the tests in `tests/`.
 - Name an extension file `<Type>+<Topic>.swift` (`AppState+SendFlow.swift`,
   `SendFlowState+Preview.swift`), a file of free functions or of extensions
   across several types after its topic, and any other file after its type.
@@ -140,7 +140,7 @@ as `RuntimeStrings.en.json`. Two rules follow:
 
 ## Icons
 
-Never edit `swift/Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
+Never edit `Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
 generates its icons from two sources.
 
 - `icons/appicon/` holds the 1024-point app icon sources. They export as

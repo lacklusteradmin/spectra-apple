@@ -22,7 +22,7 @@ EXPORTED_FN = re.compile(r'#\[uniffi::export[^\]]*\]\s*\npub(?:\([^)]*\))? (?:as
 EXPORTED_IMPL = re.compile(r'#\[uniffi::export[^\]]*\]\s*\nimpl ([^\{]*)\{')
 METHOD = re.compile(r'\n    pub(?:\([^)]*\))? (?:async )?fn (\w+)')
 
-BRIDGE = pathlib.Path('swift/app/App/WalletServiceBridge.swift')
+BRIDGE = pathlib.Path('app/App/WalletServiceBridge.swift')
 
 # Known-reachable by another route: `new` is a constructor UniFFI needs.
 #

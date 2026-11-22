@@ -42,7 +42,7 @@ def production():
     the middle of a Rust file does not hide the production items after it.
     """
     paths = [path for suffix, roots in (
-                 ('.swift', ('swift',)), ('.rs', (CORE / 'core', CORE / 'cli')),
+                 ('.swift', ('app', 'extensions', 'tests')), ('.rs', (CORE / 'core', CORE / 'cli')),
                  ('.json', ('resources',)), ('.toml', (CORE / 'core/data',)))
              for root in roots for path in hand_written(root, suffix)
              if not path.name.startswith('RuntimeStrings.')]

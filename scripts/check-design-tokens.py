@@ -2,7 +2,7 @@
 """Swift views that restate a design value SpectraLayout owns.
 
 docs/IOS-UI.md defines the spacing scale, the corner-radius scale and the two
-Liquid Glass tints; swift/app/Components/SpectraLayout.swift spells them in
+Liquid Glass tints; app/Components/SpectraLayout.swift spells them in
 Swift. A screen that writes the number instead of the token drifts silently,
 and no review catches it by eye.
 
@@ -15,7 +15,7 @@ import re
 
 from source_scan import app_swift, report, run
 
-TOKENS = pathlib.Path('swift/app/Components/SpectraLayout.swift')
+TOKENS = pathlib.Path('app/Components/SpectraLayout.swift')
 # Decorative artwork with a fixed palette of its own ends the line, or a glass
 # call's first line, with this.
 ARTWORK = 'design-tokens: artwork'
@@ -100,7 +100,7 @@ RULES = [
 
 
 def scan():
-    views = [(path, path.read_text()) for path in app_swift('swift/app') if path != TOKENS]
+    views = [(path, path.read_text()) for path in app_swift('app') if path != TOKENS]
     lines, count = [], 0
     for title, remedy, rule in RULES:
         hits = [hit for path, text in views for hit in rule(path, text)]

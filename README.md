@@ -55,7 +55,7 @@ make core
 ```
 
 It compiles the Rust core in `../Spectra` for the iPhone, the arm64 simulator
-and the Mac, and writes `swift/SpectraCore/`: a local Swift package of the static
+and the Mac, and writes `SpectraCore/`: a local Swift package of the static
 libraries and the Swift bindings generated from them, which the app links.
 Xcode compiles no Rust, so run `make core` again after changing core. It needs
 a Rust toolchain; core's `rust-toolchain.toml` pins it, so `cargo` installs the
@@ -63,7 +63,7 @@ right one on first use. The package is **not** checked in; never hand-edit it.
 A Release build needs `make core PROFILE=release`.
 [Swift bindings](docs/SWIFT-BINDINGS.md) has the rest.
 
-Open `swift/Spectra.xcodeproj`, pick an iPhone or My Mac as the destination and
+Open `Spectra.xcodeproj`, pick an iPhone or My Mac as the destination and
 build: one target and one set of sources make both apps. Simulators and Macs
 are arm64 only.
 

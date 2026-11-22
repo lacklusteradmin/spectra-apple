@@ -10,6 +10,6 @@ xcuserdata/
 # Python bytecode
 __pycache__/
 
-# The core package, written whole by `make core`
-swift/SpectraCore/
+# The core package `make core` writes
+/SpectraCore/
 

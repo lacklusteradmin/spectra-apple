@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-XCODE_PROJECT := swift/Spectra.xcodeproj
+XCODE_PROJECT := Spectra.xcodeproj
 XCODE_SCHEME ?= Spectra
 IOS_SIM_DEST ?= generic/platform=iOS Simulator
 # The first available iPhone simulator, unless a UDID is given.
@@ -19,7 +19,7 @@ export SPECTRA
 # subset of `ios ios-sim macos`.
 PROFILE ?= dev
 PLATFORMS ?= ios ios-sim macos
-CORE_PACKAGE := swift/SpectraCore
+CORE_PACKAGE := SpectraCore
 # A setting's values in the project; the package is built for the app's
 # minimums, and the build script refuses anything but one value.
 project_setting = $(shell sed -n 's/.*$(1) = \([0-9][0-9.]*\);.*/\1/p' "$(XCODE_PROJECT)/project.pbxproj" | sort -u)
@@ -27,7 +27,7 @@ project_setting = $(shell sed -n 's/.*$(1) = \([0-9][0-9.]*\);.*/\1/p' "$(XCODE_
 .PHONY: core lint check-ui test-ios test-mac ios iosr mac macr clean
 
 # ── Core package ────────────────────────────────────────────────────
-# Builds core from SPECTRA into swift/SpectraCore/, which is ignored output.
+# Builds core from SPECTRA into SpectraCore/, which is ignored output.
 # Xcode compiles no Rust: run this after changing core. A run that finds
 # nothing changed takes seconds, so every build target below runs it first.
 core:

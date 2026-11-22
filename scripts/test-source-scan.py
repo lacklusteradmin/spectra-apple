@@ -79,10 +79,10 @@ class SourceSelectionTests(unittest.TestCase):
         self.assertIn('runtime', production_text(path, set()))
 
     def test_frontend_test_source_roots_do_not_produce_shipped_copy(self):
-        path = self.write('swift/tests/Fixture.swift', 'fixture copy')
+        path = self.write('tests/Fixture.swift', 'fixture copy')
         self.assertTrue(frontend_test(path))
         self.assertEqual(production_text(path, set()), '')
-        path = self.write('swift/app/Screen.swift', 'production copy')
+        path = self.write('app/Screen.swift', 'production copy')
         self.assertFalse(frontend_test(path))
         self.assertEqual(production_text(path, set()), 'production copy')
 
@@ -91,8 +91,8 @@ class AppSwiftTests(unittest.TestCase):
     def test_lists_the_app_without_its_tests_or_generated_bindings(self):
         with contextlib.chdir(REPOSITORY):
             paths = app_swift()
-        self.assertIn(Path('swift/app/App/WalletServiceBridge.swift'), paths)
-        self.assertFalse([path for path in paths if path.parts[1] in {'tests', 'SpectraCore'}])
+        self.assertIn(Path('app/App/WalletServiceBridge.swift'), paths)
+        self.assertFalse([path for path in paths if path.parts[0] in {'tests', 'SpectraCore'}])
         self.assertEqual(paths, sorted(paths))
 
 

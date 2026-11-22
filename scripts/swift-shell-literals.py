@@ -25,7 +25,7 @@ FIXED = re.compile(r'%\.\d+f(?!%%)')
 
 # A literal that spells a chain word and means something else, with why.
 ALLOWED = {
-    ('swift/app/Models/StaticContentCatalog.swift', 'Base'): "Xcode's base localization, not the Base chain",
+    ('app/Models/StaticContentCatalog.swift', 'Base'): "Xcode's base localization, not the Base chain",
 }
 
 

@@ -6,7 +6,7 @@ core's: `../Spectra/docs/FFI-BOUNDARY.md`.
 
 ## The core package
 
-The app links core as `swift/SpectraCore/`, a local Swift package that is not
+The app links core as `SpectraCore/`, a local Swift package that is not
 checked in. Xcode compiles no Rust: `make core` writes the package with core's
 `scripts/build-apple-package.sh`. It holds:
 
@@ -46,7 +46,7 @@ make core
 ```
 
 Change the Rust API in the core checkout, run `make core`, then build: in
-Xcode, or with `make ios` or `make mac`. Never edit `swift/SpectraCore/` by
+Xcode, or with `make ios` or `make mac`. Never edit `SpectraCore/` by
 hand. The build script replaces the header and bindings only when their text
 changed, so a core edit that leaves the FFI as it was recompiles no app Swift.
 It post-processes nothing, so a Swift 6 problem in the bindings is a UniFFI

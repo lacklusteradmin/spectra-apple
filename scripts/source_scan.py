@@ -56,10 +56,12 @@ def frontend_test(path):
     return 'tests' in path.parts
 
 
-def app_swift(root='swift'):
-    """The app's Swift outside its tests. The generated bindings are ignored
-    output, so `hand_written` never lists them."""
-    return [path for path in hand_written(root, '.swift') if not frontend_test(path)]
+def app_swift(*roots):
+    """The app's Swift outside its tests: `app/` and `extensions/`, unless
+    `roots` names others. The generated bindings are ignored output, so
+    `hand_written` never lists them."""
+    return sorted(path for root in roots or ('app', 'extensions')
+                  for path in hand_written(root, '.swift') if not frontend_test(path))
 
 
 def camel(name):

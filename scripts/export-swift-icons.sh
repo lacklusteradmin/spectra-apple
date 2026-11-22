@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Syncs the icon sources into swift/Assets.xcassets/:
+# Syncs the icon sources into Assets.xcassets/:
 #
 #   icons/appicon/         → AppIcon.appiconset/ (SVG → 1024×1024 PNG, and the
 #                            light icon again in the Mac's shape and sizes)
@@ -30,8 +30,8 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 APPICON_SRC="$REPO_ROOT/icons/appicon"
 CRYPTO_SRC="$(cd "$REPO_ROOT" && cd "${SPECTRA:-../Spectra}" && pwd)/icons/crypto"
 
-APPICON_DEST="$REPO_ROOT/swift/Assets.xcassets/AppIcon.appiconset"
-CRYPTO_DEST="$REPO_ROOT/swift/Assets.xcassets/crypto"
+APPICON_DEST="$REPO_ROOT/Assets.xcassets/AppIcon.appiconset"
+CRYPTO_DEST="$REPO_ROOT/Assets.xcassets/crypto"
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 
