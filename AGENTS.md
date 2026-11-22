@@ -5,19 +5,20 @@ Do not git commit or push unless I said so.
 ## Repositories
 
 This repository is the iOS and macOS app. The Rust core and the CLI are the
-`spectra` repository, cloned beside this one as `../Spectra`; the `SPECTRA`
-variable names another checkout, relative to this repository's root.
-`CLAUDE.md` loads `../Spectra/AGENTS.md` too: Rule 0, the architecture rules
-and Funds and keys there apply to everything here, and its paths are relative
-to that checkout.
+`spectra` repository. Its `AGENTS.md` applies here too: read it before a
+change that touches core or what the app shows of it. Rule 0, the architecture
+rules and Funds and keys there apply to everything here.
 
-- Xcode compiles no Rust. `make core` builds core from that checkout into the
-  `SpectraCore/` package the app links, so a core edit reaches the app
-  once `make core` runs; every Makefile build and test target runs it first.
-  The source scans and the icon export read the same checkout.
-- Nothing here records which core commit the app builds against: it builds
-  whatever the checkout holds. Land a core change in spectra, pushed, before
-  the app change that needs it.
+- The app links `SpectraCore/`, a package spectra's `make apple` builds into
+  its `target/SpectraCore/`. Copy that directory here with its modification
+  times — drag it in Finder, or `cp -Rp` or `ditto` — and Xcode compiles no
+  Rust. A plain `cp -R` works too, but new times make Xcode recompile every
+  Swift file.
+- Nothing here assumes where a spectra checkout is. What reads core's source
+  takes it as `SPECTRA`, absolute or relative to this repository's root:
+  `make lint SPECTRA=<path>`, and the icon export. Each refuses without it.
+- Nothing here records which core commit the package came from. Land a core
+  change in spectra, pushed, before the app change that needs it.
 
 ## Docs
 
@@ -26,10 +27,10 @@ Read the one that covers what you are changing:
 | Doc | Covers |
 |---|---|
 | [IOS-UI.md](docs/IOS-UI.md) | Liquid Glass, typography, color, layout and corner radii, and what the Mac app does differently |
-| [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md) | The core package the app links: how `make core` builds it and its Swift bindings |
+| [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md) | The core package the app links, and its Swift bindings |
 | [OPEN-ITEMS.md](docs/OPEN-ITEMS.md) | Remaining app work |
 | [scripts/README.md](scripts/README.md) | Source-scan and icon-export tools |
-| `../Spectra/docs/` | Core's architecture, chain support, FFI boundary and open items |
+| spectra's `docs/` | Core's architecture, chain support, FFI boundary and open items |
 
 Keep them true:
 
@@ -52,7 +53,7 @@ actually ran.
 | Broad refactors, FFI and cross-platform changes, or a core change the app depends on | All four targets, and core's own for what changed in the core checkout, unless I say otherwise |
 
 The four targets are `make lint`, `check-ui`, `test-ios` and `test-mac`: the
-source scans, which read the core checkout; the design-token check;
+source scans, which read the core checkout `SPECTRA` names; the design-token check;
 and `xcodebuild test` on an iPhone simulator and on this Mac. No target runs
 them all: each is run by name. The Makefile holds the exact commands.
 `test-mac` needs the Mac app signed with its keychain access group (Xcode's
@@ -60,7 +61,7 @@ automatic signing, with a Mac development profile for the team): its Keychain
 tests use the real data protection keychain. When another task is building the
 same Xcode project, give yours its own directory with
 `make test-ios IOS_TEST_DERIVED_DATA=<dir>`. Core's targets run in its
-checkout: `make -C ../Spectra lint`, and so on.
+checkout: `make -C <spectra> lint`, and so on.
 
 No test is expected to fail. Treat a failure as real even when it looks
 unrelated to the change, and report it; do not write it off as flaky or
@@ -70,9 +71,9 @@ pre-existing without evidence.
 
 - Check APIs, syntax and generated bindings against **UniFFI 0.31.2 and Swift 6**
   before changing FFI or Swift code. See [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md)
-  and `../Spectra/docs/FFI-BOUNDARY.md`.
+  and spectra's `docs/FFI-BOUNDARY.md`.
 - Never hand-edit `SpectraCore/`. Change the Rust API in the core
-  checkout and run `make core`. A Swift file that uses core says `import SpectraCore`.
+  checkout and rebuild and copy the package. A Swift file that uses core says `import SpectraCore`.
 - [docs/IOS-UI.md](docs/IOS-UI.md) is the authority for Liquid Glass,
   typography, color, layout and corner radii.
 - The app targets **iOS 26** and **macOS 26** (the deployment targets in the
@@ -146,12 +147,12 @@ generates its icons from two sources.
 - `icons/appicon/` holds the 1024-point app icon sources. They export as
   1024×1024 PNGs to `AppIcon.appiconset`; keep that destination name. Exporting
   them needs ImageMagick (`brew install imagemagick`).
-- The crypto icons are core's library in `../Spectra/icons/crypto/`, with its
-  rules in `../Spectra/AGENTS.md`. They export to the matching `crypto` asset
+- The crypto icons are core's library in spectra's `icons/crypto/`, with its
+  rules in spectra's `AGENTS.md`. They export to the matching `crypto` asset
   group, without a namespace.
 
 After editing either, export:
 
 ```sh
-scripts/export-swift-icons.sh
+SPECTRA=<spectra checkout> scripts/export-swift-icons.sh
 ```

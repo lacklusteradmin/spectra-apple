@@ -309,7 +309,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "# A Release build ships the core it links, so it takes a release package.\nif [[ \"${CONFIGURATION}\" == Release ]] && ! grep -qx profile=release \"${SRCROOT}/SpectraCore/build-inputs\"; then\n  echo \"error: a Release build needs the release core package: run make core PROFILE=release\" >&2\n  exit 1\nfi\n";
+			shellScript = "# A Release build ships the core it links, so it takes a release package.\nif [[ \"${CONFIGURATION}\" == Release ]] && ! grep -qx profile=release \"${SRCROOT}/SpectraCore/build-inputs\"; then\n  echo \"error: a Release build needs the release core package: run make apple PROFILE=release in spectra and copy its target/SpectraCore here\" >&2\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

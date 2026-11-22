@@ -5,15 +5,16 @@
 #                            light icon again in the Mac's shape and sizes)
 #   <spectra>/icons/crypto/ → crypto/            (SVG imageset, no namespace)
 #
-# The crypto library is core's, in the spectra checkout SPECTRA names or the
-# one beside this repository, where it is normalized and checked against the
-# catalog's artwork names.
+# The crypto library is core's, in the spectra checkout SPECTRA names (absolute
+# or relative to this repository's root), where it is normalized and checked
+# against the catalog's artwork names.
 #
 # Rules (crypto):
 #   - Creates a new .imageset for every SVG not yet in the catalog.
 #   - Updates the SVG inside an existing .imageset when the source has changed.
 #   - Removes .imageset folders that no longer have a matching source SVG.
-#   - Removes the asset group when its source directory has no SVGs.
+#   - Refuses a source with no SVGs: that is a wrong SPECTRA, not an empty
+#     library, and syncing it would remove every icon.
 #
 # Rules (appicon):
 #   - Converts each SVG to a 1024×1024 PNG using ImageMagick.
@@ -28,7 +29,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 APPICON_SRC="$REPO_ROOT/icons/appicon"
-CRYPTO_SRC="$(cd "$REPO_ROOT" && cd "${SPECTRA:-../Spectra}" && pwd)/icons/crypto"
+if [[ -z "${SPECTRA:-}" ]]; then
+  echo "error: the crypto icons are core's: set SPECTRA to a spectra checkout" >&2
+  exit 2
+fi
+CRYPTO_SRC="$(cd "$REPO_ROOT" && cd "$SPECTRA" && pwd)/icons/crypto"
+if ! compgen -G "$CRYPTO_SRC/*.svg" >/dev/null; then
+  echo "error: no icons in $CRYPTO_SRC: SPECTRA must name a spectra checkout" >&2
+  exit 2
+fi
 
 APPICON_DEST="$REPO_ROOT/Assets.xcassets/AppIcon.appiconset"
 CRYPTO_DEST="$REPO_ROOT/Assets.xcassets/crypto"
@@ -87,14 +96,6 @@ JSON
 sync_svg_group() {
   local src="$1" dest="$2" label="$3"
   local added=0 updated=0 removed=0
-
-  if ! compgen -G "$src/*.svg" >/dev/null; then
-    if [[ -d "$dest" ]]; then
-      rm -rf "$dest"
-      echo "  [$label] removed empty group"
-    fi
-    return
-  fi
 
   ensure_group_contents "$dest"
 

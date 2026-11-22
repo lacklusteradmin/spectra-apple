@@ -10,6 +10,6 @@ xcuserdata/
 # Python bytecode
 __pycache__/
 
-# The core package `make core` writes
+# The core package, copied from spectra's target/SpectraCore/
 /SpectraCore/
 

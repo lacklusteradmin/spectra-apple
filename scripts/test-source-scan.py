@@ -52,6 +52,7 @@ class SourceSelectionTests(unittest.TestCase):
                     declared = test_modules([parent])
                     self.assertEqual(declared, {parent.parent / 'fixture_file.rs'})
 
+    @unittest.skipIf(CORE is None, 'needs SPECTRA, a spectra checkout')
     def test_actual_substrate_tests_are_declared(self):
         parent = REPOSITORY / CORE / 'core/src/api/substrate_json_rpc.rs'
         child = REPOSITORY / CORE / 'core/src/api/substrate_json_rpc/tests.rs'

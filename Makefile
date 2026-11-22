@@ -10,36 +10,18 @@ IOS_TEST_DERIVED_DATA ?=
 # Macs are arm64 only, as the project's simulators are.
 MAC_DEST ?= platform=macOS,arch=arm64
 
-# SPECTRA is the core checkout, relative to this repository's root: the one
-# beside it by default. The core package is built from it, and the source scans
-# and icon export read it.
-SPECTRA ?= ../Spectra
+# The app links SpectraCore/, the package spectra's `make apple` builds, copied
+# here by hand. Nothing here builds core or assumes where its checkout is: what
+# reads core's source takes SPECTRA, a spectra checkout, absolute or relative to
+# this repository's root.
 export SPECTRA
-# The core package the app links. PROFILE is dev or release, and PLATFORMS a
-# subset of `ios ios-sim macos`.
-PROFILE ?= dev
-PLATFORMS ?= ios ios-sim macos
-CORE_PACKAGE := SpectraCore
-# A setting's values in the project; the package is built for the app's
-# minimums, and the build script refuses anything but one value.
-project_setting = $(shell sed -n 's/.*$(1) = \([0-9][0-9.]*\);.*/\1/p' "$(XCODE_PROJECT)/project.pbxproj" | sort -u)
 
-.PHONY: core lint check-ui test-ios test-mac ios iosr mac macr clean
-
-# ── Core package ────────────────────────────────────────────────────
-# Builds core from SPECTRA into SpectraCore/, which is ignored output.
-# Xcode compiles no Rust: run this after changing core. A run that finds
-# nothing changed takes seconds, so every build target below runs it first.
-core:
-	IPHONEOS_DEPLOYMENT_TARGET="$(call project_setting,IPHONEOS_DEPLOYMENT_TARGET)" \
-	MACOSX_DEPLOYMENT_TARGET="$(call project_setting,MACOSX_DEPLOYMENT_TARGET)" \
-	PROFILE="$(PROFILE)" PLATFORMS="$(PLATFORMS)" \
-		"$(SPECTRA)/scripts/build-apple-package.sh" "$(CORE_PACKAGE)"
+.PHONY: lint check-ui test-ios test-mac ios iosr mac macr
 
 # ── Verification ────────────────────────────────────────────────────
 # Four targets, each run by name: lint, check-ui, test-ios and test-mac.
 # AGENTS.md says which a change needs; test-ios and test-mac need Xcode.
-# Core's own targets run in its checkout: `make -C ../Spectra lint`, and so on.
+# Core's own targets run in its checkout: `make -C <spectra> lint`, and so on.
 
 # Source scans: nothing exported or shipped may go unused, and the app may not
 # spell chain names or amount precision itself. They read source, core's in
@@ -48,6 +30,7 @@ SOURCE_SCANS := scripts/unreachable-exports.py scripts/unused-strings.py \
 	scripts/swift-shell-literals.py
 
 lint:
+	@test -n "$(SPECTRA)" || { echo "error: the scans read core: make lint SPECTRA=<spectra checkout>" >&2; exit 2; }
 	python3 -B scripts/test-source-scan.py
 	@set -e; for scan in $(SOURCE_SCANS); do echo "$$scan"; python3 -B $$scan; done
 
@@ -61,7 +44,7 @@ check-ui:
 # Booted first, because xcodebuild shuts down a simulator it booted itself and
 # booting one again costs about 40 seconds a run. It stays up between runs;
 # `xcrun simctl shutdown all` gives its memory back.
-test-ios: core
+test-ios:
 	xcrun simctl bootstatus "$(IOS_TEST_SIM)" -b > /dev/null
 	xcodebuild test -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" \
 		-destination "platform=iOS Simulator,id=$(IOS_TEST_SIM)" -collect-test-diagnostics never \
@@ -71,27 +54,19 @@ test-ios: core
 # keychain access group — Xcode's automatic signing, with a Mac development
 # profile for the team — because the Keychain tests use the real data
 # protection keychain, which refuses an app without one.
-test-mac: core
+test-mac:
 	xcodebuild test -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" \
 		-destination "$(MAC_DEST)" -collect-test-diagnostics never
 
 # ── Builds ──────────────────────────────────────────────────────────
-# A Release build ships the core it links, so it builds a release package.
-iosr macr: PROFILE = release
-
-ios: core
+ios:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Debug -destination "$(IOS_SIM_DEST)" build
 
-iosr: core
+iosr:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Release -destination "$(IOS_SIM_DEST)" build
 
-mac: core
+mac:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Debug -destination "$(MAC_DEST)" build
 
-macr: core
+macr:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Release -destination "$(MAC_DEST)" build
-
-# The package only. Its Rust build stays in the core checkout's target/apple/,
-# which `make -C ../Spectra clean` clears.
-clean:
-	rm -rf "$(CORE_PACKAGE)"

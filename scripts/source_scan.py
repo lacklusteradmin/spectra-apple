@@ -14,18 +14,19 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-# The core repository: the checkout SPECTRA names, or the one beside this
-# repository. Like every path here it is relative to the repository root, where
-# `run` puts the scans.
-CORE = pathlib.Path(os.environ.get('SPECTRA') or '../Spectra')
+# The core repository: the checkout SPECTRA names, absolute or, like every path
+# here, relative to the repository root, where `run` puts the scans. Nothing
+# assumes where it is, so a scan without it refuses to run.
+CORE = pathlib.Path(os.environ['SPECTRA']) if os.environ.get('SPECTRA') else None
 
 
-def run(scan):
-    """Run `scan` from the repository root and exit with its status."""
+def run(scan, reads_core=True):
+    """Run `scan` from the repository root and exit with its status. A scan
+    that reads core refuses to run without a checkout to read."""
     os.chdir(ROOT)
-    if not (CORE / 'core/Cargo.toml').is_file():
-        print(f'error: no core checkout at {CORE}: clone spectra beside this '
-              'repository, or set SPECTRA to one', file=sys.stderr)
+    if reads_core and (CORE is None or not (CORE / 'core/Cargo.toml').is_file()):
+        print(f'error: the scans read core: set SPECTRA to a spectra checkout'
+              f'{"" if CORE is None else f" ({CORE} is not one)"}', file=sys.stderr)
         sys.exit(2)
     sys.exit(scan())
 

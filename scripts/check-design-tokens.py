@@ -111,4 +111,4 @@ def scan():
 
 
 if __name__ == '__main__':
-    run(scan)
+    run(scan, reads_core=False)
