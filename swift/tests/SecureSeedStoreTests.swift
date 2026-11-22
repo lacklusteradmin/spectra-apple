@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import SpectraCore
 import Testing
 @testable import Spectra
 

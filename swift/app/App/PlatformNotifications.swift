@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import UserNotifications
 
 /// What this platform has for telling the user something: a notification and

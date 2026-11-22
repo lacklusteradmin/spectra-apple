@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The setup's last page: what a wallet on the network will do once added,

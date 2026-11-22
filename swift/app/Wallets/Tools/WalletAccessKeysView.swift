@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A NEAR account's access keys, as core reads them from a node, with the
@@ -90,7 +91,7 @@ struct WalletAccessKeysView: View {
     }
 }
 
-extension NearAccessKey: Identifiable {
+extension NearAccessKey: @retroactive Identifiable {
     public var id: String { publicKey }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 // Building, signing and broadcasting the staged send. Core does each step and
 // keeps the artifact; `session` adopts its answers for the composer that asked.

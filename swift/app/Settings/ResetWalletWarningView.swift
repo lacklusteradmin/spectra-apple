@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 /// What to remove from this device. Nothing is chosen until the user chooses

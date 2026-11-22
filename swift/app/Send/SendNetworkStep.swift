@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The send flow's network page: fee estimates and the per-chain options that

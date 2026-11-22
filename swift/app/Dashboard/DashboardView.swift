@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 struct DashboardView: View {
@@ -292,7 +293,7 @@ enum DashboardPage {
     case assets
 }
 
-extension DashboardAssetGroup: Identifiable {
+extension DashboardAssetGroup: @retroactive Identifiable {
     /// Core supplies the asset's display identity from its largest holding.
     var name: String { identity.name }
     var symbol: String { identity.symbol }

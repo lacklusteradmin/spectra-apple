@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 /// Receive starts on the wallet list; choosing a wallet pushes its address,

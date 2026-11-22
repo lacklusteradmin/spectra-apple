@@ -1,6 +1,7 @@
 // Live Activities are an iOS presentation; see `PlatformNotifications+SendLiveActivity`.
 #if os(iOS)
     import Foundation
+    import SpectraCore
     import Testing
 
     @testable import Spectra

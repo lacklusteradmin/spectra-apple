@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The seed-phrase entry grid: one field per slot, as many slots as core

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension AppState {
     func loadMoreOnChainHistory(for walletIds: Set<String>) async {

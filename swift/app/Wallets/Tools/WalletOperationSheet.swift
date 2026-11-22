@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// One transaction a wallet tool builds — a revocation, a closing, a merge, an

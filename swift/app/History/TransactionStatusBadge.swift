@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A transaction's status as a pill: its word and a symbol, never colour

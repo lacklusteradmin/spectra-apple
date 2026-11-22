@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Core resolves the names; the reviewed addresses remain complete and copyable.

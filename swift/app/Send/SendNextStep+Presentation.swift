@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// The labels of core's next step for a staged transaction. Core decides the
 /// step; an acceptance receipt is never evidence that a transaction confirmed.

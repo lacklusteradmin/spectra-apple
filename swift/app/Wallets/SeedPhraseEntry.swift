@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// One seed-phrase entry grid and core's verdict on it.
 ///

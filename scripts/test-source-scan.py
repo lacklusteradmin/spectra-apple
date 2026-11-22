@@ -7,8 +7,8 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from source_scan import (app_swift, calls_only, camel, frontend_test, production_text, report,
-                         strip_comments, test_modules)
+from source_scan import (CORE, app_swift, calls_only, camel, frontend_test, production_text,
+                         report, strip_comments, test_modules)
 
 REPOSITORY = Path(__file__).resolve().parent.parent
 
@@ -53,8 +53,8 @@ class SourceSelectionTests(unittest.TestCase):
                     self.assertEqual(declared, {parent.parent / 'fixture_file.rs'})
 
     def test_actual_substrate_tests_are_declared(self):
-        parent = REPOSITORY / 'spectra/core/src/api/substrate_json_rpc.rs'
-        child = REPOSITORY / 'spectra/core/src/api/substrate_json_rpc/tests.rs'
+        parent = REPOSITORY / CORE / 'core/src/api/substrate_json_rpc.rs'
+        child = REPOSITORY / CORE / 'core/src/api/substrate_json_rpc/tests.rs'
         declared = test_modules([parent])
         self.assertIn(child, declared)
         self.assertEqual(production_text(child, declared), '')
@@ -92,7 +92,7 @@ class AppSwiftTests(unittest.TestCase):
         with contextlib.chdir(REPOSITORY):
             paths = app_swift()
         self.assertIn(Path('swift/app/App/WalletServiceBridge.swift'), paths)
-        self.assertFalse([path for path in paths if path.parts[1] in {'tests', 'generated'}])
+        self.assertFalse([path for path in paths if path.parts[1] in {'tests', 'SpectraCore'}])
         self.assertEqual(paths, sorted(paths))
 
 

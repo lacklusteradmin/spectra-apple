@@ -2,6 +2,7 @@
 #if os(iOS)
     import ActivityKit
     import Foundation
+    import SpectraCore
 
     // The send Live Activity: started when a broadcast is accepted, ended when core
     // says the transaction reached a terminal status. The extension target renders

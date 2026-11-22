@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 /// One stored transfer, most-read first: what moved and where it stands, the
 /// one action a pending send may still take, how it got there, who was on

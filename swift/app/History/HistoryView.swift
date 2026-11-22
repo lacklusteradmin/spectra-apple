@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 private struct HistoryRowPresentation: Identifiable, Equatable {
     let transaction: TransactionRecord

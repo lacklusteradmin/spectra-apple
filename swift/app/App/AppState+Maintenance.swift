@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension AppState {
     /// Ask core to refresh for `intent` and adopt the result. Scheduled ticks

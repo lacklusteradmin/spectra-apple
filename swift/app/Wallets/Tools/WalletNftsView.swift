@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The ERC-721 and ERC-1155 tokens an EVM wallet holds, as core reads them
@@ -73,7 +74,7 @@ struct WalletNftsView: View {
     }
 }
 
-extension WalletNft: Identifiable {
+extension WalletNft: @retroactive Identifiable {
     public var id: String { "\(contract):\(tokenId)" }
     /// The token's own name, else its collection's, else its standard.
     var title: String {

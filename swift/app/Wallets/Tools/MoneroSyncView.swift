@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A cancellable projection of core's durable scan. No keys or scan state live in Swift.

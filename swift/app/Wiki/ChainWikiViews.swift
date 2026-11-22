@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A chain's own page, one level down from the coin that runs on it.

@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A Sui wallet's coin types and how many objects hold each, as core reads
@@ -64,7 +65,7 @@ struct WalletCoinObjectsView: View {
     }
 }
 
-extension SuiCoinType: Identifiable {
+extension SuiCoinType: @retroactive Identifiable {
     public var id: String { coinType }
 }
 

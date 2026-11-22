@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension AppState {
     /// Pin or unpin one asset. Core applies it to the set the dashboard shows,

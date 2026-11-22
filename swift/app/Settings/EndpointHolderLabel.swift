@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Who holds an address, as core names it: one of the user's wallets or a

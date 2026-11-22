@@ -1,5 +1,6 @@
 import Foundation
 import Network
+import SpectraCore
 
 extension AppState {
     func startNetworkPathMonitorIfNeeded() {

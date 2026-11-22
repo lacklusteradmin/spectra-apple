@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 private enum SendFlowStep: Int, CaseIterable {
@@ -246,7 +247,7 @@ struct SendView: View {
         case .from, .recipient: return "Next"
         case .amount: return "Review"
         case .confirm:
-            // Three stages, each its own action (spectra/docs/ARCHITECTURE.md): what was built
+            // Three stages, each its own action (spectra's docs/ARCHITECTURE.md): what was built
             // is inspectable before signing, and a signed send waits for the
             // user to choose which nodes receive it.
             return nextStep?.title ?? "Build Transaction"

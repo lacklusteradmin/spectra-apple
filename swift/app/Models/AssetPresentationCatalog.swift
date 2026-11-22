@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 /// Immutable catalog presentation, indexed once by deployment id. A holding's

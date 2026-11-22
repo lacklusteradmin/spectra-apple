@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A projection of core's durable artifact, its history record and the step

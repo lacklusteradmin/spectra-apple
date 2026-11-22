@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A Zcash wallet's shielded funds, as core keeps them: the scan from the

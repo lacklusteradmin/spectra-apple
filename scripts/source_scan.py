@@ -14,14 +14,19 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-# The core repository, checked out as the `spectra` submodule. Like every path
-# here it is relative to the repository root, where `run` puts the scans.
-CORE = pathlib.Path('spectra')
+# The core repository: the checkout SPECTRA names, or the one beside this
+# repository. Like every path here it is relative to the repository root, where
+# `run` puts the scans.
+CORE = pathlib.Path(os.environ.get('SPECTRA') or '../Spectra')
 
 
 def run(scan):
     """Run `scan` from the repository root and exit with its status."""
     os.chdir(ROOT)
+    if not (CORE / 'core/Cargo.toml').is_file():
+        print(f'error: no core checkout at {CORE}: clone spectra beside this '
+              'repository, or set SPECTRA to one', file=sys.stderr)
+        sys.exit(2)
     sys.exit(scan())
 
 
@@ -36,9 +41,8 @@ def report(findings, summary):
 def hand_written(root, suffix):
     """Tracked or new files under `root`, excluding ignored generated output.
 
-    Git lists from inside `root`, so a directory in the `spectra` submodule
-    lists that repository's files: run from here, `ls-files` stops at the
-    submodule.
+    Git lists from inside `root`, so a directory in the core checkout lists
+    that repository's files.
     """
     root = pathlib.Path(root)
     listed = subprocess.run(

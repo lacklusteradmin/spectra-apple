@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension TokenStandard {
     /// The protocol's name, as core spells it.
@@ -10,7 +11,7 @@ extension AssetHolding {
     var standardLabel: String { tokenStandard?.name ?? AppLocalization.string("Native") }
 }
 
-extension TokenPreferenceEntry: Identifiable {
+extension TokenPreferenceEntry: @retroactive Identifiable {
     public var id: String { token.deploymentId }
     /// The chain hosting this token.
     var hostingChain: Chain? { token.chainId.hostsTokens ? token.chainId : nil }

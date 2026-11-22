@@ -1,10 +1,11 @@
 // Presentation helpers for core records, app navigation and displayed errors.
 
 import Foundation
+import SpectraCore
 
 /// An operational log entry recorded, bounded, and persisted by core.
 /// Both the logs screen and chain diagnostics read this record.
-extension DiagnosticLog: Identifiable {
+extension DiagnosticLog: @retroactive Identifiable {
     var timestamp: Date { Date(timeIntervalSince1970: timestampUnix) }
 }
 
@@ -104,6 +105,6 @@ extension AppState {
     }
 }
 
-extension KeypoolDiagnostic: Identifiable {
+extension KeypoolDiagnostic: @retroactive Identifiable {
     public var id: String { walletId }
 }

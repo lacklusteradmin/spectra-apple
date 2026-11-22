@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 enum AppEndpointDirectory {
     /// The endpoint catalog as settings groups it, read once. Core networking
     /// uses its own catalog.

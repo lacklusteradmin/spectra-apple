@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Bundled derived state of `AppState.wallets`, as core resolved it.
 /// Assigned as one value by `rebuildWalletDerivedStateFromCore`, so readers see one

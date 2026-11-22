@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Owns only the native form and its lifetime. Closing does not undo a core commit.
 @MainActor

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension AppState {
     /// Open on `walletId`, or with no wallet selected unless there is only

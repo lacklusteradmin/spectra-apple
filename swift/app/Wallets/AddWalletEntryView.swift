@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Add Wallet: choose the network first. Every page after it — the ways of
@@ -143,7 +144,7 @@ struct WalletSetupMethodsView: View {
     }
 }
 
-extension WalletSetupOption: Identifiable {
+extension WalletSetupOption: @retroactive Identifiable {
     public var id: WalletSetupMethod { method }
 }
 

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Transient native workflow identity. Core owns every transaction and signature,
 /// and says what may be done with a staged one next: every artifact this session

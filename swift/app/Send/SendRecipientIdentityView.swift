@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A local core lookup supplies identity; a UI menu selection never does.

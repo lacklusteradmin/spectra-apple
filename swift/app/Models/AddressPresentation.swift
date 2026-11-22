@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// `address` in groups of four, a `0x` prefix riding on the first, with the

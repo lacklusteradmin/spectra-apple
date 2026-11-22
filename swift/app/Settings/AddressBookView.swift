@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 /// Saved recipients, with adding a contact as a toolbar action.

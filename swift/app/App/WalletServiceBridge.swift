@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// The app's one `WalletService` and the refresh engine on it.
 ///

@@ -1,3 +1,3 @@
 @AGENTS.md
 
-@spectra/AGENTS.md
+@../Spectra/AGENTS.md

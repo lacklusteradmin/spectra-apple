@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 struct TokenRegistrySettingsView: View {
     let tokens: TokenPreferencesState

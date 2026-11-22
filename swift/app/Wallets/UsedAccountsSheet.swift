@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Find the accounts a phrase has used on the chosen network: core scans the

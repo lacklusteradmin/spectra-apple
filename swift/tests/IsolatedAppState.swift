@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import Synchronization
 import Testing
 @testable import Spectra

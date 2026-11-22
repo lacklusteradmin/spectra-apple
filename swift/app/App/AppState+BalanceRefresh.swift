@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension AppState {
     /// Refresh every wallet's balances now: the engine sweeps its entries together.

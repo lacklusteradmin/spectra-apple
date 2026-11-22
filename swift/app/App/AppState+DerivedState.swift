@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 extension AppState {
     /// Core resolves the whole thing — grouping, price-request set, and which
     /// coins each wallet can send or receive on. It holds the wallets, so it

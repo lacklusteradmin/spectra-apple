@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension AppState {
     func moneroSyncStatus(walletId: String) async throws -> MoneroSyncStatus? {

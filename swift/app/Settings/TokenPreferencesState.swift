@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// The known-token projection — the catalog and the user's custom tokens — as
 /// core last committed it.

@@ -1,3 +1,5 @@
+import SpectraCore
+
 /// Process-lifetime copies of core's compile-time tables, fetched once on
 /// first use. Do not cache secret inputs or helpers that are already cheap
 /// local lookups.

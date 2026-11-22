@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A Solana wallet's empty token accounts and the rent each holds, as core

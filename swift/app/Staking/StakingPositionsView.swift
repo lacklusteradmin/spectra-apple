@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 struct StakingPositionsView: View {
@@ -184,6 +185,6 @@ struct StakingValidatorPicker: View {
     }
 }
 
-extension StakingPosition: Identifiable {}
-extension StakingValidator: Identifiable { public var id: String { identifier } }
-extension SendArtifact: Identifiable {}
+extension StakingPosition: @retroactive Identifiable {}
+extension StakingValidator: @retroactive Identifiable { public var id: String { identifier } }
+extension SendArtifact: @retroactive Identifiable {}

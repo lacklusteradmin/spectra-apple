@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The ERC-20 allowances an EVM wallet has granted, as core reads them from
@@ -79,7 +80,7 @@ struct WalletApprovalsView: View {
     }
 }
 
-extension TokenApproval: Identifiable {
+extension TokenApproval: @retroactive Identifiable {
     public var id: String { "\(token):\(spender)" }
 }
 

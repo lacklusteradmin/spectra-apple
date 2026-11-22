@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 struct PriceAlertsView: View {
     @Bindable var store: AppState

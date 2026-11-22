@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The composer's recipient: the address, entered as on every page that asks

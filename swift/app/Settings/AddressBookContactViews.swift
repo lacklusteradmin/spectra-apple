@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 /// Every mainnet, because core validates every mainnet, as the rows the shared

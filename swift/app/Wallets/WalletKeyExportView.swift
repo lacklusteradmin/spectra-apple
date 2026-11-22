@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 extension WalletKeyKind {
@@ -136,6 +137,6 @@ struct WalletKeyExportView: View {
     }
 }
 
-extension WalletKeyExport: Identifiable {
+extension WalletKeyExport: @retroactive Identifiable {
     public var id: String { "\(kind)" }
 }

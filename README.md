@@ -1,7 +1,5 @@
 # Spectra for iOS and macOS
 
-[![CI](https://github.com/lacklusteradmin/spectra-apple/actions/workflows/ci.yml/badge.svg)](https://github.com/lacklusteradmin/spectra-apple/actions/workflows/ci.yml)
-
 Spectra is a prelaunch, multi-chain self-custodial crypto wallet focused on
 custody, payments, recovery and staking. It aims to be approachable for everyday
 use while exposing the network settings, diagnostics and logs advanced users need.
@@ -26,38 +24,48 @@ upsells.
 
 This repository is the native SwiftUI app for iOS and macOS. The Rust wallet
 core it runs on is [spectra](https://github.com/lacklusteradmin/spectra),
-checked out here as the `spectra/` git submodule. Core owns domain state and
-decisions; the app renders its results and forwards user intent.
+cloned beside this repository. Core owns domain state and decisions; the app
+renders its results and forwards user intent.
 
 - [AGENTS.md](AGENTS.md): the rules for working in this repository. It loads
-  `spectra/AGENTS.md` too, Rule 0 first. Read first.
+  `../Spectra/AGENTS.md` too, Rule 0 first. Read first.
 - [iOS UI](docs/IOS-UI.md): layout, typography and Liquid Glass rules, and
   what the Mac does differently.
-- [Swift bindings](docs/SWIFT-BINDINGS.md): how the app builds core and
-  generates its bindings.
+- [Swift bindings](docs/SWIFT-BINDINGS.md): the core package the app links,
+  and how `make core` builds it.
 - [Open items](docs/OPEN-ITEMS.md): remaining app work. Core's are in
-  `spectra/docs/OPEN-ITEMS.md`.
+  `../Spectra/docs/OPEN-ITEMS.md`.
 - [Scripts](scripts/README.md): the tools behind the Makefile.
 
 ### Building
 
-Clone with the submodule:
+Clone both repositories side by side, the core as `Spectra`:
 
 ```sh
-git clone --recurse-submodules https://github.com/lacklusteradmin/spectra-apple.git
+git clone https://github.com/lacklusteradmin/spectra.git Spectra
+git clone https://github.com/lacklusteradmin/spectra-apple.git SpectraApple
 ```
 
-or run `git submodule update --init` in an existing clone. The build needs a
-Rust toolchain; `spectra/rust-toolchain.toml` pins it, so `cargo` installs the
-right one on first use.
+The app builds against `../Spectra`; to use another core checkout, pass
+`SPECTRA=<path>` to `make`, relative to this repository's root. Then build the
+core package:
+
+```sh
+make core
+```
+
+It compiles the Rust core in `../Spectra` for the iPhone, the arm64 simulator
+and the Mac, and writes `swift/SpectraCore/`: a local Swift package of the static
+libraries and the Swift bindings generated from them, which the app links.
+Xcode compiles no Rust, so run `make core` again after changing core. It needs
+a Rust toolchain; core's `rust-toolchain.toml` pins it, so `cargo` installs the
+right one on first use. The package is **not** checked in; never hand-edit it.
+A Release build needs `make core PROFILE=release`.
+[Swift bindings](docs/SWIFT-BINDINGS.md) has the rest.
 
 Open `swift/Spectra.xcodeproj`, pick an iPhone or My Mac as the destination and
-build: one target and one set of sources make both apps. The Xcode “Build Rust
-Core” phase runs `scripts/build-apple.sh`, which compiles the Rust core in
-`spectra/` for the device, the arm64 simulator or the Mac and generates
-`swift/generated/` from it, so a fresh clone needs no separate step. Simulators
-and Macs are arm64 only. The Swift bindings are **not** checked in; never
-hand-edit `swift/generated/` — change the Rust API and rebuild.
+build: one target and one set of sources make both apps. Simulators and Macs
+are arm64 only.
 
 The Mac app is sandboxed and keeps its secrets in the data protection keychain,
 which macOS opens only to an app signed with its keychain access group. Xcode's
@@ -71,13 +79,13 @@ says which a change needs:
 
 | Target | What it runs |
 |---|---|
-| `make lint` | the source scans, which read core through the submodule |
+| `make lint` | the source scans, which read the core checkout |
 | `make check-ui` | the design-token check |
 | `make test-ios` | `xcodebuild test` on an iPhone simulator |
 | `make test-mac` | `xcodebuild test` on this Mac, the app signed for its Keychain |
 
-CI runs `lint` and `check-ui`; `test-ios` and `test-mac` need Xcode. Core's own
-targets run in its checkout: `make -C spectra lint`, and so on.
+`test-ios` and `test-mac` need Xcode. Core's own targets run in its checkout:
+`make -C ../Spectra lint`, and so on.
 
 ## License
 

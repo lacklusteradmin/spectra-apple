@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension AppState {
     /// Open the form for adding a wallet on `chain` by `method`, one the

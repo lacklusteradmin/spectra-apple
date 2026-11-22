@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Why a chain's data is stale, worded for the dashboard notice.
 struct ChainDegradedBanner: Identifiable {

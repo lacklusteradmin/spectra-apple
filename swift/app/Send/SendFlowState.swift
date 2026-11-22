@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// The send composer: its form, its preview and the send it stages.
 ///

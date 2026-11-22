@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension AppState {
     func retryUTXOTransactionStatus(for transactionId: String) async -> String {

@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The token contracts holding a storage deposit this NEAR account can have
@@ -72,7 +73,7 @@ struct WalletTokenStorageView: View {
     }
 }
 
-extension NearStorageDeposit: Identifiable {
+extension NearStorageDeposit: @retroactive Identifiable {
     public var id: String { contract }
 }
 

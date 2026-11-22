@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// The price alerts, as core last committed them.
 ///

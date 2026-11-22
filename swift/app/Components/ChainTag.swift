@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension ChainTag {
     /// Every tag, in the order the picker offers them.

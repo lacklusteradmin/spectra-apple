@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension AppState {
     /// The only writer of the two quote notices, called while adopting a
@@ -39,7 +40,7 @@ private func fiatRateRefreshMessage(_ failure: QuoteRefreshFailure) -> String {
 
 /// Core's currencies, with the order and name a picker needs.
 /// The code comes from core's formatting rules, which carry it.
-extension FiatCurrency: CaseIterable, Identifiable {
+extension FiatCurrency: @retroactive CaseIterable, @retroactive Identifiable {
     private static let catalog = fiatCurrencyCatalog()
     private static let rulesByCurrency = Dictionary(uniqueKeysWithValues: catalog.map { ($0.currency, $0) })
     public static var allCases: [FiatCurrency] { catalog.map(\.currency) }

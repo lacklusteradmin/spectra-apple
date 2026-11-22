@@ -8,6 +8,7 @@
 // projections once and delivers native effects.
 
 import Foundation
+import SpectraCore
 
 final class WalletRefreshObserver: RefreshObserver {
     enum Event: Sendable {

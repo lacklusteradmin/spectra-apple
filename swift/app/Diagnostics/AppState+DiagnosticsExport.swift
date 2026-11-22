@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 // Core assembles the bundle from what it recorded; Swift supplies what only
 // the platform knows about itself and owns the files.

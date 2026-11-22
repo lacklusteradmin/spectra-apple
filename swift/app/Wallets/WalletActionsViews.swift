@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The rows and buttons a wallet's page draws from core's `WalletActions`.

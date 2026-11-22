@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import SpectraCore
 enum KeychainStoreError: Error, Equatable {
     case missingValue
     case invalidEncoding

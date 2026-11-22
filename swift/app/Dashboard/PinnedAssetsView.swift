@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 struct PinnedAssetsView: View {
@@ -66,7 +67,7 @@ struct DashboardPinnedAssetRowView: View, Equatable {
     }
 }
 
-extension DashboardPinOption: Identifiable {
+extension DashboardPinOption: @retroactive Identifiable {
     public var id: String { tokenId }
     var color: Color { AssetPresentationCatalog.color(deploymentId: deploymentId) }
 }

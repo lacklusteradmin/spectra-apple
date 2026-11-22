@@ -1,10 +1,11 @@
+import SpectraCore
 import SwiftUI
 
 /// The explorer each network's transactions and addresses open in.
 /// Read-only: an explorer is a page Spectra links to, not a service it
 /// requests.
 struct ExplorerSettingsView: View {
-    private let explorers = Spectra.explorers()
+    private let explorers = SpectraCore.explorers()
 
     var body: some View {
         Form {

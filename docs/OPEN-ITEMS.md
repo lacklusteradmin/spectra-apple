@@ -1,8 +1,8 @@
 # Open items
 
 App work that remains. Delete an item once it is done. Core's remaining work is
-in `spectra/docs/OPEN-ITEMS.md`, and Rule 0 and Funds and keys in
-`spectra/AGENTS.md` apply to all of it.
+in `../Spectra/docs/OPEN-ITEMS.md`, and Rule 0 and Funds and keys in
+`../Spectra/AGENTS.md` apply to all of it.
 
 ## Tasks
 

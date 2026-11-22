@@ -8,6 +8,7 @@
 // is a bug.
 
 import Foundation
+import SpectraCore
 
 extension AppState {
     /// What the command queue does with each committed command, before the

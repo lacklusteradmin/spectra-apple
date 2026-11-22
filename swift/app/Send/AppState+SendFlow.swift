@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension AppState {
     /// Open the composer on `walletId`, or on the first wallet that can send,

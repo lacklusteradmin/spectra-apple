@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Ordered wallet-setup pages. Navigation and the step indicator derive
 /// from this list.

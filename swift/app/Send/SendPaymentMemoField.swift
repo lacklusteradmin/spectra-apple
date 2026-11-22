@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The destination tag or memo a payment carries to a recipient that shares

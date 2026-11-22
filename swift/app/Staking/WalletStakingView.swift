@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// One wallet's staking: its positions, and staking from it. A wallet's page

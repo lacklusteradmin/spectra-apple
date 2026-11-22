@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import Testing
 @testable import Spectra
 @MainActor

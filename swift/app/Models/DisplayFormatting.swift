@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 // Localized display messages. AmountPresentation owns native number rendering.
 

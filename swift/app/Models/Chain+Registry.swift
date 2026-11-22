@@ -1,9 +1,10 @@
 import Foundation
+import SpectraCore
 
-/// `Chain` is generated from `registry::Chain` in `spectra/core/data/chains.toml` order.
+/// `Chain` is generated from `registry::Chain` in spectra's `core/data/chains.toml` order.
 /// Its identity, display name, symbol, and capabilities come from that catalog,
 /// which crosses the FFI once, as `listAllChains()`.
-extension Chain: Identifiable {
+extension Chain: @retroactive Identifiable {
     /// Every chain, in catalog order.
     static let all: [Chain] = entries.map(\.chain)
 

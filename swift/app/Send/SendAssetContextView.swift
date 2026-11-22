@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The current asset and exact wallet network remain visible while composing.

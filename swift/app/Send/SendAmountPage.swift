@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The composer's amount: typed, or a share of what the quote says can be sent.

@@ -1,9 +1,10 @@
+import SpectraCore
 import SwiftUI
 
 /// The wiki is indexed by coin. `listAssetWiki()` joins both catalogs so
 /// each coin has one page. Chains have their own section; where a coin is
 /// deployed is Known Tokens' job, so neither repeats it.
-extension AssetWikiEntry: Identifiable {
+extension AssetWikiEntry: @retroactive Identifiable {
     public var id: String { tokenId }
     var accentColor: Color { color?.color ?? .accentColor }
     var face: WikiCoinFace {
@@ -11,7 +12,7 @@ extension AssetWikiEntry: Identifiable {
     }
 }
 
-extension ChainWikiEntry: Identifiable {}
+extension ChainWikiEntry: @retroactive Identifiable {}
 
 /// One filter over the whole library: what kind of coin, or what kind of chain.
 private enum WikiTag: Hashable {

@@ -5,6 +5,7 @@
 // direction: the app renders core's records, and core builds its own. Swift has
 // no `#[cfg(test)]`, so the target boundary is the gate.
 import Foundation
+import SpectraCore
 
 @testable import Spectra
 

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 struct LogsView: View {
     let store: AppState

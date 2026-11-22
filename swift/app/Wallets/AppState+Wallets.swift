@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension AppState {
     func wallet(for walletId: String) -> WalletView? { walletDerivedCache.walletById[walletId] }

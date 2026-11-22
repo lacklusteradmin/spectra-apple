@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Saved recipients, as core last committed them.
 ///

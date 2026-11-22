@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// What every composer page reads of the wallet projection, read once per

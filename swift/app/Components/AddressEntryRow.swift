@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// An address typed, pasted, scanned or picked from the address book: the

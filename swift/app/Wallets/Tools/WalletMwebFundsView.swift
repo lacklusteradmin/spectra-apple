@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A Litecoin wallet's MWEB funds, as core keeps them: the scan of a

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 extension TokenTag {
     /// Every tag, in the order a filter offers them.

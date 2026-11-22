@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Every chain in one list, ordered by popularity or name and narrowed by a

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Live Tor bootstrap/connection state, as core's refresh engine reports it.
 /// Drives the dashboard indicator and the settings status row.

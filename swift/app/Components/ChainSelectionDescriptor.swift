@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// One chain as the chain pickers draw it, projected once from its catalog row.

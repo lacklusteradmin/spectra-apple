@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 // The diagnostics screen's actions. Swift holds which runs are in flight; core
 // runs them, records what they found and logs how they went.

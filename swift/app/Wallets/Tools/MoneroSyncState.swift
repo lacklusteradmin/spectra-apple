@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Native scan controls and progress; each run has its own lifetime.
 @MainActor

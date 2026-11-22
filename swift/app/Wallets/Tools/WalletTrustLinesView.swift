@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// An XRP Ledger or Stellar wallet's trust lines, as core reads them from a

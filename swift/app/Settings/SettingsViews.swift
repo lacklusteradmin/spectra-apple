@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 
 /// The settings tab: glass cards over the backdrop, like the other tabs,

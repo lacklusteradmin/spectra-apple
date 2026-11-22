@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 struct AddCustomEndpointView: View {

@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The address core will store for the form as it stands, from the planning

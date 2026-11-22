@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// One asset across every wallet: what it is worth, where and by whom it is

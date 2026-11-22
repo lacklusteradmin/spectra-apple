@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// A multisig account as core reads its policy, and its sessions: build a

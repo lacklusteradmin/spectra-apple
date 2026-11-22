@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Everything about a seed wallet that has a working default: a new phrase's
@@ -52,7 +53,7 @@ struct WalletDerivationOptionsView: View {
     }
 }
 
-extension SeedPhraseLanguage: Identifiable {
+extension SeedPhraseLanguage: @retroactive Identifiable {
     public var id: String { code }
 }
 

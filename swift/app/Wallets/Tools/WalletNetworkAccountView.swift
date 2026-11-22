@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// What the wallet's account on its network holds and needs beyond a

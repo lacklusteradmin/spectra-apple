@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The password, signing and broadcast sections of a page that reviews one

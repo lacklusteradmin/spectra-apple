@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The proof of a Monero payment, as core derives and checks it: the

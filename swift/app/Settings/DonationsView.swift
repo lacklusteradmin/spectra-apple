@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 struct DonationsView: View {
     private var copy: DonationsContentCopy { DonationsContentCopy.current }

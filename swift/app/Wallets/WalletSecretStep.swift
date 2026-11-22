@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The wallet-setup secret step: enter or record a seed, paste a private key,

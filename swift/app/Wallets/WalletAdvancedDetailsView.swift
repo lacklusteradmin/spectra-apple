@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The wallet's name, recovery phrase, identifiers and deletion.

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// The screen calls these operations on core. Tests can suspend an individual
 /// operation to exercise cancellation without opening a network connection.

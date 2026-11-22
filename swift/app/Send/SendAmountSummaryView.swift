@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Amounts supplied by the reviewed preview or immutable artifact, without a new quote.

@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// One account the scan found used: funded, or with history.

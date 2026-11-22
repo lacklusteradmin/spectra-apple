@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// A render-time value over core projections. No storage, services or side
 /// effects, and no money arithmetic: amounts arrive as exact decimals and

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// A transient form over core's persisted positions, reviews and broadcast journal.
 @MainActor @Observable final class StakingState {

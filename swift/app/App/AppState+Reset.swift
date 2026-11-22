@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 extension AppState {
     /// `nil` once the reset is done; otherwise why it was not, for the reset sheet.
     func resetSelectedData(scopes: Set<ResetScope>) async -> String? {

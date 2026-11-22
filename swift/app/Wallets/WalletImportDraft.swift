@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 /// What a draft is for: adding a wallet one way on one network, or renaming
 /// one. The network and the method are chosen before the form opens.

@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 
 /// Raw form identity, including invalid edits that may parse to the same nil value.
 struct SendPreviewInputSnapshot: Equatable {

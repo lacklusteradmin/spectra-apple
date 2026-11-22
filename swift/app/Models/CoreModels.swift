@@ -1,4 +1,5 @@
 import Foundation
+import SpectraCore
 import SwiftUI
 extension SendPreview {
     /// Whether the preview says anything the fee rows and the amount page
@@ -11,7 +12,7 @@ extension SendPreview {
 }
 /// A holding's `id` is the deployment id core derives; every projection
 /// this app reads carries it.
-extension AssetHolding: Identifiable {
+extension AssetHolding: @retroactive Identifiable {
     var color: Color { AssetPresentationCatalog.color(deploymentId: id) }
     var holdingKey: String { id }
     var chain: Chain { chainId }
@@ -31,7 +32,7 @@ extension FundsFinderCandidate {
 extension DiagnosticLogInput {
     var chainName: String? { chainId?.displayName }
 }
-extension WalletView: Identifiable {}
+extension WalletView: @retroactive Identifiable {}
 extension WalletView {
     /// This wallet's address on a chain. Slot resolution (including "every
     /// EVM chain shares Ethereum's") lives in the Rust registry.
@@ -64,7 +65,7 @@ extension DerivationProfile {
         }
     }
 }
-extension TonWalletVersion: CaseIterable {
+extension TonWalletVersion: @retroactive CaseIterable {
     public static var allCases: [TonWalletVersion] { [.w5, .v4r2] }
     /// The version's name as TON wallets print it.
     var title: String {
@@ -92,7 +93,7 @@ extension TransactionStatus {
     }
 }
 /// Picker order and wording for core's history filter.
-extension HistoryQueryFilter: CaseIterable, Identifiable {
+extension HistoryQueryFilter: @retroactive CaseIterable, @retroactive Identifiable {
     public static var allCases: [HistoryQueryFilter] { [.all, .send, .receive, .pending] }
     public var id: Self { self }
     var localizedTitle: String {
@@ -123,7 +124,7 @@ extension PriceAlertCondition {
 /// The alert rule core stores. Not a Swift copy of it — core owns the list,
 /// the rule that a target must be positive, and the persistence. `id` is an
 /// opaque core-assigned string, not a platform-minted `UUID`.
-extension PriceAlertRule: Identifiable {}
+extension PriceAlertRule: @retroactive Identifiable {}
 
 extension PriceAlertRule {
     var chainName: String { chainId.displayName }
@@ -135,7 +136,7 @@ extension PriceAlertRule {
 }
 // `AddressBookEntry` is the Rust record — core owns saved recipients, including
 // the rules about which ones are acceptable. Only display helpers live here.
-extension AddressBookEntry: Identifiable {
+extension AddressBookEntry: @retroactive Identifiable {
     var chainName: String { chainId.displayName }
     var subtitleText: String {
         guard !note.isEmpty else { return chainName }
@@ -143,7 +144,7 @@ extension AddressBookEntry: Identifiable {
     }
 }
 /// A stored transaction, as core keeps it.
-extension TransactionRecord: Identifiable {
+extension TransactionRecord: @retroactive Identifiable {
     /// History with no deployment identity draws its letter.
     var artworkName: String { AssetPresentationCatalog.artwork(deploymentId: deploymentId) }
     var chain: Chain { chainId }

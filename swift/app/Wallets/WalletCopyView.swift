@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// Adds a wallet's key, or watched address, to another network as a wallet

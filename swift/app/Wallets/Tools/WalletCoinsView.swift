@@ -1,3 +1,4 @@
+import SpectraCore
 import SwiftUI
 
 /// The addresses an account-discovery UTXO wallet has handed out and the
