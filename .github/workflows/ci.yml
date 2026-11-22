@@ -1,7 +1,8 @@
 name: CI
 
 # The gate for everything that needs no Xcode. The app's suites (`make test-ios`
-# and `make test-mac`) need Xcode and stay local; see AGENTS.md.
+# and `make test-mac`) need Xcode and stay local; see AGENTS.md. Core's own
+# targets run in its repository's CI.
 on:
   push:
     branches: [main]
@@ -12,63 +13,28 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  CARGO_TERM_COLOR: always
-  # A wallet's arithmetic bugs are invisible in debug and silent in release,
-  # so fail loudly here rather than backtrace-lessly.
-  RUST_BACKTRACE: 1
-
 jobs:
-  rust:
-    name: fmt, clippy, tests
+  scans:
+    name: Source scans
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The scans read core's sources through the submodule.
+          submodules: true
 
-      # rust-toolchain.toml pins the version; rustup honours it on first use,
-      # so nothing here names a toolchain and the two cannot drift apart.
-      - name: Show toolchain
-        run: |
-          rustup show active-toolchain
-          cargo --version
-
-      - uses: Swatinem/rust-cache@v2
+      - name: Tool versions
+        run: python3 --version
 
       # The Makefile is the one list of gates: a scan added there gates here.
       - name: Lint
         run: make lint
 
-      - name: Tests
-        run: make test
-
-  cli-acceptance:
-    name: CLI acceptance
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: Swatinem/rust-cache@v2
-
-      # The suite runs offline against throwaway directories, on Python's
-      # standard library alone.
-      - name: Tool versions
-        run: python3 --version
-
-      # Builds every target, the CLI and the Zcash and MWEB fixtures among them,
-      # then runs the suite.
-      - name: Acceptance suite
-        run: make test-cli
-
   ui:
-    name: Design tokens and icons
+    name: Design tokens
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      # The icon check compares bytes, and another svgo can format the same
-      # icon differently, so this is the version the sources were normalized by.
-      - name: Install svgo
-        run: npm install --global svgo@4.1.0
 
       - name: UI checks
         run: make check-ui

@@ -14,6 +14,10 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+# The core repository, checked out as the `spectra` submodule. Like every path
+# here it is relative to the repository root, where `run` puts the scans.
+CORE = pathlib.Path('spectra')
+
 
 def run(scan):
     """Run `scan` from the repository root and exit with its status."""
@@ -30,12 +34,17 @@ def report(findings, summary):
 
 
 def hand_written(root, suffix):
-    """Tracked or new files, excluding ignored generated output."""
+    """Tracked or new files under `root`, excluding ignored generated output.
+
+    Git lists from inside `root`, so a directory in the `spectra` submodule
+    lists that repository's files: run from here, `ls-files` stops at the
+    submodule.
+    """
+    root = pathlib.Path(root)
     listed = subprocess.run(
-        ['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', root],
+        ['git', '-C', str(root), 'ls-files', '-z', '--cached', '--others', '--exclude-standard'],
         check=True, capture_output=True, text=True).stdout.split('\0')
-    return [pathlib.Path(p) for p in sorted(listed)
-            if p.endswith(suffix) and pathlib.Path(p).exists()]
+    return [root / p for p in sorted(listed) if p.endswith(suffix) and (root / p).exists()]
 
 
 def frontend_test(path):

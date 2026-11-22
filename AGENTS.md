@@ -2,37 +2,22 @@
 
 Do not git commit or push unless I said so.
 
-## Rule 0
+## Repositories
 
-**Change behaviour, or remove functionality, when doing so makes the system
-simpler or more correct.** Preserving existing behaviour is not the goal. When
-the code as it stands and the code as it should be disagree, write the second
-and delete the first.
+This repository is the iOS and macOS app. The Rust core and the CLI are the
+`spectra` repository, checked out here as the `spectra/` git submodule.
+`CLAUDE.md` loads `spectra/AGENTS.md` too: Rule 0, the architecture rules and
+Funds and keys there apply to everything here, and its paths are relative to
+`spectra/`.
 
-Rule 0 outranks any reason to keep something as it is: precedent, callers, an
-existing test. It does not suspend the other rules in this file.
-
-- **Fix an inconsistency instead of preserving it.** If twenty chains do one
-  thing and three do another, pick the right one for all of them. Do not write
-  a test that pins the split in place.
-- **Delete a feature that is not worth its complexity**, and say so.
-- **Collapse two models of one thing**, even when both have callers.
-- **Change a stored shape, an id format or a schema outright.** Spectra is
-  prelaunch with no existing users: change storage formats, schemas, keychain
-  keys and serialized structures directly, without migration or
-  backward-compatibility shims.
-
-What it does not license:
-
-- **Guessing about funds, keys or addresses.** Refuse early, validate before
-  storing and derive rather than trust caller input.
-- **Dropping scope quietly.** Removing a feature is a decision stated in the
-  change, not an omission to notice later.
-- **Widening a change unasked.** Fix what the task touches. Report an oddity
-  elsewhere instead of folding it in.
-
-If you find yourself writing "preserved exactly" or a test that asserts
-today's oddity, stop and fix the oddity instead.
+- The Xcode build compiles core from `spectra/`, so an edit there reaches the
+  app on the next build.
+- `spectra/` is a full checkout of the core repository. Make a core change
+  there, commit and push it in that repository first, then commit the moved
+  submodule here (`git add spectra`). A submodule commit that is not pushed is
+  a clone nobody else can build.
+- A fresh clone needs the submodule: `git clone --recurse-submodules`, or
+  `git submodule update --init` afterwards.
 
 ## Docs
 
@@ -40,52 +25,19 @@ Read the one that covers what you are changing:
 
 | Doc | Covers |
 |---|---|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Ownership and boundary rules, module layout |
-| [CHAIN-SUPPORT.md](docs/CHAIN-SUPPORT.md) | What each network supports and refuses |
-| [FFI-BOUNDARY.md](docs/FFI-BOUNDARY.md) | UniFFI and Swift binding mechanics |
 | [IOS-UI.md](docs/IOS-UI.md) | Liquid Glass, typography, color, layout and corner radii, and what the Mac app does differently |
-| [OPEN-ITEMS.md](docs/OPEN-ITEMS.md) | Remaining work |
-| [tests/README.md](tests/README.md) | Where tests live, acceptance suites, SDK vector generators |
-| [scripts/README.md](scripts/README.md) | Build, source-scan and icon tools |
+| [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md) | How the app builds core and generates its Swift bindings |
+| [OPEN-ITEMS.md](docs/OPEN-ITEMS.md) | Remaining app work |
+| [scripts/README.md](scripts/README.md) | Build, source-scan and icon-export tools |
+| `spectra/docs/` | Core's architecture, chain support, FFI boundary and open items |
 
 Keep them true:
 
 - A change that alters what a doc says updates that doc in the same change: a
-  capability or refusal in `CHAIN-SUPPORT.md`, a suite in `tests/README.md`, a
-  script in `scripts/README.md`.
+  script in `scripts/README.md`, a design rule in `IOS-UI.md`.
 - A doc states what is true now. History belongs in git, and a file or symbol
   is named only while it exists.
 - `OPEN-ITEMS.md` holds remaining work only. Delete an item when it is done.
-- `docs/audits/` is dated evidence. Add a new record rather than editing an old
-  one.
-
-## Architecture
-
-- Core owns domain state and decisions; Swift and the CLI render and forward.
-  New domain logic belongs in `core/`, and its rules are tested there with
-  `cargo test`, without a platform.
-- Per-chain facts belong on `registry::Chain`, not in caller-owned lists.
-- Every request to a chain service, broadcasts included, lives in
-  `core/src/api/`, one `<api>.rs` per `EndpointApi`, named after its `as_str()`
-  with underscores for hyphens. `send`, `staking` and `service` call `api`,
-  never the reverse. `send/` builds and signs per chain and never implements a
-  client.
-- Core must own the state it decides about: do not add an export that takes
-  data Swift read from core only to return a decision about it.
-- Swift may hold view state, not authoritative domain state. If losing data on
-  restart would be a bug, core owns it.
-- Prefer deleting unnecessary Swift code over moving it into core.
-
-## Funds and keys
-
-- A registry capability is a promise. Add one only when core owns the complete
-  operation and the CLI can prove it; until then the operation is refused.
-- A protocol, derivation, signing or key change needs reference data from an
-  independent SDK (`tests/vectors/`) rather than core's own output, CLI
-  acceptance, its refusal paths and all six verification targets.
-- No test broadcasts to a real chain, and a live endpoint probe stays
-  read-only.
-- A secret operation goes through `SecretStore`, so the CLI can exercise it.
 
 ## Verification
 
@@ -97,42 +49,33 @@ actually ran.
 | Docs, copy, resources | Only what the edit can affect |
 | Swift views, design tokens, icons | `make check-ui`, plus the target covering any logic touched |
 | A localized code change | The target that covers it |
-| Core behaviour or persistence, with no funds, keys or FFI change | `make lint test`, plus `make test-cli` when a CLI flow is affected |
-| Broad refactors, funds or keys, FFI and cross-platform changes | All six targets, unless I say otherwise |
+| Broad refactors, FFI and cross-platform changes, or a move of the submodule | All four targets, and core's own for what changed in `spectra/`, unless I say otherwise |
 
-The six targets are `make lint`, `test`, `test-cli`, `check-ui`, `test-ios` and
-`test-mac`: formatting, clippy at `-D warnings` and the source scans, then
-`cargo test`, `python3 -B tests/acceptance`, the design-token and icon checks,
+The four targets are `make lint`, `check-ui`, `test-ios` and `test-mac`: the
+source scans, which read core through the submodule; the design-token check;
 and `xcodebuild test` on an iPhone simulator and on this Mac. No target runs
 them all: each is run by name. The Makefile holds the exact commands.
 `test-mac` needs the Mac app signed with its keychain access group (Xcode's
 automatic signing, with a Mac development profile for the team): its Keychain
-tests use the real data protection keychain.
-Run `cargo test <filter>` for one
-rule; `-p` selects other features and rebuilds dependencies;
-`make fmt` applies the formatting. When another task is building the same Xcode
-project, give yours its own directory with
-`make test-ios IOS_TEST_DERIVED_DATA=<dir>`.
+tests use the real data protection keychain. When another task is building the
+same Xcode project, give yours its own directory with
+`make test-ios IOS_TEST_DERIVED_DATA=<dir>`. Core's targets run in its
+checkout: `make -C spectra lint`, and so on.
 
-CI runs all of them but `test-ios` and `test-mac`, which need Xcode, so those two
+CI runs `lint` and `check-ui`. `test-ios` and `test-mac` need Xcode, so they
 guard a change only when you run them.
 
 No test is expected to fail. Treat a failure as real even when it looks
 unrelated to the change, and report it; do not write it off as flaky or
 pre-existing without evidence.
 
-CLI acceptance drives the real binary in a throwaway directory without network.
-A rule is tested in core; add an acceptance check only for what the binary alone
-shows: state across processes, files on disk, exit codes, confirmation gates,
-and send or staking flows against loopback nodes.
-
 ## Platform constraints
 
 - Check APIs, syntax and generated bindings against **UniFFI 0.31.2 and Swift 6**
-  before changing FFI or Swift code. See [FFI-BOUNDARY.md](docs/FFI-BOUNDARY.md).
-- Never hand-edit `swift/generated/`. Change the Rust API and rebuild.
-- Core's `reqwest` must use `rustls-tls-webpki-roots`. Native roots are empty on
-  iOS and cause HTTPS `UnknownIssuer` failures.
+  before changing FFI or Swift code. See [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md)
+  and `spectra/docs/FFI-BOUNDARY.md`.
+- Never hand-edit `swift/generated/`. Change the Rust API in `spectra/` and
+  rebuild.
 - [docs/IOS-UI.md](docs/IOS-UI.md) is the authority for Liquid Glass,
   typography, color, layout and corner radii.
 - The app targets **iOS 26** and **macOS 26** (the deployment targets in the
@@ -200,22 +143,18 @@ as `RuntimeStrings.en.json`. Two rules follow:
 
 ## Icons
 
-Edit SVG sources in `icons/`, never `swift/Assets.xcassets/` by hand. Keep
-sources out of `resources/`; iOS renders the generated asset catalog.
+Never edit `swift/Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
+generates its icons from two sources.
 
-After adding or editing library icons, normalize and export. This needs `svgo`,
-and ImageMagick for app icons (`brew install svgo imagemagick`):
+- `icons/appicon/` holds the 1024-point app icon sources. They export as
+  1024×1024 PNGs to `AppIcon.appiconset`; keep that destination name. Exporting
+  them needs ImageMagick (`brew install imagemagick`).
+- The crypto icons are core's library in `spectra/icons/crypto/`, with its
+  rules in `spectra/AGENTS.md`. They export to the matching `crypto` asset
+  group, without a namespace.
+
+After editing either, export:
 
 ```sh
-scripts/normalize-icons.sh && scripts/export-swift-icons.sh
+scripts/export-swift-icons.sh
 ```
-
-- `crypto/` is a 64×64 SVG library and exports to the matching `crypto` asset
-  group, without a namespace. Keep source and asset group names aligned.
-- Use a full-disc `<circle cx="32" cy="32" r="32" fill="…"/>` as the first
-  drawable (after any `<defs>`). `usd1` is the exception: its rings form the disc.
-- Formatting is owned by `scripts/svgo.config.mjs`; use
-  `scripts/normalize-icons.sh --check` to detect drift. Non-square artwork needs
-  manual layout; `userSpaceOnUse` gradients may retain transforms.
-- `appicon/` is excluded from normalization. Its 1024-point sources export as
-  1024×1024 PNGs to `AppIcon.appiconset`; keep that destination name.

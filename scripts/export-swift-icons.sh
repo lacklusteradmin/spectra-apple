@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Syncs all icon sources from icons/ into swift/Assets.xcassets/:
+# Syncs the icon sources into swift/Assets.xcassets/:
 #
-#   icons/appicon/ → AppIcon.appiconset/ (SVG → 1024×1024 PNG, and the
-#                    light icon again in the Mac's shape and sizes)
-#   icons/crypto/  → crypto/             (SVG imageset, no namespace)
+#   icons/appicon/         → AppIcon.appiconset/ (SVG → 1024×1024 PNG, and the
+#                            light icon again in the Mac's shape and sizes)
+#   spectra/icons/crypto/  → crypto/             (SVG imageset, no namespace)
+#
+# The crypto library is core's, in the `spectra` submodule, where it is
+# normalized and checked against the catalog's artwork names.
 #
 # Rules (crypto):
 #   - Creates a new .imageset for every SVG not yet in the catalog.
@@ -24,7 +27,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 APPICON_SRC="$REPO_ROOT/icons/appicon"
-CRYPTO_SRC="$REPO_ROOT/icons/crypto"
+CRYPTO_SRC="$REPO_ROOT/spectra/icons/crypto"
 
 APPICON_DEST="$REPO_ROOT/swift/Assets.xcassets/AppIcon.appiconset"
 CRYPTO_DEST="$REPO_ROOT/swift/Assets.xcassets/crypto"

@@ -15,11 +15,10 @@ by naming a chain. This reads the app, not core.
 Tests and generated bindings are out of scope; comments are not code.
 """
 
-import pathlib
 import re
 import tomllib
 
-from source_scan import app_swift, report, run
+from source_scan import CORE, app_swift, report, run
 
 LITERAL = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
 FIXED = re.compile(r'%\.\d+f(?!%%)')
@@ -52,7 +51,7 @@ def code_lines(text):
 
 
 def scan():
-    chains = tomllib.loads(pathlib.Path('core/data/chains.toml').read_text())['chains']
+    chains = tomllib.loads((CORE / 'core/data/chains.toml').read_text())['chains']
     chain_words = {chain['name'] for chain in chains} | {chain['id'] for chain in chains}
 
     findings = []

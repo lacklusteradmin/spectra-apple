@@ -1,6 +1,6 @@
 import Foundation
 
-/// `Chain` is generated from `registry::Chain` in `core/data/chains.toml` order.
+/// `Chain` is generated from `registry::Chain` in `spectra/core/data/chains.toml` order.
 /// Its identity, display name, symbol, and capabilities come from that catalog,
 /// which crosses the FFI once, as `listAllChains()`.
 extension Chain: Identifiable {

@@ -15,7 +15,7 @@ still names its export.
 import pathlib
 import re
 
-from source_scan import (app_swift, calls_only, camel, hand_written, production_text,
+from source_scan import (CORE, app_swift, calls_only, camel, hand_written, production_text,
                          report, run, strip_comments, test_modules)
 
 EXPORTED_FN = re.compile(r'#\[uniffi::export[^\]]*\]\s*\npub(?:\([^)]*\))? (?:async )?fn (\w+)')
@@ -50,8 +50,8 @@ def block_end(text, i):
 def exports():
     """(name, file under core/src, is a method) for every export."""
     found = []
-    for path in hand_written('core/src', '.rs'):
-        text, where = path.read_text(), str(path.relative_to('core/src'))
+    for path in hand_written(CORE / 'core/src', '.rs'):
+        text, where = path.read_text(), str(path.relative_to(CORE / 'core/src'))
         found.extend((name, where, False) for name in EXPORTED_FN.findall(text))
         for impl in EXPORTED_IMPL.finditer(text):
             body = text[impl.end():block_end(text, impl.end())]
@@ -109,7 +109,7 @@ def swift_calls():
 
 def cli_calls():
     """Production CLI code: a CLI test is no more a caller than a Swift one."""
-    sources = hand_written('cli/src', '.rs')
+    sources = hand_written(CORE / 'cli/src', '.rs')
     declared_tests = test_modules(sources)
     return calls_only('\n'.join(production_text(path, declared_tests) for path in sources), 'fn')
 

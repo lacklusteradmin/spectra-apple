@@ -25,7 +25,7 @@ import json
 import pathlib
 import re
 
-from source_scan import hand_written, production_text, report, run, test_modules
+from source_scan import CORE, hand_written, production_text, report, run, test_modules
 
 STRINGS = pathlib.Path('resources/strings')
 FORMAT = re.compile(r'%(?:@|%|lld|llu|ld|lu|d|u|f|s|\d*\.\d+f|\.\d+f)')
@@ -42,8 +42,8 @@ def production():
     the middle of a Rust file does not hide the production items after it.
     """
     paths = [path for suffix, roots in (
-                 ('.swift', ('swift',)), ('.rs', ('core', 'cli')),
-                 ('.json', ('resources',)), ('.toml', ('core/data',)))
+                 ('.swift', ('swift',)), ('.rs', (CORE / 'core', CORE / 'cli')),
+                 ('.json', ('resources',)), ('.toml', (CORE / 'core/data',)))
              for root in roots for path in hand_written(root, suffix)
              if not path.name.startswith('RuntimeStrings.')]
     declared_tests = test_modules(path for path in paths if path.suffix == '.rs')
@@ -117,7 +117,7 @@ def scan():
     # the gap this closes. Test modules are out of scope; they make up
     # sentences of their own.
     rust = '\n'.join(CONTINUATION.sub('', text) for path, text in sources
-                     if path.suffix == '.rs' and path.parts[:2] == ('core', 'src'))
+                     if path.suffix == '.rs' and path.is_relative_to(CORE / 'core/src'))
     sentence = r'(?:\brefused|\bfailed|LocalizableMessage::new)\(\s*"((?:[^"\\]|\\.)*)"'
     for key in sorted(set(re.findall(sentence, rust))):
         if key not in source_keys:

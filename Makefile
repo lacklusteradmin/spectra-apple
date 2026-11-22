@@ -10,37 +10,26 @@ IOS_TEST_DERIVED_DATA ?=
 # Macs are arm64 only, as the project's simulators are.
 MAC_DEST ?= platform=macOS,arch=arm64
 
-.PHONY: fmt lint check-ui test test-cli test-ios test-mac ios iosr mac macr clean
+.PHONY: lint check-ui test-ios test-mac ios iosr mac macr clean
 
 # ── Verification ────────────────────────────────────────────────────
-# Six targets, each run by name: lint, test, test-cli, check-ui, test-ios and
-# test-mac. AGENTS.md says which a change needs. CI runs all but `test-ios`
-# and `test-mac`, which need Xcode, so they stay local.
+# Four targets, each run by name: lint, check-ui, test-ios and test-mac.
+# AGENTS.md says which a change needs. CI runs lint and check-ui; test-ios and
+# test-mac need Xcode, so they stay local. Core's own targets run in its
+# checkout: `make -C spectra lint`, and so on.
 
-# Source scans: nothing exported, public or shipped may go unused, and the app
-# may not spell chain names or amount precision itself. They read source and
-# compile nothing, so lint's only build is clippy's.
-SOURCE_SCANS := scripts/unreachable-exports.py scripts/uncalled-core-fns.py \
-	scripts/unused-strings.py scripts/swift-shell-literals.py
+# Source scans: nothing exported or shipped may go unused, and the app may not
+# spell chain names or amount precision itself. They read source, core's
+# through the `spectra` submodule, and compile nothing.
+SOURCE_SCANS := scripts/unreachable-exports.py scripts/unused-strings.py \
+	scripts/swift-shell-literals.py
 
 lint:
-	cargo fmt --all -- --check
-	cargo clippy --all-targets -- -D warnings
 	python3 -B scripts/test-source-scan.py
 	@set -e; for scan in $(SOURCE_SCANS); do echo "$$scan"; python3 -B $$scan; done
 
-fmt:
-	cargo fmt --all
-
 check-ui:
 	python3 -B scripts/check-design-tokens.py
-	scripts/normalize-icons.sh --check
-
-test:
-	cargo test
-
-test-cli:
-	python3 -B tests/acceptance
 
 # No sysdiagnose: a failing test's own output says what failed, and the
 # collection can wait out a ten-minute timeout on a simulator another tool is
@@ -76,6 +65,6 @@ mac:
 macr:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Release -destination "$(MAC_DEST)" build
 
+# The Rust side builds into DerivedData, which Clean Build Folder clears.
 clean:
-	cargo clean
 	rm -rf swift/generated/

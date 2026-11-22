@@ -1,6 +1,6 @@
 import Foundation
 
-// Preview types are UniFFI-generated from `core/src/send/`. What is left here
+// Preview types are UniFFI-generated from `spectra/core/src/send/`. What is left here
 // is the composer's hold on the latest quote.
 
 @MainActor
