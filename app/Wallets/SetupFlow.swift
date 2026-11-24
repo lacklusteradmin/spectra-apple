@@ -21,8 +21,8 @@ struct SetupFlow {
 
 }
 
-/// Linear pages for the wallet-setup flow. Lifted out of `SetupView`'s
-/// private enum so `SetupFlow` can reference it.
+/// A page of the wallet-setup flow; `SetupFlow` lists them in order for
+/// each import method.
 enum WalletSetupPage: Hashable {
     case watchAddresses
     case seedPhrase

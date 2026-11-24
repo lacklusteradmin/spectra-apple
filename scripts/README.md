@@ -26,7 +26,7 @@ which `make check-ui` runs.
 | `unreachable-exports.py` | Finds exported Rust interfaces no production Swift calls. |
 | `unused-strings.py` | Finds unused text, core sentences the tables do not translate, and inconsistent translation keys across locales. |
 | `swift-shell-literals.py` | Finds hard-coded chain names and amount precision in Swift, where domain rules should come from core. |
-| `check-design-tokens.py` | Finds corner radii, spacing, literal colours, glass tints and glass shapes that bypass shared UI design tokens. |
+| `check-design-tokens.py` | Finds corner radii, spacing, literal colours, glass tints, glass shapes and divider opacities that bypass shared UI design tokens. |
 | `source_scan.py` | What the scans share: production-source selection for Rust and Swift (test fixtures do not count as runtime callers or copy producers), files listed inside the core checkout, call text with comments and declarations removed, and the report and exit status. |
 | `test-source-scan.py` | Tests the shared helpers: production/test source selection, Rust module paths, call text and reporting. |
 

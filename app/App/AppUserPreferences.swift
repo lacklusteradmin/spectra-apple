@@ -27,7 +27,7 @@ private enum PlatformDefaults {
     static let hideBalances = "settings.platform.hideBalances"
     static let hideSmallBalances = "settings.platform.hideSmallBalances"
     static let appearanceMode = "settings.appearanceMode"
-    static let useFaceId = "settings.platform.useFaceId"
+    static let useDeviceAuthentication = "settings.platform.useDeviceAuthentication"
     static let useAutoLock = "settings.platform.useAutoLock"
     static let requireBiometricForSendActions = "settings.platform.requireBiometricForSendActions"
 
@@ -65,11 +65,11 @@ final class AppUserPreferences {
     }
 
     // ── Security ────────────────────────────────────────────────────────
-    var useFaceId: Bool = PlatformDefaults.bool(PlatformDefaults.useFaceId, default: true) {
+    var useDeviceAuthentication: Bool = PlatformDefaults.bool(PlatformDefaults.useDeviceAuthentication, default: true) {
         didSet {
-            guard useFaceId != oldValue else { return }
-            PlatformDefaults.set(useFaceId, PlatformDefaults.useFaceId)
-            if !useFaceId { useFaceIDDisabledHandler?() }
+            guard useDeviceAuthentication != oldValue else { return }
+            PlatformDefaults.set(useDeviceAuthentication, PlatformDefaults.useDeviceAuthentication)
+            if !useDeviceAuthentication { deviceAuthenticationDisabledHandler?() }
         }
     }
     var useAutoLock: Bool = PlatformDefaults.bool(PlatformDefaults.useAutoLock, default: false) {
@@ -86,7 +86,7 @@ final class AppUserPreferences {
 
     /// Wired by `AppState` in its init. Kept out of `@Observable` tracking so
     /// assigning the closure does not invalidate views.
-    @ObservationIgnored var useFaceIDDisabledHandler: (() -> Void)?
+    @ObservationIgnored var deviceAuthenticationDisabledHandler: (() -> Void)?
 
     /// Reset to factory defaults. Each value writes itself back to
     /// `UserDefaults` as it changes.
@@ -94,7 +94,7 @@ final class AppUserPreferences {
         hideBalances = false
         hideSmallBalances = true
         appearanceMode = .system
-        useFaceId = true
+        useDeviceAuthentication = true
         useAutoLock = false
         requireBiometricForSendActions = true
     }

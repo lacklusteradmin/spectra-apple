@@ -67,9 +67,8 @@ struct AddressBookView: View {
         }
     }
 
-    /// Core's reason for refusing a contact. `addressBook.error` has been set
-    /// since address-book commands moved to core and no screen showed it, so a
-    /// refused save was indistinguishable from a save that did nothing.
+    /// Core's reason for refusing a contact change, so a refused save does
+    /// not read as a save that did nothing.
     @ViewBuilder
     private var rejectionNotice: some View {
         if let addressBookError = addressBook.error {

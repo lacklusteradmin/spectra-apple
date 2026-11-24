@@ -31,7 +31,7 @@ struct WalletSetupSummaryCard: View {
                     ForEach(summary.limits, id: \.self) { limit in
                         Label(limit.explanation, systemImage: "info.circle").font(.caption).foregroundStyle(.secondary)
                     }
-                    Divider().opacity(0.4)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     endpointsSection(summary)
                 }
                 .padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill()

@@ -18,10 +18,8 @@ import Network
 //      task storage — anything views shouldn't see)
 //
 // Reviewing a new stored property: if the author can't justify "yes
-// SwiftUI views observe this," it should be `@ObservationIgnored`. The
-// existing properties already follow this — see the dense `@ObservationIgnored`
-// block at the top for the catalog. New work that doesn't make a choice
-// is a bug surface (silent over-invalidation).
+// SwiftUI views observe this," it should be `@ObservationIgnored`. A
+// property that makes no choice is a bug surface (silent over-invalidation).
 
 // MARK: - AppState architecture
 //
@@ -279,10 +277,10 @@ final class AppState {
         guard startServices else { return }
         // A launch is a return to the app too: without this, closing it from
         // the app switcher and opening it again would get past auto-lock.
-        isAppLocked = preferences.useFaceId && preferences.useAutoLock
+        isAppLocked = preferences.useDeviceAuthentication && preferences.useAutoLock
         // Wire the preferences' side effect back to AppState. A closure rather
         // than an observation loop keeps the coupling explicit.
-        preferences.useFaceIDDisabledHandler = { [weak self] in
+        preferences.deviceAuthenticationDisabledHandler = { [weak self] in
             self?.isAppLocked = false
             self?.appLockError = nil
         }

@@ -77,6 +77,4 @@ foreign callback protocols: their Swift implementations need no Swift caller.
 | `… is not available due to missing import of defining module 'SpectraCore'` | `import SpectraCore` in that file |
 | `a Release build needs the release core package` | Run `make apple PROFILE=release` in spectra and copy the package |
 | No library for this platform in `spectra_core.xcframework` | The package lacks that platform: build it with that platform in `PLATFORMS` |
-| `does not conform to protocol 'Codable'` | UniFFI does not generate `Codable`; add the appropriate Swift conformance |
-| A key path into a subscript will not compile | Avoid `dict[key, default:]` in key paths; provide a suitable subscript |
 | `the scans read core: set SPECTRA to a spectra checkout` | Pass `SPECTRA=<spectra checkout>` to `make lint` |

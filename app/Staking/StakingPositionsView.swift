@@ -2,7 +2,7 @@ import SpectraCore
 import SwiftUI
 
 struct StakingPositionsView: View {
-    @Bindable var vm: StakingState
+    @Bindable var staking: StakingState
     let canSign: Bool
     let requiresPassword: Bool
 
@@ -11,34 +11,34 @@ struct StakingPositionsView: View {
             HStack {
                 Text(AppLocalization.string("staking.positions")).font(.headline)
                 Spacer()
-                if vm.isBusy { ProgressView() }
+                if staking.isBusy { ProgressView() }
             }
-            TextField(AppLocalization.string("staking.additional_pool"), text: $vm.extraTarget)
+            TextField(AppLocalization.string("staking.additional_pool"), text: $staking.extraTarget)
                 .textInputAutocapitalization(.never).autocorrectionDisabled().padding(SpectraLayout.Space.m).spectraInputFieldStyle()
-            Button(AppLocalization.string("staking.refresh_positions")) { vm.begin(.positions) }
+            Button(AppLocalization.string("staking.refresh_positions")) { staking.begin(.positions) }
                 .buttonStyle(.glass)
                 .disabled(
-                    vm.isBusy
-                        || (vm.rules.positionsRequireAuthorization
-                            && (!canSign || (requiresPassword && vm.password.isEmpty)))
+                    staking.isBusy
+                        || (staking.rules.positionsRequireAuthorization
+                            && (!canSign || (requiresPassword && staking.password.isEmpty)))
                 )
                 .accessibilityIdentifier("staking.refresh_positions")
-            if let error = vm.positionsError {
+            if let error = staking.positionsError {
                 StakingErrorText(message: error)
             }
-            if vm.positions.isEmpty {
+            if staking.positions.isEmpty {
                 Text(
                     AppLocalization.string(
-                        vm.hasLoadedPositions ? "staking.no_positions" : "staking.positions_not_loaded")
+                        staking.hasLoadedPositions ? "staking.no_positions" : "staking.positions_not_loaded")
                 )
                 .font(.subheadline).foregroundStyle(.secondary)
             } else {
-                ForEach(vm.positions) { position in
-                    Divider()
+                ForEach(staking.positions) { position in
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     positionRow(position)
                 }
             }
-        }.padding(SpectraLayout.cardPadding).spectraCardFill().disabled(vm.isBusy)
+        }.padding(SpectraLayout.cardPadding).spectraCardFill().disabled(staking.isBusy)
     }
 
     private func positionRow(_ position: StakingPosition) -> some View {
@@ -46,32 +46,20 @@ struct StakingPositionsView: View {
             Text(position.status.localizedTitle).font(.subheadline.weight(.semibold))
             Text(verbatim: position.id).font(.caption.monospaced()).foregroundStyle(.secondary)
                 .textSelection(.enabled)
-            amountRow("staking.staked_balance", units: position.stakedAmountSmallestUnit)
-            amountRow("staking.unbonding_balance", units: position.unbondingAmountSmallestUnit)
-            amountRow("staking.withdrawable_balance", units: position.withdrawableAmountSmallestUnit)
+            SpectraValueRow(label: "staking.staked_balance", value: amount(position.stakedAmountSmallestUnit))
+            SpectraValueRow(label: "staking.unbonding_balance", value: amount(position.unbondingAmountSmallestUnit))
+            SpectraValueRow(label: "staking.withdrawable_balance", value: amount(position.withdrawableAmountSmallestUnit))
             if let rewards = position.claimableRewardsSmallestUnit {
-                amountRow("staking.rewards", units: rewards)
+                SpectraValueRow(label: "staking.rewards", value: amount(rewards))
             }
             if let pending = position.pendingRewardsSmallestUnit {
-                amountRow("staking.pending_rewards", units: pending)
+                SpectraValueRow(label: "staking.pending_rewards", value: amount(pending))
             }
             if let payoutTime = position.rewardsUnlockTimeUnix {
-                HStack {
-                    Text(AppLocalization.string("staking.rewards_unlock_time")).foregroundStyle(.secondary)
-                    Spacer()
-                    Text(
-                        Date(timeIntervalSince1970: Double(payoutTime)),
-                        format: .dateTime.year().month().day().hour().minute().locale(AppLocalization.locale))
-                }.font(.caption)
+                SpectraValueRow(label: "staking.rewards_unlock_time", value: time(payoutTime))
             }
             if let unlock = position.unlockTimeUnix {
-                HStack {
-                    Text(AppLocalization.string("staking.unlock_time")).foregroundStyle(.secondary)
-                    Spacer()
-                    Text(
-                        Date(timeIntervalSince1970: Double(unlock)),
-                        format: .dateTime.year().month().day().hour().minute().locale(AppLocalization.locale))
-                }.font(.caption)
+                SpectraValueRow(label: "staking.unlock_time", value: time(unlock))
             }
             if let epoch = position.unlockEpoch {
                 Text(AppLocalization.format("staking.unlock_epoch", epoch)).font(.caption).foregroundStyle(
@@ -86,21 +74,18 @@ struct StakingPositionsView: View {
         }
     }
 
-    private func amountRow(_ label: String, units: String) -> some View {
-        HStack(alignment: .top, spacing: SpectraLayout.Space.s) {
-            Text(AppLocalization.string(label)).foregroundStyle(.secondary)
-            Spacer()
-            Text(
-                verbatim:
-                    "\(formatNativeAmount(chain: vm.chain, smallestUnit: units).map(AmountPresentation.localizedDecimal) ?? "—") \(vm.chain.gasTokenSymbol)"
-            )
-            .multilineTextAlignment(.trailing).monospacedDigit()
-        }.font(.caption)
+    private func amount(_ units: String) -> String {
+        "\(formatNativeAmount(chain: staking.chain, smallestUnit: units).map(AmountPresentation.localizedDecimal) ?? "—") \(staking.chain.gasTokenSymbol)"
+    }
+
+    private func time(_ unix: UInt64) -> String {
+        Date(timeIntervalSince1970: Double(unix))
+            .formatted(.dateTime.year().month().day().hour().minute().locale(AppLocalization.locale))
     }
 
     @ViewBuilder private func actions(_ position: StakingPosition) -> some View {
         ForEach(position.availableActions, id: \.self) { action in
-            Button(action.localizedTitle) { vm.selectPosition(position, action: action) }
+            Button(action.localizedTitle) { staking.selectPosition(position, action: action) }
                 .buttonStyle(.glass).disabled(!canSign)
         }
     }

@@ -9,8 +9,9 @@ by naming a chain. This reads the app, not core.
     (`"Ethereum"`, `"bitcoin"`) is a chain chosen by spelling. Ask the
     registry for the fact that made it that chain.
   * A fixed `%.Nf` count renders an amount at a precision core did not pick.
-    Amounts and fees go through `formattedAmountValue` / `formattedNetworkFee`.
-    A percentage (`%.1f%%`) is not an amount and is allowed.
+    Amounts and fees go through `AmountPresentation`, which takes their
+    precision from core. A percentage (`%.1f%%`) is not an amount and is
+    allowed.
 
 Tests and generated bindings are out of scope; comments are not code.
 """
@@ -22,11 +23,6 @@ from source_scan import CORE, app_swift, report, run
 
 LITERAL = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
 FIXED = re.compile(r'%\.\d+f(?!%%)')
-
-# A literal that spells a chain word and means something else, with why.
-ALLOWED = {
-    ('app/Models/StaticContentCatalog.swift', 'Base'): "Xcode's base localization, not the Base chain",
-}
 
 
 def code_lines(text):
@@ -58,7 +54,7 @@ def scan():
     for path in app_swift():
         for number, line in code_lines(path.read_text()):
             for literal in LITERAL.findall(line):
-                if literal in chain_words and (str(path), literal) not in ALLOWED:
+                if literal in chain_words:
                     findings.append(f'  {path}:{number}  chain named by spelling: "{literal}"')
                 if FIXED.search(literal):
                     findings.append(f'  {path}:{number}  fixed precision: "{literal}"')

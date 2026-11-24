@@ -300,7 +300,7 @@ struct WalletDetailView: View {
             .padding(.horizontal, SpectraLayout.rowHorizontal).padding(.vertical, SpectraLayout.Space.m)
         }
         if !hidden.isEmpty {
-            if !shown.isEmpty { Divider().opacity(0.25) }
+            if !shown.isEmpty { Divider().opacity(SpectraLayout.dividerOpacity) }
             Button {
                 spectraHaptic(.light)
                 isShowingHiddenHoldings.toggle()
@@ -317,7 +317,7 @@ struct WalletDetailView: View {
             .accessibilityValue(AppLocalization.string(isShowingHiddenHoldings ? "Expanded" : "Collapsed"))
             if isShowingHiddenHoldings {
                 ForEach(hidden) { holding in
-                    Divider().padding(.leading, SpectraLayout.rowDividerInset).opacity(0.25)
+                    Divider().padding(.leading, SpectraLayout.rowDividerInset).opacity(SpectraLayout.dividerOpacity)
                     HStack(spacing: SpectraLayout.Space.m) {
                         holdingRow(holding)
                         Button(AppLocalization.string("Show")) { setHidden(holding.coin, false) }

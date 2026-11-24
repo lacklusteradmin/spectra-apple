@@ -21,7 +21,7 @@ struct TokenRegistryDetailView: View {
                         }
                         spectraDetailCard(title: "Price Sources") {
                             providerRow("CoinGecko", id: entry.token.coingeckoId)
-                            Divider().opacity(0.4)
+                            Divider().opacity(SpectraLayout.dividerOpacity)
                             providerRow("CoinPaprika", id: entry.token.coinpaprikaId)
                         }
                         networksCard
@@ -86,7 +86,7 @@ struct TokenRegistryDetailView: View {
         spectraDetailCard(title: "Networks") {
             ForEach(Array(groupEntries.enumerated()), id: \.element.id) { index, entry in
                 TokenRegistryNetworkRow(entry: entry)
-                if index < groupEntries.count - 1 { Divider().opacity(0.4) }
+                if index < groupEntries.count - 1 { Divider().opacity(SpectraLayout.dividerOpacity) }
             }
         }
     }

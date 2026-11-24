@@ -27,6 +27,7 @@ Read the one that covers what you are changing:
 
 | Doc | Covers |
 |---|---|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the app's Swift is put together: one target for iOS and macOS, `AppState` and its domains, sends, and keeping the shell thin |
 | [IOS-UI.md](docs/IOS-UI.md) | Liquid Glass, typography, color, layout and corner radii, and what the Mac app does differently |
 | [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md) | The core package the app links, and its Swift bindings |
 | [OPEN-ITEMS.md](docs/OPEN-ITEMS.md) | Remaining app work |
@@ -181,8 +182,8 @@ whatever directory it sat in. `resources/strings/RuntimeStrings.en.json` ships
 as `RuntimeStrings.en.json`. Two rules follow:
 
 - **Nothing but a runtime resource belongs here.** Anything under `resources/`
-  ships, read or not. Build-time inputs go elsewhere — icon sources in
-  `icons/`, the translator glossary in `docs/LocalizationGlossary.json`.
+  ships, read or not. Build-time inputs go elsewhere, such as the icon
+  sources in `icons/`.
 - **A file name must be unique across the whole tree.** A directory such as
   `strings/` groups files for people and scripts; it does not separate them in
   the bundle. Put the locale in the name (`RuntimeStrings.zh-Hans.json`):

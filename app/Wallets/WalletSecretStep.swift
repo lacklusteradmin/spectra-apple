@@ -148,7 +148,7 @@ struct WalletSecretStep: View {
         if isCreateMode {
             VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                 createWalletSeedPhraseSection
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 derivationOptionsLink
             }
             .padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill()

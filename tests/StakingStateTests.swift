@@ -6,24 +6,24 @@ import Testing
 
 @MainActor
 @Suite(.isolatedAppState, .timeLimit(.minutes(1)))
-struct StakingViewModelTests: IsolatedAppStateSuite {
+struct StakingStateTests: IsolatedAppStateSuite {
     @Test func changingWalletDiscardsAnOldPositionResponse() async {
         var operations = StakingTestSupport.operations()
         let oldRead = SuspensionGate<[StakingPosition]>()
         operations.positions = { wallet, _, _, _ in
             wallet == "old" ? await oldRead.wait() : [StakingTestSupport.position("new-position")]
         }
-        let vm = StakingState(chain: .solana, bridge: bridge, operations: operations)
-        vm.selectWallet("old")
-        let work = Task { await vm.loadWalletData() }
+        let staking = StakingState(chain: .solana, bridge: bridge, operations: operations)
+        staking.selectWallet("old")
+        let work = Task { await staking.loadWalletData() }
         await oldRead.reached()
-        vm.selectWallet("new")
-        await vm.loadWalletData()
+        staking.selectWallet("new")
+        await staking.loadWalletData()
         oldRead.resume([StakingTestSupport.position("old-position")])
         await work.value
-        #expect(vm.walletId == "new")
-        #expect(vm.positions.map(\.id) == ["new-position"])
-        #expect(vm.hasLoadedPositions)
+        #expect(staking.walletId == "new")
+        #expect(staking.positions.map(\.id) == ["new-position"])
+        #expect(staking.hasLoadedPositions)
     }
 
     @Test func aLatePositionReadCannotReplaceANewerSnapshotForTheSameWallet() async {
@@ -35,14 +35,14 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             if reads == 1 { return await oldRead.wait() }
             return [StakingTestSupport.position("current-position")]
         }
-        let vm = StakingState(chain: .solana, bridge: bridge, operations: operations)
-        vm.selectWallet("wallet")
-        let old = Task { await vm.loadWalletData() }
+        let staking = StakingState(chain: .solana, bridge: bridge, operations: operations)
+        staking.selectWallet("wallet")
+        let old = Task { await staking.loadWalletData() }
         await oldRead.reached()
-        await vm.loadWalletData()
+        await staking.loadWalletData()
         oldRead.resume([StakingTestSupport.position("obsolete-position")])
         await old.value
-        #expect(vm.positions.map(\.id) == ["current-position"])
+        #expect(staking.positions.map(\.id) == ["current-position"])
     }
 
     @Test func closingDuringPreparationAuthorizationNeverUsesTheWalletKey() async throws {
@@ -53,25 +53,25 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             return StakingTestSupport.artifact()
         }
         let authentication = SuspensionGate<String?>()
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .solana, bridge: bridge, operations: operations,
             authentication: { _ in await authentication.wait() })
-        vm.selectWallet("wallet")
-        vm.validatorId = "validator"
-        vm.amount = "1"
-        vm.password = "secret"
-        vm.begin(.build)
-        let id = try #require(vm.request?.id)
+        staking.selectWallet("wallet")
+        staking.validatorId = "validator"
+        staking.amount = "1"
+        staking.password = "secret"
+        staking.begin(.build)
+        let id = try #require(staking.request?.id)
         let store = makeState()
-        let work = Task { await vm.perform(id, store: store) }
+        let work = Task { await staking.perform(id, store: store) }
         await authentication.reached()
-        vm.cancel()
+        staking.cancel()
         authentication.resume(nil)
         await work.value
         #expect(!built)
-        #expect(vm.session.artifact == nil)
-        #expect(vm.password.isEmpty)
-        #expect(!vm.isBusy)
+        #expect(staking.session.artifact == nil)
+        #expect(staking.password.isEmpty)
+        #expect(!staking.isBusy)
     }
 
     @Test func closingDuringSigningAuthorizationNeverInvokesSigner() async throws {
@@ -82,24 +82,24 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             return StakingTestSupport.artifact(stage: .signed)
         }
         let authentication = SuspensionGate<String?>()
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .solana, bridge: bridge, operations: operations,
             authentication: { _ in await authentication.wait() })
-        vm.selectWallet("wallet")
-        vm.session.progress = StakingTestSupport.progress(StakingTestSupport.artifact())
-        vm.password = "secret"
-        vm.begin(.sign)
-        let id = try #require(vm.request?.id)
+        staking.selectWallet("wallet")
+        staking.session.progress = StakingTestSupport.progress(StakingTestSupport.artifact())
+        staking.password = "secret"
+        staking.begin(.sign)
+        let id = try #require(staking.request?.id)
         let store = makeState()
-        let work = Task { await vm.perform(id, store: store) }
+        let work = Task { await staking.perform(id, store: store) }
         await authentication.reached()
-        vm.selectWallet("other-wallet")
+        staking.selectWallet("other-wallet")
         authentication.resume(nil)
         await work.value
         #expect(!signed)
-        #expect(vm.walletId == "other-wallet")
-        #expect(vm.session.artifact == nil)
-        #expect(vm.password.isEmpty)
+        #expect(staking.walletId == "other-wallet")
+        #expect(staking.session.artifact == nil)
+        #expect(staking.password.isEmpty)
     }
 
     @Test func buildSignAndBroadcastRequireSeparateIntentAndUseTheReviewedDigest() async throws {
@@ -128,28 +128,28 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             #expect(endpoints == ["node-b"])
             return StakingTestSupport.artifact(stage: .signed, submitted: true)
         }
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .solana, bridge: bridge, operations: operations,
             authentication: { _ in nil }, broadcastCompletion: { _ in completed = true })
         let store = makeState()
-        vm.selectWallet("wallet")
-        vm.validatorId = "validator"
-        vm.amount = "1.234567891"
-        vm.password = "build-password"
-        vm.begin(.build)
-        await vm.perform(try #require(vm.request?.id), store: store)
+        staking.selectWallet("wallet")
+        staking.validatorId = "validator"
+        staking.amount = "1.234567891"
+        staking.password = "build-password"
+        staking.begin(.build)
+        await staking.perform(try #require(staking.request?.id), store: store)
         #expect(builds == 1 && signs == 0 && broadcasts == 0)
-        #expect(vm.session.selectedEndpoints.isEmpty)
-        #expect(vm.password == "build-password")
-        vm.begin(.sign)
-        await vm.perform(try #require(vm.request?.id), store: store)
+        #expect(staking.session.selectedEndpoints.isEmpty)
+        #expect(staking.password == "build-password")
+        staking.begin(.sign)
+        await staking.perform(try #require(staking.request?.id), store: store)
         #expect(signs == 1 && broadcasts == 0)
-        #expect(vm.session.artifact?.stage == .signed)
-        vm.session.selectedEndpoints = ["node-b"]
-        vm.begin(.broadcast)
-        await vm.perform(try #require(vm.request?.id), store: store)
+        #expect(staking.session.artifact?.stage == .signed)
+        staking.session.selectedEndpoints = ["node-b"]
+        staking.begin(.broadcast)
+        await staking.perform(try #require(staking.request?.id), store: store)
         #expect(broadcasts == 1 && completed)
-        #expect(vm.session.progress?.transaction?.status == .pending, "Acceptance never establishes confirmation")
+        #expect(staking.session.progress?.transaction?.status == .pending, "Acceptance never establishes confirmation")
     }
 
     @Test func broadcastCompletionSurvivesClosingTheScreen() async throws {
@@ -157,23 +157,23 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
         let gate = SuspensionGate<SendArtifact>()
         operations.broadcast = { _, _ in await gate.wait() }
         var completedId: String?
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .solana, bridge: bridge, operations: operations,
             broadcastCompletion: { completedId = $0.id })
-        vm.selectWallet("wallet")
-        vm.session.progress = StakingTestSupport.progress(StakingTestSupport.artifact(stage: .signed))
-        vm.session.endpoints = ["node-b"]
-        vm.session.selectedEndpoints = ["node-b"]
-        vm.begin(.broadcast)
-        let id = try #require(vm.request?.id)
+        staking.selectWallet("wallet")
+        staking.session.progress = StakingTestSupport.progress(StakingTestSupport.artifact(stage: .signed))
+        staking.session.endpoints = ["node-b"]
+        staking.session.selectedEndpoints = ["node-b"]
+        staking.begin(.broadcast)
+        let id = try #require(staking.request?.id)
         let store = makeState()
-        let work = Task { await vm.perform(id, store: store) }
+        let work = Task { await staking.perform(id, store: store) }
         await gate.reached()
-        vm.cancel()
+        staking.cancel()
         gate.resume(StakingTestSupport.artifact(stage: .signed, submitted: true))
         await work.value
         #expect(completedId == "staking-review")
-        #expect(vm.session.artifact == nil)
+        #expect(staking.session.artifact == nil)
     }
     @Test func privateStatusRecheckAuthorizesOnlyTheReadAndKeepsTheOriginalOperation() async throws {
         var operations = StakingTestSupport.operations()
@@ -198,22 +198,22 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             #expect(password == "read-password")
             return StakingTestSupport.artifact(stage: .signed, submitted: true, chain: .icp)
         }
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .icp, bridge: bridge, operations: operations,
             authentication: { _ in
                 authorizations += 1
                 return nil
             })
-        vm.selectWallet("wallet")
-        vm.session.progress = StakingTestSupport.progress(
+        staking.selectWallet("wallet")
+        staking.session.progress = StakingTestSupport.progress(
             StakingTestSupport.artifact(stage: .signed, submitted: true, chain: .icp))
-        vm.password = "read-password"
-        vm.begin(.recheck)
-        await vm.perform(try #require(vm.request?.id), store: makeState())
+        staking.password = "read-password"
+        staking.begin(.recheck)
+        await staking.perform(try #require(staking.request?.id), store: makeState())
         #expect(reads == 1 && authorizations == 1)
         #expect(keyActions == 0, "A receipt query never signs or repeats a staking operation")
-        #expect(vm.session.artifact?.id == "staking-review")
-        #expect(vm.password == "read-password", "Kept for the page's next step")
+        #expect(staking.session.artifact?.id == "staking-review")
+        #expect(staking.password == "read-password", "Kept for the page's next step")
     }
 
     @Test func aFailedBuildKeepsThePasswordAndShowsTheErrorAtTheForm() async throws {
@@ -221,17 +221,17 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
         operations.build = { _, _ in
             throw SpectraBridgeError.InvalidInput(message: LocalizableMessage(template: "Wrong password", args: []))
         }
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .solana, bridge: bridge, operations: operations, authentication: { _ in nil })
-        vm.selectWallet("wallet")
-        vm.validatorId = "validator"
-        vm.amount = "1"
-        vm.password = "typo"
-        vm.begin(.build)
-        await vm.perform(try #require(vm.request?.id), store: makeState())
-        #expect(vm.password == "typo")
-        #expect(vm.stepError != nil)
-        #expect(vm.positionsError == nil)
+        staking.selectWallet("wallet")
+        staking.validatorId = "validator"
+        staking.amount = "1"
+        staking.password = "typo"
+        staking.begin(.build)
+        await staking.perform(try #require(staking.request?.id), store: makeState())
+        #expect(staking.password == "typo")
+        #expect(staking.stepError != nil)
+        #expect(staking.positionsError == nil)
     }
 
     @Test func resumingLoadsTheSavedReviewWithoutBuildingOrSigningAgain() async throws {
@@ -250,13 +250,13 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             #expect(id == "saved-review")
             return restored
         }
-        let vm = StakingState(chain: .solana, bridge: bridge, operations: operations)
-        vm.selectWallet("wallet")
-        vm.begin(.resume("saved-review"))
-        await vm.perform(try #require(vm.request?.id), store: makeState())
-        #expect(vm.session.artifact == restored)
-        #expect(vm.session.endpoints == ["node-a", "node-b"])
-        #expect(vm.session.selectedEndpoints.isEmpty)
+        let staking = StakingState(chain: .solana, bridge: bridge, operations: operations)
+        staking.selectWallet("wallet")
+        staking.begin(.resume("saved-review"))
+        await staking.perform(try #require(staking.request?.id), store: makeState())
+        #expect(staking.session.artifact == restored)
+        #expect(staking.session.endpoints == ["node-a", "node-b"])
+        #expect(staking.session.selectedEndpoints.isEmpty)
         #expect(keyActions == 0)
     }
 
@@ -290,28 +290,28 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             #expect(nodes == ["node-b"])
             return StakingTestSupport.artifact(stage: .signed, submitted: true, chain: .icp)
         }
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .icp, bridge: bridge, operations: operations,
             authentication: { _ in nil }, broadcastCompletion: { _ in })
         let store = makeState()
-        vm.selectWallet("wallet")
-        vm.session.progress = .staged(
+        staking.selectWallet("wallet")
+        staking.session.progress = .staged(
             StakingTestSupport.artifact(stage: .signed, submitted: true, chain: .icp),
             transaction: StakingTestSupport.transaction(status: .failed), next: .done, canRepair: true)
-        vm.password = "repair-password"
-        vm.begin(.repair)
-        await vm.perform(try #require(vm.request?.id), store: store)
+        staking.password = "repair-password"
+        staking.begin(.repair)
+        await staking.perform(try #require(staking.request?.id), store: store)
         #expect(repairs == 1 && signs == 0 && broadcasts == 0)
-        #expect(vm.session.artifact == recovered)
-        #expect(vm.session.selectedEndpoints.isEmpty)
-        #expect(vm.session.progress?.transaction == nil)
-        #expect(vm.password == "repair-password")
-        vm.begin(.sign)
-        await vm.perform(try #require(vm.request?.id), store: store)
+        #expect(staking.session.artifact == recovered)
+        #expect(staking.session.selectedEndpoints.isEmpty)
+        #expect(staking.session.progress?.transaction == nil)
+        #expect(staking.password == "repair-password")
+        staking.begin(.sign)
+        await staking.perform(try #require(staking.request?.id), store: store)
         #expect(signs == 1 && broadcasts == 0)
-        vm.session.selectedEndpoints = ["node-b"]
-        vm.begin(.broadcast)
-        await vm.perform(try #require(vm.request?.id), store: store)
+        staking.session.selectedEndpoints = ["node-b"]
+        staking.begin(.broadcast)
+        await staking.perform(try #require(staking.request?.id), store: store)
         #expect(broadcasts == 1)
     }
 
@@ -324,14 +324,14 @@ struct StakingViewModelTests: IsolatedAppStateSuite {
             repairs += 1
             return StakingTestSupport.artifact(id, chain: .icp)
         }
-        let vm = StakingState(
+        let staking = StakingState(
             chain: .icp, bridge: bridge, operations: operations, authentication: { _ in nil })
-        vm.selectWallet("wallet")
-        vm.session.progress = .staged(
+        staking.selectWallet("wallet")
+        staking.session.progress = .staged(
             StakingTestSupport.artifact(stage: .signed, submitted: true, chain: .icp),
             transaction: StakingTestSupport.transaction(status: .confirmed), next: .done, canRepair: false)
-        vm.begin(.repair)
-        await vm.perform(try #require(vm.request?.id), store: makeState())
+        staking.begin(.repair)
+        await staking.perform(try #require(staking.request?.id), store: makeState())
         #expect(repairs == 0)
     }
 }

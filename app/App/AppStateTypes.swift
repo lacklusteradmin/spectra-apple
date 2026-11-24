@@ -29,7 +29,6 @@ extension DiagnosticLogLevel {
         }
     }
 }
-/// A failure already worded for the reader.
 /// Where launch stands with the stored data.
 enum StoreStatus: Equatable {
     /// Core has not answered yet.
@@ -44,6 +43,7 @@ enum StoreStatus: Equatable {
     case unreadable
 }
 
+/// A failure already worded for the reader.
 struct DisplayedError: LocalizedError {
     let errorDescription: String?
     init(_ message: String) { errorDescription = message }

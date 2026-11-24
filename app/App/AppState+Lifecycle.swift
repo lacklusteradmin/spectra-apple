@@ -23,7 +23,7 @@ extension AppState {
     /// background only; `.inactive` is not leaving the app.
     func setAppIsActive(_ isActive: Bool) {
         appIsActive = isActive
-        if !isActive, preferences.useFaceId, preferences.useAutoLock {
+        if !isActive, preferences.useDeviceAuthentication, preferences.useAutoLock {
             isAppLocked = true
             appLockError = nil
         }

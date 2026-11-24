@@ -37,10 +37,10 @@ where Data.Element: Identifiable {
                 }
                 .padding(.horizontal, SpectraLayout.rowHorizontal)
                 .padding(.vertical, SpectraLayout.cardHeaderVertical)
-                Divider().opacity(0.25)
+                Divider().opacity(SpectraLayout.dividerOpacity)
             } else if Header.self != EmptyView.self {
                 header
-                Divider().opacity(0.25)
+                Divider().opacity(SpectraLayout.dividerOpacity)
             }
             if !data.isEmpty {
                 // Lazy so a long list, such as the wiki's, builds only the rows on screen.
@@ -48,7 +48,7 @@ where Data.Element: Identifiable {
                     ForEach(Array(data.enumerated()), id: \.element.id) { index, element in
                         row(element)
                         if index < data.count - 1 {
-                            Divider().padding(.leading, dividerInset).opacity(0.25)
+                            Divider().padding(.leading, dividerInset).opacity(SpectraLayout.dividerOpacity)
                         }
                     }
                 }
@@ -104,14 +104,14 @@ struct SpectraRowSection<Content: View>: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, SpectraLayout.rowHorizontal)
                         .padding(.vertical, SpectraLayout.cardHeaderVertical)
-                    Divider().opacity(0.25)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                 }
                 Group(subviews: content) { rows in
                     VStack(spacing: 0) {
                         ForEach(rows) { row in
                             row
                             if row.id != rows.last?.id {
-                                Divider().padding(.leading, dividerInset).opacity(0.25)
+                                Divider().padding(.leading, dividerInset).opacity(SpectraLayout.dividerOpacity)
                             }
                         }
                     }

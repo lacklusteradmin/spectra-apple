@@ -115,7 +115,7 @@ struct WalletNetworkActionsCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             ForEach(Array(offers.enumerated()), id: \.element.action) { index, offer in
-                if index > 0 { Divider().opacity(0.25) }
+                if index > 0 { Divider().opacity(SpectraLayout.dividerOpacity) }
                 Button {
                     spectraHaptic(.light)
                     perform(offer.action)

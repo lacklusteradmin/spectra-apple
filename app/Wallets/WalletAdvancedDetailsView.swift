@@ -101,9 +101,11 @@ struct WalletAdvancedDetailsView: View {
                 }
             }
             Section(AppLocalization.string("Details")) {
-                WalletDetailRow(label: "Wallet ID", value: wallet.id)
-                if let derivationPathsText { WalletDetailRow(label: "Derivation Path", value: derivationPathsText) }
-                WalletDetailRow(label: "First Activity", value: firstActivityDateText)
+                SpectraValueRow(label: "Wallet ID", value: wallet.id).textSelection(.enabled)
+                if let derivationPathsText {
+                    SpectraValueRow(label: "Derivation Path", value: derivationPathsText).textSelection(.enabled)
+                }
+                SpectraValueRow(label: "First Activity", value: firstActivityDateText).textSelection(.enabled)
             }
             if offers(.delete) {
                 Section {
@@ -229,15 +231,5 @@ struct WalletAdvancedDetailsView: View {
             try await store.revealSeedPhrase(for: wallet, password: password)
         })
         if let result { spectraNotificationHaptic(result ? .success : .error) }
-    }
-}
-private struct WalletDetailRow: View {
-    let label: String
-    let value: String
-    var body: some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-            Text(AppLocalization.string(label)).font(.caption).foregroundStyle(.secondary)
-            Text(value).font(.subheadline).foregroundStyle(Color.primary).textSelection(.enabled)
-        }.frame(maxWidth: .infinity, alignment: .leading)
     }
 }

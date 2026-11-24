@@ -8,7 +8,7 @@ import Testing
 /// `refresh_policy.rs` and `refresh_engine.rs` test those.
 @MainActor
 @Suite(.isolatedAppState)
-struct WalletRefreshPlannerTests: IsolatedAppStateSuite {
+struct BalanceRefreshTests: IsolatedAppStateSuite {
     @Test func deviceConditionsReportThisDeviceAndTheVisibleTab() {
         let store = makeState()
         store.isNetworkReachable = false

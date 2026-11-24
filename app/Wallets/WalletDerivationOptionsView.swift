@@ -71,7 +71,7 @@ private struct SeedPhraseReadingSection: View {
             // Only BIP-39's lists overlap enough to need choosing; Monero's
             // and Polyseed's are told apart by their words.
             if !wordlists.isEmpty {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 wordlist
             }
         }

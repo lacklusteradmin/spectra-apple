@@ -1,5 +1,80 @@
 # Changelog
 
+## Beta Commit 254
+
+- **A diagnostics bundle is shared, not kept or imported**
+  (`app/Diagnostics/AppState+DiagnosticsExport.swift`,
+  `DiagnosticsViews.swift`; `DiagnosticsExportsBrowserView.swift` deleted)
+  - The export is written to the temporary directory and handed to the share
+    sheet (before: kept in `Documents/Diagnostics Bundles`, which no reset
+    cleared).
+  - "Import Diagnostics Bundle", which showed a date and dropped the rest,
+    and the "Past Exports" browser are removed, with their seven strings in
+    all three languages; the notice reads "Diagnostics bundle ready to
+    share."
+- **`make apple` needs the current stable Rust** (`README.md`): spectra no
+  longer pins a toolchain.
+- **Every label/value row is one `SpectraValueRow`**
+  (`app/Components/SpectraValueRow.swift`; before: `TransactionDetailRow`,
+  `SendSummaryRow`, `WalletDetailRow` and the private `valueRow`,
+  `amountRow`, `reviewRow` and `wikiStatRow`)
+  - The staking review and a wallet's Details section put a label and its
+    value side by side while both fit (before: the label always above its
+    value); their values stay selectable.
+  - A staking position's amounts and unlock times are rows at the detail
+    size (before: caption-size rows).
+  - The network account page's amounts are `LabeledContent` rows, as on the
+    other wallet tool pages (before: a row of its own, with each section's
+    last amount emphasised).
+- **One divider weight, `SpectraLayout.dividerOpacity`**
+  (`app/Components/SpectraLayout.swift`, `scripts/check-design-tokens.py`)
+  - Every divider in a card is at 0.4 (before: 0.25 in row groups, on Home,
+    the funds finder and a wallet's pages; 0.3 on the send pages; full
+    opacity between staking positions).
+  - `make check-ui` refuses a `Divider()` given a literal opacity.
+- **The device-check preference is `useDeviceAuthentication`**
+  (`AppUserPreferences`; before: `useFaceId`, a name without Touch ID, Optic
+  ID or the passcode): it is stored under
+  `settings.platform.useDeviceAuthentication`, so a value stored under the old
+  key is not read and the preference starts on.
+- **Files and test suites are named for what they hold**
+  - `SettingsViews.swift` is `SettingsView.swift`, `EndpointsViews.swift`
+    `EndpointCatalogSettingsView.swift`, `ChainWikiViews.swift`
+    `ChainWikiDetailView.swift` (its `ChainWikiEntry.face` moved to
+    `CryptoWikiViews.swift`), `ReceiveFlowViews.swift` `ReceiveView.swift`
+    and `WalletSetupViews.swift` `SetupView.swift`; `ImageRendering.swift`
+    splits into `CoinBadge.swift` and `SpectraLogo.swift`.
+  - The suites are `StakingStateTests`, `MoneroSyncStateTests`,
+    `BalanceRefreshTests`, `SpectraSecretStoreAdapterTests` and
+    `AppStateTests`, with the files `MoneroSyncStateTests.swift`,
+    `BalanceRefreshTests.swift` and `SpectraSecretStoreAdapterTests.swift`
+    (before: named for view models, a refresh planner and a seed store that
+    do not exist).
+- **`scripts/swift-shell-literals.py` has no allowlist** (before: one entry
+  for a `"Base"` literal no file holds), and its docstring names
+  `AmountPresentation` (before: two functions that do not exist).
+- **`docs/LocalizationGlossary.json` is deleted**: no script read it.
+- **The app's architecture is documented here** (`docs/ARCHITECTURE.md`):
+  the Mac build, `AppState` and its domains, `SendFlowState` and
+  `SendSession`, the presentation catalogs and the rules that keep the shell
+  thin, moved from spectra's `docs/ARCHITECTURE.md`.
+- Tests: none new or removed; the diagnostics bundle test also fails an
+  export kept outside the temporary directory, and reads the file as JSON
+  (before: through the deleted import).
+- Docs: `ARCHITECTURE.md` (new); `IOS-UI.md` "Design baseline" (dividers),
+  the label/value row, the design-token check, the shared helpers and the
+  examples; `SWIFT-BINDINGS.md` "Common errors" (the `Codable` and key-path
+  rows); `scripts/README.md` (`check-design-tokens.py`); `AGENTS.md` "Docs"
+  and "Resources"; `README.md` (the Rust toolchain).
+- Total: 51 .swift files changed (2 new, 1 deleted, 9 renamed), +565 −731
+  lines; data and config files:
+  `resources/strings/RuntimeStrings.en.json`,
+  `resources/strings/RuntimeStrings.zh-Hans.json`,
+  `resources/strings/RuntimeStrings.zh-Hant.json`,
+  `docs/LocalizationGlossary.json` (deleted), `scripts/check-design-tokens.py`,
+  `scripts/swift-shell-literals.py`; dependencies unchanged; test functions
+  unchanged at 148.
+
 ## Beta Commit 253
 
 - **Send warnings no longer word three address-format cases**

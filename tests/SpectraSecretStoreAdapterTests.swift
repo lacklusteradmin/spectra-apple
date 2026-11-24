@@ -6,7 +6,7 @@ import Testing
 
 /// These read and write the real Keychain, and share its device wrapping key.
 @Suite(.serialized)
-struct SecureSeedStoreTests {
+struct SpectraSecretStoreAdapterTests {
     /// The Keychain item as stored, read beside the store rather than through it.
     private func storedBytes(service: String, account: String) throws -> Data? {
         let query: [String: Any] = [

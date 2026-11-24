@@ -5,7 +5,7 @@ import Testing
 @testable import Spectra
 @MainActor
 @Suite(.isolatedAppState)
-struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
+struct AppStateTests: IsolatedAppStateSuite {
     @Test func unpinningAllAssetsPersistsAcrossAsyncBridge() async throws {
         let service = try WalletService(endpoints: [])
         let path = directory
@@ -168,9 +168,8 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
     }
 
     /// Watching an EVM chain that shares Ethereum's address slot imports a
-    /// wallet on that chain. The page used to key the typed addresses by the
-    /// slot's first chain, Ethereum, and core — planning the chain the user
-    /// picked — found none and refused the import.
+    /// wallet on the chain the user picked, not on the slot's first chain,
+    /// Ethereum.
     @Test func watchingAnEvmLayerTwoImportsAWalletOnIt() async throws {
         let store = makeState()
         try await store.clearWalletsForTesting()

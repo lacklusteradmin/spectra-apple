@@ -12,7 +12,16 @@ extension AssetWikiEntry: @retroactive Identifiable {
     }
 }
 
-extension ChainWikiEntry: @retroactive Identifiable {}
+extension ChainWikiEntry: @retroactive Identifiable {
+    /// A chain draws the coin it runs on.
+    var face: WikiCoinFace {
+        let entry = Chain(id: id)?.entry
+        return WikiCoinFace(
+            name: name, symbol: name,
+            artworkName: entry?.artworkName ?? "",
+            color: entry?.color.color ?? .accentColor)
+    }
+}
 
 /// One filter over the whole library: what kind of coin, or what kind of chain.
 private enum WikiTag: Hashable {

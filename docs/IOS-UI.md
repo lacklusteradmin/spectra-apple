@@ -46,6 +46,9 @@ Official references:
   an empty state or an action on the whole list. Fixed rows rather than data,
   such as the settings tab's, are a `SpectraRowSection`: each subview a row,
   and an explanatory footer under the card.
+- **Dividers:** a divider in a card — between its rows, its groups or a
+  list's entries — is a `Divider()` at `SpectraLayout.dividerOpacity`
+  (`0.4`), so a line weighs the same on every page.
 - **Empty states:** `SpectraEmptyStateCard` between cards on a glass page;
   `SpectraEmptyStateContent`, the same words without a surface, inside a card
   or a `Form` row; `ContentUnavailableView` for an empty search or a whole
@@ -202,7 +205,8 @@ card reads the same wherever it is nested. A concentric shape is an exception a
 view argues for in a comment, never a substitute for a step.
 
 `scripts/check-design-tokens.py` (also `make check-ui`) fails when a view
-restates a spacing, a radius or a white glass tint that `SpectraLayout` owns,
+restates a spacing, a radius, a white glass tint or a divider opacity that
+`SpectraLayout` owns,
 or draws glass in a shape only a surface inside a card has — `Radius.inner`,
 `Radius.control`, a circle or a capsule. `spectraCardFill` and
 `spectraElevatedFill` take no radius for the same reason.
@@ -215,7 +219,8 @@ Shared values and helpers live in:
 - [`AddressEntryRow`](../app/Components/AddressEntryRow.swift)
 - [`SpectraDisclosureStyle`](../app/Components/SpectraDisclosureStyle.swift) and
   [`keyboardAnchor`](../app/Components/KeyboardAnchor.swift)
-- [`SendCostRows` and `SendSummaryRow`](../app/Send/SendCostRows.swift)
+- [`SpectraValueRow`](../app/Components/SpectraValueRow.swift) and
+  [`SendCostRows`](../app/Send/SendCostRows.swift)
 - [`BalanceText`](../app/Components/BalanceText.swift), [`CopyButton`](../app/Components/CopyButton.swift),
   [`secretShield`](../app/Components/SecretShield.swift) and
   [`SecretWordField`](../app/Components/SecretWordField.swift)
@@ -227,12 +232,12 @@ Shared values and helpers live in:
 - [DashboardView.swift](../app/Dashboard/DashboardView.swift) and
   [AssetGroupDetailView.swift](../app/Dashboard/AssetGroupDetailView.swift):
   top-level tab, hero cards and asset detail rows.
-- [ReceiveFlowViews.swift](../app/Receive/ReceiveFlowViews.swift): business detail layout.
-- [ChainWikiViews.swift](../app/Wiki/ChainWikiViews.swift): compact interactive cards.
+- [ReceiveView.swift](../app/Receive/ReceiveView.swift): business detail layout.
+- [ChainWikiDetailView.swift](../app/Wiki/ChainWikiDetailView.swift): compact interactive cards.
 - [HistoryView.swift](../app/History/HistoryView.swift) and
   [AddWalletEntryView.swift](../app/Wallets/AddWalletEntryView.swift): lists as
   `SpectraRowGroup` rows.
-- [SettingsViews.swift](../app/Settings/SettingsViews.swift): a top-level tab
+- [SettingsView.swift](../app/Settings/SettingsView.swift): a top-level tab
   of `SpectraRowSection` cards.
 - [SendView.swift](../app/Send/SendView.swift): a flow with its
   action bar in `safeAreaBar`.
@@ -240,9 +245,14 @@ Shared values and helpers live in:
 Pages use `spectraScreenPadding()` with `sectionSpacing` between cards, and
 card content has `cardPadding`. Detail navigation titles are inline.
 
-Detail key/value rows use an accent SF Symbol, a secondary label and a primary
-value, `Space.m` row spacing and dividers at 0.4 opacity. Group adjacent glass
-actions with `GlassEffectContainer(spacing: SpectraLayout.Space.s)`.
+A label and its value — a detail card's facts, a review, a fee summary — is a
+`SpectraValueRow`: an optional accent SF Symbol, a secondary label and a
+semibold primary value, side by side while both fit on one line and the value
+under the label otherwise, always stacked at accessibility sizes. An
+identifier (a hash, an address) is monospaced on one line beside its label,
+cut in the middle with its ends primary, and the row holding it copies it in
+full. Rows sit `Space.m` apart with dividers between them. Group adjacent
+glass actions with `GlassEffectContainer(spacing: SpectraLayout.Space.s)`.
 
 ## Additional constraints
 

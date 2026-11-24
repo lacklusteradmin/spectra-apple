@@ -338,7 +338,7 @@ struct FundsFinderView: View {
                 // Every found account at once, each its own wallet — the
                 // scan's usual end is more than one.
                 if hits.count > 1, !isScanning {
-                    Divider().opacity(0.25)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     Button {
                         isImportingAll = true
                     } label: {

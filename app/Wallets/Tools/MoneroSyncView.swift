@@ -5,7 +5,7 @@ import SwiftUI
 struct MoneroSyncView: View {
     let store: AppState
     let walletId: String
-    @State private var vm = MoneroSyncState()
+    @State private var moneroSync = MoneroSyncState()
     @State private var statusAttempt = 0
 
     var body: some View {
@@ -15,30 +15,30 @@ struct MoneroSyncView: View {
             Text(AppLocalization.string("Local Monero Wallet")).font(.headline)
             Text(AppLocalization.string("Scanning and signing happen on this device. Keys stay on this device."))
                 .font(.caption).foregroundStyle(.secondary)
-            if let status = vm.status {
+            if let status = moneroSync.status {
                 progress(status)
                 if !status.spendsKnown {
                     Text(AppLocalization.string("A view key shows what the wallet receives, not what it spends: its balance does not drop when it pays from another device."))
                         .font(.caption).foregroundStyle(.secondary)
                 }
-                if vm.isRunning {
-                    Button(AppLocalization.string("Cancel")) { vm.cancel() }
+                if moneroSync.isRunning {
+                    Button(AppLocalization.string("Cancel")) { moneroSync.cancel() }
                         .buttonStyle(.glass)
                 } else {
                     if store.wallet(for: walletId)?.signing.requiresPassword ?? true {
-                        SecureField(AppLocalization.string("Wallet Password"), text: $vm.password)
+                        SecureField(AppLocalization.string("Wallet Password"), text: $moneroSync.password)
                             .padding(SpectraLayout.Space.m)
                             .spectraInputFieldStyle()
                     }
-                    Button(AppLocalization.string("Sync Local Wallet")) { vm.begin() }
+                    Button(AppLocalization.string("Sync Local Wallet")) { moneroSync.begin() }
                         .buttonStyle(.glassProminent)
                 }
-            } else if vm.error == nil {
+            } else if moneroSync.error == nil {
                 ProgressView().frame(maxWidth: .infinity)
             }
-            if let error = vm.error {
+            if let error = moneroSync.error {
                 Label(error, systemImage: "exclamationmark.triangle.fill").font(.caption).foregroundStyle(.red)
-                if vm.status == nil {
+                if moneroSync.status == nil {
                     Button(AppLocalization.string("Retry")) { statusAttempt += 1 }.buttonStyle(.glass)
                 }
             }
@@ -47,23 +47,23 @@ struct MoneroSyncView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .spectraCardFill()
         .task(id: "\(walletId)#\(statusAttempt)") {
-            vm.error = nil
+            moneroSync.error = nil
             do {
                 let status = try await store.moneroSyncStatus(walletId: walletId)
                 guard !Task.isCancelled else { return }
-                vm.status = status
+                moneroSync.status = status
             } catch {
                 guard !Task.isCancelled else { return }
-                vm.error = userErrorMessage(error)
+                moneroSync.error = userErrorMessage(error)
             }
         }
-        .task(id: vm.requestId) {
-            guard let request = vm.requestId else { return }
-            await vm.sync(request: request) { password, progress in
+        .task(id: moneroSync.requestId) {
+            guard let request = moneroSync.requestId else { return }
+            await moneroSync.sync(request: request) { password, progress in
                 await store.syncMoneroWallet(walletId: walletId, password: password, progress: progress)
             }
         }
-        .onDisappear { vm.cancel() }
+        .onDisappear { moneroSync.cancel() }
     }
 
     /// How far the scan has come, in blocks from where it started — the

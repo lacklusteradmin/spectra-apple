@@ -52,35 +52,13 @@ struct ChainWikiDetailView: View {
 
     private var wikiIdentityCard: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            wikiStatRow(label: AppLocalization.string("Family"), value: chain.family, icon: "link.circle.fill")
-            Divider().opacity(0.4)
-            wikiStatRow(label: AppLocalization.string("Consensus"), value: chain.consensus, icon: "checkmark.shield.fill")
-            Divider().opacity(0.4)
-            wikiStatRow(label: AppLocalization.string("State Model"), value: chain.stateModel, icon: "cylinder.split.1x2.fill")
+            SpectraValueRow(systemImage: "link.circle.fill", label: "Family", value: chain.family)
+            Divider().opacity(SpectraLayout.dividerOpacity)
+            SpectraValueRow(systemImage: "checkmark.shield.fill", label: "Consensus", value: chain.consensus)
+            Divider().opacity(SpectraLayout.dividerOpacity)
+            SpectraValueRow(systemImage: "cylinder.split.1x2.fill", label: "State Model", value: chain.stateModel)
         }
         .padding(SpectraLayout.Space.l).frame(maxWidth: .infinity, alignment: .leading)
         .spectraCardFill()
-    }
-
-    private func wikiStatRow(label: String, value: String, icon: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.s) {
-            Image(systemName: icon)
-                .font(.subheadline.weight(.semibold)).foregroundStyle(.tint).frame(width: 22)
-            Text(label).font(.subheadline).foregroundStyle(.secondary)
-            Spacer(minLength: SpectraLayout.Space.m)
-            Text(value).font(.subheadline.weight(.semibold)).foregroundStyle(Color.primary)
-                .multilineTextAlignment(.trailing)
-        }
-    }
-}
-
-extension ChainWikiEntry {
-    /// A chain draws the coin it runs on, which is what the badge already was.
-    var face: WikiCoinFace {
-        let entry = Chain(id: id)?.entry
-        return WikiCoinFace(
-            name: name, symbol: name,
-            artworkName: entry?.artworkName ?? "",
-            color: entry?.color.color ?? .accentColor)
     }
 }

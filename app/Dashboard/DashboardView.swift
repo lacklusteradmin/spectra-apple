@@ -240,7 +240,7 @@ struct DashboardView: View {
                 title: "No balances yet", message: "Pull down to read balances again.", systemImage: "chart.pie")
                 .padding(.horizontal, SpectraLayout.rowHorizontal).padding(.vertical, SpectraLayout.Space.m)
         } else if reading {
-            Divider().opacity(0.25)
+            Divider().opacity(SpectraLayout.dividerOpacity)
             HStack(spacing: SpectraLayout.Space.s) {
                 SpectraLoadingGlyph(size: 18)
                 Text(AppLocalization.string("Reading balances…")).font(.caption).foregroundStyle(.secondary)
@@ -248,7 +248,7 @@ struct DashboardView: View {
             }.spectraRowPadding()
         }
         if smallCount > 0 {
-            Divider().opacity(0.25)
+            Divider().opacity(SpectraLayout.dividerOpacity)
             Button {
                 spectraHaptic(.light)
                 store.preferences.hideSmallBalances.toggle()
@@ -378,9 +378,7 @@ struct DashboardAssetRowView: View, Equatable {
 
 // ── Dashboard top-level sections ────────────────────────────────────────
 // Each section is a standalone `View` struct so its internal TupleView
-// types don't cascade into `DashboardView.body`'s opaque return. This
-// matches the SetupView refactor and Apple's preferred pattern of many
-// focused `View` structs rather than long computed-var bodies.
+// types don't cascade into `DashboardView.body`'s opaque return.
 
 private struct DashboardPortfolioHeader: View {
     @Bindable var store: AppState

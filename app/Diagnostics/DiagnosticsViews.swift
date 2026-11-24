@@ -1,13 +1,10 @@
 import Foundation
 import SpectraCore
 import SwiftUI
-import UniformTypeIdentifiers
 struct DiagnosticsHubView: View {
     let store: AppState
     @State private var isCheckingAllEndpoints = false
     @State private var diagnosticsNotice: String?
-    @State private var isShowingDiagnosticsImporter = false
-    @State private var isShowingDiagnosticsExportsBrowser = false
     @State private var lastExportedDiagnosticsURL: URL?
     @State private var searchText: String = ""
     private let copy = DiagnosticsContentCopy.current
@@ -65,22 +62,16 @@ struct DiagnosticsHubView: View {
                         do {
                             let url = try await store.exportDiagnosticsBundle()
                             lastExportedDiagnosticsURL = url
-                            diagnosticsNotice = AppLocalization.format("Diagnostics exported to %@", url.lastPathComponent)
+                            diagnosticsNotice = AppLocalization.string("Diagnostics bundle ready to share.")
                         } catch {
                             diagnosticsNotice = AppLocalization.format("Export failed: %@", userErrorMessage(error))
                         }
                     }
                 }
-                Button(AppLocalization.string("Past Exports")) {
-                    isShowingDiagnosticsExportsBrowser = true
-                }
                 if let lastExportedDiagnosticsURL {
                     ShareLink(item: lastExportedDiagnosticsURL) {
                         Label(AppLocalization.string("Share Last Export"), systemImage: "square.and.arrow.up")
                     }
-                }
-                Button(AppLocalization.string("Import Diagnostics Bundle")) {
-                    isShowingDiagnosticsImporter = true
                 }
             }
             if let diagnosticsNotice {
@@ -89,24 +80,7 @@ struct DiagnosticsHubView: View {
                 }
             }
         }.navigationTitle(copy.navigationTitle).inlineNavigationTitle().searchable(
-            text: $searchText, prompt: copy.searchPrompt).pageSheet(isPresented: $isShowingDiagnosticsExportsBrowser) {
-            DiagnosticsExportsBrowserView(store: store)
-        }.fileImporter(
-            isPresented: $isShowingDiagnosticsImporter, allowedContentTypes: [UTType.json], allowsMultipleSelection: false
-        ) { result in
-            do {
-                guard let fileURL = try result.get().first else { return }
-                let didAccess = fileURL.startAccessingSecurityScopedResource()
-                defer {
-                    if didAccess { fileURL.stopAccessingSecurityScopedResource() }
-                }
-                let payload = try store.importDiagnosticsBundle(from: fileURL)
-                diagnosticsNotice = AppLocalization.format(
-                    "Imported diagnostics bundle (%@).", payload.generatedAtDate.appFormatted(time: .shortened))
-            } catch {
-                diagnosticsNotice = AppLocalization.format("Import failed: %@", userErrorMessage(error))
-            }
-        }
+            text: $searchText, prompt: copy.searchPrompt)
     }
 }
 struct StandardChainDiagnosticsView: View {

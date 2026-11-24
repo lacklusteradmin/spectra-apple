@@ -141,7 +141,7 @@ struct SendView: View {
                 DisclosureGroup(AppLocalization.string("Resume a transaction")) {
                     VStack(spacing: 0) {
                         ForEach(Array(store.sendFlow.savedArtifacts.enumerated()), id: \.element.id) { index, artifact in
-                            if index > 0 { Divider().opacity(0.3) }
+                            if index > 0 { Divider().opacity(SpectraLayout.dividerOpacity) }
                             Button {
                                 Task {
                                     if await store.sendFlow.resume(id: artifact.id) {

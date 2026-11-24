@@ -6,7 +6,7 @@ import SwiftUI
 /// `SendProgress`.
 struct StakingTransactionView: View {
     @Bindable var store: AppState
-    @Bindable var vm: StakingState
+    @Bindable var staking: StakingState
     let progress: SendProgress
     @Binding var confirmsSigning: Bool
     @Binding var confirmsBroadcast: Bool
@@ -16,7 +16,7 @@ struct StakingTransactionView: View {
         progress.next == .broadcast || (progress.next == .rebroadcast && progress.canRebroadcast)
     }
     private var needsReadPassword: Bool {
-        vm.rules.positionsRequireAuthorization
+        staking.rules.positionsRequireAuthorization
             && (store.wallet(for: artifact.walletId)?.signing.requiresPassword ?? true)
     }
 
@@ -29,33 +29,33 @@ struct StakingTransactionView: View {
                 Text(AppLocalization.string("staking.review_before_signing")).font(.caption)
                     .foregroundStyle(.secondary)
                 Button(AppLocalization.string("Sign Transaction")) { confirmsSigning = true }
-                    .buttonStyle(.glassProminent).disabled(vm.isBusy || artifact.review.networkFee == nil)
+                    .buttonStyle(.glassProminent).disabled(staking.isBusy || artifact.review.networkFee == nil)
                     .accessibilityIdentifier("staking.sign")
             } else if canBroadcast {
                 Button(AppLocalization.string(progress.next.title)) { confirmsBroadcast = true }
-                    .buttonStyle(.glassProminent).disabled(vm.isBusy || vm.session.selectedEndpoints.isEmpty)
+                    .buttonStyle(.glassProminent).disabled(staking.isBusy || staking.session.selectedEndpoints.isEmpty)
                     .accessibilityIdentifier("staking.broadcast")
             }
             if progress.canRecheck {
-                Button(AppLocalization.string("staking.check_status")) { vm.begin(.recheck) }
-                    .buttonStyle(.glass).disabled(vm.isBusy || (needsReadPassword && vm.password.isEmpty))
+                Button(AppLocalization.string("staking.check_status")) { staking.begin(.recheck) }
+                    .buttonStyle(.glass).disabled(staking.isBusy || (needsReadPassword && staking.password.isEmpty))
             }
             if progress.canRepair {
                 Text(AppLocalization.string("staking.repair_explanation")).font(.caption).foregroundStyle(.secondary)
-                Button(AppLocalization.string("staking.repair")) { vm.begin(.repair) }
-                    .buttonStyle(.glass).disabled(vm.isBusy || (needsReadPassword && vm.password.isEmpty))
+                Button(AppLocalization.string("staking.repair")) { staking.begin(.repair) }
+                    .buttonStyle(.glass).disabled(staking.isBusy || (needsReadPassword && staking.password.isEmpty))
                     .accessibilityIdentifier("staking.repair")
             }
             if let link = progress.transaction?.explorerLink {
                 Link(AppLocalization.string("View in block explorer"), destination: link.url).buttonStyle(
                     .glass)
             }
-            if vm.isBusy { ProgressView() }
-            if let error = vm.stepError {
+            if staking.isBusy { ProgressView() }
+            if let error = staking.stepError {
                 StakingErrorText(message: error)
             }
-            Button(AppLocalization.string("staking.close_review")) { vm.startStake() }
-                .buttonStyle(.glass).disabled(vm.isBusy)
+            Button(AppLocalization.string("staking.close_review")) { staking.startStake() }
+                .buttonStyle(.glass).disabled(staking.isBusy)
         }
     }
 
@@ -63,34 +63,33 @@ struct StakingTransactionView: View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             Text(AppLocalization.string("staking.review")).font(.headline)
             if let intent = artifact.staking {
-                reviewRow(AppLocalization.string("staking.action"), value: intent.action.localizedTitle)
-                reviewRow(
-                    AppLocalization.string("Amount"),
+                SpectraValueRow(label: "staking.action", value: intent.action.localizedTitle)
+                SpectraValueRow(
+                    label: "Amount",
                     value: AmountPresentation.exactAmount(artifact.amount, symbol: artifact.symbol))
                 if intent.amount == nil {
                     Text(AppLocalization.string("staking.full_position_action")).font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 if let validator = intent.validatorId {
-                    if let name = vm.validatorName(validator) {
-                        reviewRow(AppLocalization.string("staking.validator"), value: name)
+                    if let name = staking.validatorName(validator) {
+                        SpectraValueRow(label: "staking.validator", value: name)
                         Text(verbatim: validator).font(.caption.monospaced()).foregroundStyle(.secondary)
-                            .textSelection(.enabled)
                     } else {
-                        reviewRow(AppLocalization.string("staking.validator_identifier"), value: validator)
+                        SpectraValueRow(label: "staking.validator_identifier", value: validator)
                     }
                 }
                 if let position = intent.positionId {
-                    reviewRow(AppLocalization.string("staking.position"), value: position)
+                    SpectraValueRow(label: "staking.position", value: position)
                 }
                 if let delay = artifact.review.staking?.lockupSeconds {
-                    reviewRow(
-                        AppLocalization.string("staking.dissolve_delay"),
+                    SpectraValueRow(
+                        label: "staking.dissolve_delay",
                         value: AppLocalization.format("staking.seconds", delay))
                 }
             }
-            reviewRow(
-                AppLocalization.string("Wallet"),
+            SpectraValueRow(
+                label: "Wallet",
                 value: store.wallet(for: artifact.walletId)?.name ?? artifact.walletId)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
                 Text(AppLocalization.string("From")).font(.caption).foregroundStyle(.secondary)
@@ -103,8 +102,7 @@ struct StakingTransactionView: View {
                 }
             }
             if let entry = CoreReferenceTables.stakingEntry(for: artifact.chainId) {
-                reviewRow(
-                    AppLocalization.string("Unbonding"), value: AppLocalization.string(entry.unbondingPeriod))
+                SpectraValueRow(label: "Unbonding", value: AppLocalization.string(entry.unbondingPeriod))
             }
             if let review = artifact.review.staking {
                 if review.fundingAlreadyCompleted {
@@ -113,16 +111,16 @@ struct StakingTransactionView: View {
                 // With its display-currency value and its bound, as a send's
                 // fee is shown.
                 if let fee = artifact.review.networkFee {
-                    reviewRow(
-                        AppLocalization.string("Network Fee"),
+                    SpectraValueRow(
+                        label: "Network Fee",
                         value: store.amounts.reviewedNetworkFee(fee, chain: artifact.chainId))
                 }
                 if review.feeIsDeductedFromAmount {
                     Text(AppLocalization.string("staking.fee_deducted")).font(.caption).foregroundStyle(.secondary)
                 }
                 if let deposit = review.refundableDeposit {
-                    reviewRow(
-                        AppLocalization.string("staking.refundable_deposit"),
+                    SpectraValueRow(
+                        label: "staking.refundable_deposit",
                         value:
                             AmountPresentation.exactAmount(deposit, symbol: artifact.chainId.gasTokenSymbol))
                 }
@@ -137,14 +135,7 @@ struct StakingTransactionView: View {
             ReviewWarnings(artifact: artifact)
             Text(AppLocalization.string("staking.saved_review")).font(.caption).foregroundStyle(
                 .secondary)
-        }.padding(SpectraLayout.cardPadding).spectraElevatedFill()
-    }
-
-    private func reviewRow(_ title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
-            Text(verbatim: value).font(.subheadline).textSelection(.enabled)
-        }
+        }.textSelection(.enabled).padding(SpectraLayout.cardPadding).spectraElevatedFill()
     }
 
     private var statusCard: some View {
@@ -158,14 +149,14 @@ struct StakingTransactionView: View {
                     .foregroundStyle(.secondary)
             }
             if !artifact.attempts.isEmpty {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 SubmissionResults(progress: progress)
             }
             // The results name the hash until the chain settles it; a staking
             // page has no receipt to name it after.
             if progress.status.isSettled,
                let hash = progress.transaction?.transactionHash ?? artifact.transactionHash {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 TransactionHashRow(hash: hash)
             }
         }
@@ -174,7 +165,7 @@ struct StakingTransactionView: View {
     }
 
     private var destinations: some View {
-        BroadcastNodePicker(session: vm.session)
-            .padding(SpectraLayout.cardPadding).spectraCardFill().disabled(vm.isBusy)
+        BroadcastNodePicker(session: staking.session)
+            .padding(SpectraLayout.cardPadding).spectraCardFill().disabled(staking.isBusy)
     }
 }

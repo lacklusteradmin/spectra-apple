@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Swift views that restate a design value SpectraLayout owns.
 
-docs/IOS-UI.md defines the spacing scale, the corner-radius scale and the two
-Liquid Glass tints; app/Components/SpectraLayout.swift spells them in
-Swift. A screen that writes the number instead of the token drifts silently,
+docs/IOS-UI.md defines the spacing scale, the corner-radius scale, the two
+Liquid Glass tints and the divider opacity; app/Components/SpectraLayout.swift
+spells them in Swift. A screen that writes the number instead of the token drifts silently,
 and no review catches it by eye.
 
 The scale itself is not policed here. Changing a step is a design decision:
@@ -62,6 +62,17 @@ def glass_in_card(path, text):
         yield f"{path}:{line}: {re.sub(r'\s+', ' ', call)}"
 
 
+# A divider and the modifiers chained to it, which may run onto later lines.
+DIVIDER = re.compile(r'Divider\(\)((?:\s*\.\w+\((?:[^()]|\([^()]*\))*\))*)')
+
+
+def divider_opacity(path, text):
+    for match in DIVIDER.finditer(text):
+        if re.search(r'\.opacity\(\s*[0-9.]', match.group(1)):
+            line = 1 + text.count('\n', 0, match.start())
+            yield f"{path}:{line}: {re.sub(r'\s+', ' ', match.group(0))}"
+
+
 # (title, remedy, rule) in the order they report.
 RULES = [
     # A numeric radius at a call site. Component property declarations
@@ -96,6 +107,10 @@ RULES = [
     ('Glass surface inside a card:',
      'use spectraInsetFill / SpectraLayout.insetFill for a surface inside a card',
      glass_in_card),
+    # A divider at an opacity of its own. Every divider weighs the same.
+    ('Literal divider opacity outside SpectraLayout:',
+     'use SpectraLayout.dividerOpacity',
+     divider_opacity),
 ]
 
 

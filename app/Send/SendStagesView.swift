@@ -30,7 +30,7 @@ struct SendStagesView: View {
                 // What the quote the send was built from estimated, as the
                 // review put it. A receipt states the fee paid instead.
                 if !hasFinalHistoryStatus, let fee = artifact.review.networkFee {
-                    Divider().opacity(0.4)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     SendCostRows(
                         fee: store.amounts.reviewedNetworkFee(fee, chain: artifact.chainId),
                         total: artifact.review.total.map {
@@ -147,23 +147,23 @@ struct SendStagesView: View {
             if terms.fee != "0" {
                 LabeledContent(AppLocalization.string("Token Fee"),
                                value: AmountPresentation.exactAmount(terms.fee, symbol: artifact.symbol))
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 LabeledContent(AppLocalization.string("Recipient Receives"),
                                value: AmountPresentation.exactAmount(terms.received, symbol: artifact.symbol))
             }
             if let carried = terms.carriedNative {
-                if terms.fee != "0" { Divider().opacity(0.4) }
+                if terms.fee != "0" { Divider().opacity(SpectraLayout.dividerOpacity) }
                 LabeledContent(AppLocalization.string("Sent With It"),
                                value: AmountPresentation.exactAmount(carried, symbol: artifact.chainId.gasTokenSymbol))
             }
             if let registration = terms.recipientRegistration {
-                if terms.fee != "0" || terms.carriedNative != nil { Divider().opacity(0.4) }
+                if terms.fee != "0" || terms.carriedNative != nil { Divider().opacity(SpectraLayout.dividerOpacity) }
                 LabeledContent(AppLocalization.string("Recipient Registration"),
                                value: AmountPresentation.exactAmount(registration, symbol: artifact.chainId.gasTokenSymbol))
             }
             if let program = terms.hookProgram {
                 if terms.fee != "0" || terms.carriedNative != nil || terms.recipientRegistration != nil {
-                    Divider().opacity(0.4)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                 }
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
                     Label(AppLocalization.string("This token runs a program on every transfer, which can refuse it."),
@@ -194,12 +194,12 @@ struct SendStagesView: View {
                 }
                 if let fee = store.amounts.receiptNetworkFeeText(for: record)
                     ?? store.amounts.confirmedNetworkFeeText(for: record) {
-                    Divider().opacity(0.4)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     LabeledContent(AppLocalization.string("Network Fee"), value: fee)
                         .font(.subheadline)
                 }
                 if let hash = record.transactionHash ?? artifact.transactionHash {
-                    Divider().opacity(0.4)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     TransactionHashRow(hash: hash)
                 }
                 if let explorer = record.explorerLink {
@@ -254,7 +254,7 @@ struct SendStagesView: View {
             VStack(spacing: 0) {
                 let fields = preparedFields(preparedDetails: artifact.preparedDetails)
                 ForEach(Array(fields.enumerated()), id: \.offset) { index, field in
-                    if index > 0 { Divider().opacity(0.3) }
+                    if index > 0 { Divider().opacity(SpectraLayout.dividerOpacity) }
                     ViewThatFits(in: .horizontal) {
                         HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.m) {
                             fieldName(field.name)

@@ -27,6 +27,9 @@ enum SpectraLayout {
     /// Where a row divider starts: the row inset, a 36pt badge and the gap
     /// after it, so the line runs under the text rather than the badge.
     static let rowDividerInset: CGFloat = rowHorizontal + 36 + Space.m
+    /// Every divider's opacity — between a card's rows, its groups and a
+    /// list's entries — so a line weighs the same on every page.
+    static let dividerOpacity: Double = 0.4
     /// The widest a page's column of cards grows. A phone never reaches it; a
     /// Mac window dragged wide keeps its cards a readable width, centered.
     static let pageMaxWidth: CGFloat = 720

@@ -23,7 +23,7 @@ struct SendConfirmationStep: View {
                         store: store, walletId: store.sendFlow.walletId, chain: selectedCoin.chain,
                         sender: store.selectedWalletForSend()?.address,
                         recipient: recipientAddress)
-                    Divider().opacity(0.4)
+                    Divider().opacity(SpectraLayout.dividerOpacity)
                     SendCostRows(fee: networkFeeText, total: totalText)
                     if let error = store.sendFlow.previewError {
                         HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.s) {

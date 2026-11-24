@@ -49,8 +49,8 @@ make apple
 
 It compiles the Rust core for the iPhone, the arm64 simulator and the Mac, and
 writes `target/SpectraCore/`: a local Swift package of the static libraries and
-the Swift bindings generated from them. It needs a Rust toolchain; spectra's
-`rust-toolchain.toml` pins it, so `cargo` installs the right one on first use.
+the Swift bindings generated from them. It needs the current stable Rust;
+`rustup update` keeps it current.
 
 Copy `target/SpectraCore/` to the root of this repository, keeping its
 modification times: drag it in Finder, or

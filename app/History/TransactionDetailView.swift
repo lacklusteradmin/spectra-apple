@@ -167,7 +167,7 @@ struct TransactionDetailView: View {
         if from != nil || to != nil {
             spectraDetailCard(title: "Addresses") {
                 if let from { TransactionAddressRow(label: "From", endpoint: from, chain: displayedTransaction.chain) }
-                if from != nil, to != nil { Divider().opacity(0.4) }
+                if from != nil, to != nil { Divider().opacity(SpectraLayout.dividerOpacity) }
                 if let to { TransactionAddressRow(label: "To", endpoint: to, chain: displayedTransaction.chain) }
             }
         }
@@ -178,19 +178,19 @@ struct TransactionDetailView: View {
     private var detailsCard: some View {
         let tx = displayedTransaction
         return spectraDetailCard(title: "Details") {
-            TransactionDetailRow(systemImage: "network", label: "Network", value: tx.chainName)
+            SpectraValueRow(systemImage: "network", label: "Network", value: tx.chainName)
             if let networkFeeText {
-                Divider().opacity(0.4)
-                TransactionDetailRow(systemImage: "fuelpump.fill", label: "Network Fee", value: networkFeeText)
+                Divider().opacity(SpectraLayout.dividerOpacity)
+                SpectraValueRow(systemImage: "fuelpump.fill", label: "Network Fee", value: networkFeeText)
             }
             if let hash = nonEmptyAddress(tx.transactionHash) {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 CopyableValueRow(value: hash) {
-                    TransactionDetailRow(systemImage: "number", label: "Transaction Hash", value: hash, isIdentifier: true)
+                    SpectraValueRow(systemImage: "number", label: "Transaction Hash", value: hash, style: .identifier)
                 }
             }
             if paymentProof != nil {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 Button { isShowingPaymentProof = true } label: {
                     HStack(spacing: SpectraLayout.Space.s) {
                         Image(systemName: "checkmark.seal").font(.subheadline.weight(.semibold)).frame(width: 22)
@@ -201,7 +201,7 @@ struct TransactionDetailView: View {
                 }.buttonStyle(.plain)
             }
             if let explorer = tx.explorerLink {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 Link(destination: explorer.url) {
                     HStack(spacing: SpectraLayout.Space.s) {
                         Image(systemName: "safari").font(.subheadline.weight(.semibold)).frame(width: 22)
@@ -270,13 +270,13 @@ struct TransactionDetailView: View {
                 if isShowingTechnicalDetails {
                     VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                         ForEach(rows) { row in
-                            Divider().opacity(0.4)
+                            Divider().opacity(SpectraLayout.dividerOpacity)
                             if row.isIdentifier {
                                 CopyableValueRow(value: row.value) {
-                                    TransactionDetailRow(label: row.label, value: row.value, isIdentifier: true)
+                                    SpectraValueRow(label: row.label, value: row.value, style: .identifier)
                                 }
                             } else {
-                                TransactionDetailRow(label: row.label, value: row.value)
+                                SpectraValueRow(label: row.label, value: row.value)
                             }
                         }
                     }.padding(.top, SpectraLayout.Space.xs)
@@ -482,63 +482,6 @@ func loadTransactionDetailProjection(
     return (record, parties)
 }
 
-/// A key/value row: an accent symbol, a secondary label and a primary value.
-///
-/// Side by side when both fit on one line, otherwise the value goes under
-/// the label — neither is squeezed, so a value such as
-/// `core.submission_json`, which has no space to wrap at, is never
-/// hyphenated. Always stacked at accessibility sizes. An identifier — a hash
-/// or an address — is the exception: it keeps the line beside its label and
-/// is cut in the middle so both ends show; its row copies it in full.
-private struct TransactionDetailRow: View {
-    var systemImage: String? = nil
-    let label: String
-    let value: String
-    var isIdentifier = false
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-
-    var body: some View {
-        if isIdentifier {
-            HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.m) {
-                labelView.layoutPriority(1)
-                Spacer(minLength: SpectraLayout.Space.m)
-                Text(emphasizedEnds(value)).font(.subheadline.monospaced())
-                    .lineLimit(1).truncationMode(.middle)
-            }
-        } else if dynamicTypeSize.isAccessibilitySize {
-            stacked
-        } else {
-            ViewThatFits(in: .horizontal) {
-                HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.m) {
-                    labelView.fixedSize()
-                    Spacer(minLength: SpectraLayout.Space.m)
-                    valueText.fixedSize()
-                }
-                stacked
-            }
-        }
-    }
-    private var labelView: some View {
-        HStack(spacing: SpectraLayout.Space.s) {
-            if let systemImage {
-                Image(systemName: systemImage).font(.subheadline.weight(.semibold)).foregroundStyle(.tint).frame(width: 22)
-            }
-            Text(AppLocalization.string(label)).font(.subheadline).foregroundStyle(.secondary)
-        }
-    }
-    private var valueText: some View {
-        Text(value).font(.subheadline.weight(.semibold)).foregroundStyle(.primary)
-    }
-    /// The value under the label, lined up with the label's text rather than
-    /// its symbol.
-    private var stacked: some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
-            labelView
-            valueText.padding(.leading, systemImage == nil ? 0 : 22 + SpectraLayout.Space.s)
-        }.frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
 /// One end of the transfer: its label, who holds it — a wallet of the
 /// user's or a saved contact, as core names it — and the address on one line
 /// with its ends in full, the ends being what a reader compares against. The
@@ -599,23 +542,3 @@ private struct CopyableValueRow<Content: View>: View {
         }
     }
 }
-
-/// `identifier` with its first and last characters primary and the middle
-/// secondary. Middle truncation eats the secondary part first, so the ends
-/// survive at any width.
-private func emphasizedEnds(_ identifier: String) -> AttributedString {
-    var text = AttributedString(identifier)
-    let head = identifier.hasPrefix("0x") ? 6 : 4
-    let tail = 4
-    guard identifier.count > head + tail else {
-        text.swiftUI.foregroundColor = .primary
-        return text
-    }
-    text.swiftUI.foregroundColor = .secondary
-    let headEnd = text.index(text.startIndex, offsetByCharacters: head)
-    let tailStart = text.index(text.endIndex, offsetByCharacters: -tail)
-    text[text.startIndex..<headEnd].swiftUI.foregroundColor = .primary
-    text[tailStart..<text.endIndex].swiftUI.foregroundColor = .primary
-    return text
-}
-

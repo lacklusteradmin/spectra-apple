@@ -102,13 +102,13 @@ struct SettingsView: View {
     /// Locking and confirming sends both ask the device owner, so neither
     /// does anything while the device check is off.
     private var securitySection: some View {
-        let isProtected = store.preferences.useFaceId
+        let isProtected = store.preferences.useDeviceAuthentication
         return SpectraRowSection(
             title: AppLocalization.string("Security & Privacy"),
             footer: isProtected ? nil : AppLocalization.format("settings.security.off_footer_format", biometry.name),
             dividerInset: dividerInset
         ) {
-            Toggle(isOn: preferenceBinding(\.useFaceId)) {
+            Toggle(isOn: preferenceBinding(\.useDeviceAuthentication)) {
                 rowTitle(AppLocalization.format("Use %@", biometry.name), systemImage: biometry.symbol)
             }.spectraRowPadding()
             settingsToggle("Auto Lock", systemImage: "lock.rotation", isOn: preferenceBinding(\.useAutoLock))

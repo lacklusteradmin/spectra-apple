@@ -95,7 +95,7 @@ struct BroadcastNodePicker: View {
                 .foregroundStyle(.secondary)
             VStack(spacing: 0) {
                 ForEach(Array(session.endpoints.enumerated()), id: \.element) { index, endpoint in
-                    if index > 0 { Divider().opacity(0.4) }
+                    if index > 0 { Divider().opacity(SpectraLayout.dividerOpacity) }
                     Toggle(isOn: Binding(
                         get: { session.selectedEndpoints.contains(endpoint) },
                         set: { selected in
@@ -133,7 +133,7 @@ struct SubmissionResults: View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             Text(AppLocalization.string("Submission results")).font(.headline)
             ForEach(Array(progress.artifact.attempts.enumerated()), id: \.offset) { index, attempt in
-                if index > 0 { Divider().opacity(0.4) }
+                if index > 0 { Divider().opacity(SpectraLayout.dividerOpacity) }
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
                     Text(verbatim: attempt.endpoint)
                         .font(.caption.monospaced())
@@ -155,7 +155,7 @@ struct SubmissionResults: View {
             }
             if !progress.status.isSettled,
                let hash = progress.transaction?.transactionHash ?? progress.artifact.transactionHash {
-                Divider().opacity(0.4)
+                Divider().opacity(SpectraLayout.dividerOpacity)
                 TransactionHashRow(hash: hash)
             }
         }

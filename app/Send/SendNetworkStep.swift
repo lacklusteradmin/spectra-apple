@@ -140,11 +140,11 @@ struct SendNetworkStep: View {
             if store.sendFlow.isPreparingPreview {
                 SpectraLoadingRow(title: "Loading nonce and fee estimate...")
             } else if let quote, case .evm(let quoted) = quote.preview.terms {
-                Divider().opacity(0.3)
-                valueRow("Nonce", "\(quoted.nonce)")
-                valueRow("Gas Limit", quoted.gasLimit.formatted(.number.locale(AppLocalization.locale)))
-                valueRow("Max Fee", store.amounts.compactGasPrice(gwei: quoted.maxFeePerGasGwei))
-                valueRow("Priority Fee", store.amounts.compactGasPrice(gwei: quoted.maxPriorityFeePerGasGwei))
+                Divider().opacity(SpectraLayout.dividerOpacity)
+                SpectraValueRow(label: "Nonce", value: "\(quoted.nonce)")
+                SpectraValueRow(label: "Gas Limit", value: quoted.gasLimit.formatted(.number.locale(AppLocalization.locale)))
+                SpectraValueRow(label: "Max Fee", value: store.amounts.compactGasPrice(gwei: quoted.maxFeePerGasGwei))
+                SpectraValueRow(label: "Priority Fee", value: store.amounts.compactGasPrice(gwei: quoted.maxPriorityFeePerGasGwei))
             } else if let error = store.sendFlow.previewError {
                 Label(error, systemImage: "exclamationmark.triangle.fill").font(.caption).foregroundStyle(.red)
             } else {
@@ -190,26 +190,18 @@ struct SendNetworkStep: View {
         let isEVM = selectedCoin.chain.isEVM
         if let preview = store.sendPreview(for: selectedCoin), preview.hasDetailRows(isEVM: isEVM) {
             VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                Divider().opacity(0.3).padding(.vertical, SpectraLayout.Space.xs)
+                Divider().opacity(SpectraLayout.dividerOpacity).padding(.vertical, SpectraLayout.Space.xs)
                 if let feeRateDescription = preview.feeRateDescription, !isEVM {
-                    valueRow("Fee Rate", feeRateDescription)
+                    SpectraValueRow(label: "Fee Rate", value: feeRateDescription)
                 }
                 if let estimatedTransactionBytes = preview.estimatedTransactionBytes {
-                    valueRow("Estimated Size", AppLocalization.format("%lld bytes", count: Int(estimatedTransactionBytes), estimatedTransactionBytes))
+                    SpectraValueRow(label: "Estimated Size", value: AppLocalization.format("%lld bytes", count: Int(estimatedTransactionBytes), estimatedTransactionBytes))
                 }
                 if case .utxo(_, let selectedInputCount, let usesChangeOutput) = preview.terms {
-                    valueRow("Selected Inputs", "\(selectedInputCount)")
-                    valueRow("Change Output", AppLocalization.string(usesChangeOutput ? "Yes" : "No"))
+                    SpectraValueRow(label: "Selected Inputs", value: "\(selectedInputCount)")
+                    SpectraValueRow(label: "Change Output", value: AppLocalization.string(usesChangeOutput ? "Yes" : "No"))
                 }
             }
-        }
-    }
-
-    private func valueRow(_ label: String, _ value: String) -> some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(AppLocalization.string(label)).font(.subheadline).foregroundStyle(.secondary)
-            Spacer(minLength: SpectraLayout.Space.s)
-            Text(value).font(.subheadline.weight(.semibold)).multilineTextAlignment(.trailing)
         }
     }
 }

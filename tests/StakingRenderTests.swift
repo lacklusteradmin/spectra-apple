@@ -27,8 +27,8 @@ struct StakingRenderTests: IsolatedAppStateSuite {
             return StakingTestSupport.artifact(stage: .signed, submitted: true)
         }
         let chain: Chain = [.queuedRewards, .recovery, .withdrawalFees, .repaired].contains(stage) ? .icp : .solana
-        let vm = StakingState(chain: chain, bridge: bridge, operations: operations)
-        vm.selectWallet("wallet")
+        let staking = StakingState(chain: chain, bridge: bridge, operations: operations)
+        staking.selectWallet("wallet")
         var artifact = StakingTestSupport.artifact(
             stage: [.prepared, .withdrawalFees, .repaired].contains(stage) ? .prepared : .signed,
             submitted: stage == .pending || stage == .confirmed || stage == .recovery, chain: chain)
@@ -49,13 +49,13 @@ struct StakingRenderTests: IsolatedAppStateSuite {
             artifact.review.staking?.fundingAlreadyCompleted = true
         }
         var progress = StakingTestSupport.progress(artifact)
-        vm.session.endpoints = ["node-a", "node-b"]
-        vm.positions = [StakingTestSupport.position()]
+        staking.session.endpoints = ["node-a", "node-b"]
+        staking.positions = [StakingTestSupport.position()]
         if stage == .queuedRewards {
-            vm.positions[0].pendingRewardsSmallestUnit = "123456789"
-            vm.positions[0].rewardsUnlockTimeUnix = 1_800_604_800
+            staking.positions[0].pendingRewardsSmallestUnit = "123456789"
+            staking.positions[0].rewardsUnlockTimeUnix = 1_800_604_800
         }
-        vm.hasLoadedPositions = true
+        staking.hasLoadedPositions = true
         if stage == .confirmed {
             progress = .staged(
                 artifact, transaction: StakingTestSupport.transaction(status: .confirmed), next: .done)
@@ -64,13 +64,13 @@ struct StakingRenderTests: IsolatedAppStateSuite {
             progress = .staged(
                 artifact, transaction: StakingTestSupport.transaction(status: .failed), next: .done, canRepair: true)
         }
-        vm.session.progress = progress
+        staking.session.progress = progress
         let view = ScrollView {
             if stage == .positions || stage == .queuedRewards {
-                StakingPositionsView(vm: vm, canSign: true, requiresPassword: false)
+                StakingPositionsView(staking: staking, canSign: true, requiresPassword: false)
             } else {
                 StakingTransactionView(
-                    store: store, vm: vm, progress: progress,
+                    store: store, staking: staking, progress: progress,
                     confirmsSigning: .constant(false), confirmsBroadcast: .constant(false))
             }
         }.frame(width: RenderWindow.phoneSize.width, height: RenderWindow.phoneSize.height).background(.background)
@@ -81,8 +81,8 @@ struct StakingRenderTests: IsolatedAppStateSuite {
         window.layout()
         try window.record(named: "Staking: \(stage.rawValue)")
         #expect(!signed && !broadcast, "Rendering must never use a key or submit a transaction")
-        #expect(vm.session.artifact == artifact)
-        #expect(vm.session.selectedEndpoints.isEmpty)
-        #expect(vm.password.isEmpty)
+        #expect(staking.session.artifact == artifact)
+        #expect(staking.session.selectedEndpoints.isEmpty)
+        #expect(staking.password.isEmpty)
     }
 }

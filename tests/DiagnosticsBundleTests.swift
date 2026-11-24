@@ -5,16 +5,18 @@ import Testing
 @MainActor
 @Suite(.isolatedAppState)
 struct DiagnosticsBundleTests: IsolatedAppStateSuite {
-    /// Core writes the bundle; the file the app shares reads back whole.
-    @Test func exportsAndImportsDiagnosticsBundleJSON() async throws {
+    /// The file the app shares is core's bundle, every network's document in it.
+    @Test func exportsTheDiagnosticsBundleJSON() async throws {
         let store = makeState()
         let fileURL = try await store.exportDiagnosticsBundle()
         defer { try? FileManager.default.removeItem(at: fileURL) }
-        let imported = try store.importDiagnosticsBundle(from: fileURL)
-        #expect(imported.schemaVersion == 2)
-        #expect(!imported.environment.osVersion.isEmpty)
-        #expect(imported.environment.walletCount == 0)
-        #expect(Set(imported.chainDiagnosticsJson.keys) == Set(Chain.all.map(\.id)))
+        #expect(fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path))
+        let bundle = try Self.bundle(at: fileURL)
+        let environment = try #require(bundle["environment"] as? [String: Any])
+        #expect(!(environment["osVersion"] as? String ?? "").isEmpty)
+        #expect(environment["walletCount"] as? Int == 0)
+        let documents = try #require(bundle["chainDiagnosticsJson"] as? [String: String])
+        #expect(Set(documents.keys) == Set(Chain.all.map(\.id)))
     }
 
     /// The screen's document is the one the bundle carries for that chain.
@@ -24,7 +26,11 @@ struct DiagnosticsBundleTests: IsolatedAppStateSuite {
         #expect(diagnostics.networkId == .bitcoin)
         let fileURL = try await store.exportDiagnosticsBundle()
         defer { try? FileManager.default.removeItem(at: fileURL) }
-        let imported = try store.importDiagnosticsBundle(from: fileURL)
-        #expect(imported.chainDiagnosticsJson["bitcoin"] == diagnostics.document)
+        let documents = try #require(try Self.bundle(at: fileURL)["chainDiagnosticsJson"] as? [String: String])
+        #expect(documents["bitcoin"] == diagnostics.document)
+    }
+
+    private static func bundle(at url: URL) throws -> [String: Any] {
+        try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
     }
 }

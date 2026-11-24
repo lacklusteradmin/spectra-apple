@@ -51,7 +51,7 @@ struct WalletNetworkAccountView: View {
             }
             Section {
                 resource(available: bandwidthAvailable, limit: bandwidthLimit)
-                amountRow(AppLocalization.string("Price per Point"), bandwidthPrice, symbol)
+                LabeledContent(AppLocalization.string("Price per Point"), value: AmountPresentation.exactAmount(bandwidthPrice, symbol: symbol))
             } header: {
                 Text(AppLocalization.string("Bandwidth"))
             } footer: {
@@ -61,7 +61,7 @@ struct WalletNetworkAccountView: View {
             }
             Section {
                 resource(available: energyAvailable, limit: energyLimit)
-                amountRow(AppLocalization.string("Price per Unit"), energyPrice, symbol)
+                LabeledContent(AppLocalization.string("Price per Unit"), value: AmountPresentation.exactAmount(energyPrice, symbol: symbol))
             } header: {
                 Text(AppLocalization.string("Energy"))
             } footer: {
@@ -76,12 +76,13 @@ struct WalletNetworkAccountView: View {
                         "Not on the network yet: a payment of at least %@ %@ creates the account.", baseReserve, symbol))
             }
             Section {
-                amountRow(AppLocalization.string("Balance"), balance, symbol)
-                amountRow(AppLocalization.string("Base Reserve"), baseReserve, symbol)
-                amountRow(
-                    AppLocalization.format("Owned Objects (%lld)", Int(ownedObjects)), objectReserve, symbol)
-                amountRow(AppLocalization.string("Total Reserve"), totalReserve, symbol)
-                amountRow(AppLocalization.string("Spendable"), spendable, symbol, emphasized: true)
+                LabeledContent(AppLocalization.string("Balance"), value: AmountPresentation.exactAmount(balance, symbol: symbol))
+                LabeledContent(AppLocalization.string("Base Reserve"), value: AmountPresentation.exactAmount(baseReserve, symbol: symbol))
+                LabeledContent(
+                    AppLocalization.format("Owned Objects (%lld)", Int(ownedObjects)),
+                    value: AmountPresentation.exactAmount(objectReserve, symbol: symbol))
+                LabeledContent(AppLocalization.string("Total Reserve"), value: AmountPresentation.exactAmount(totalReserve, symbol: symbol))
+                LabeledContent(AppLocalization.string("Spendable"), value: AmountPresentation.exactAmount(spendable, symbol: symbol))
             } footer: {
                 Text(AppLocalization.string("The network locks the reserve in the account; a send moves only what is above it. Each trust line, offer or other object the account owns locks more, and removing it frees that again."))
             }
@@ -96,11 +97,11 @@ struct WalletNetworkAccountView: View {
             }
         case let .substrate(free, reserved, frozen, existentialDeposit, transferable):
             Section {
-                amountRow(AppLocalization.string("Free"), free, symbol)
-                amountRow(AppLocalization.string("Reserved"), reserved, symbol)
-                amountRow(AppLocalization.string("Frozen"), frozen, symbol)
-                amountRow(AppLocalization.string("Existential Deposit"), existentialDeposit, symbol)
-                amountRow(AppLocalization.string("Transferable"), transferable, symbol, emphasized: true)
+                LabeledContent(AppLocalization.string("Free"), value: AmountPresentation.exactAmount(free, symbol: symbol))
+                LabeledContent(AppLocalization.string("Reserved"), value: AmountPresentation.exactAmount(reserved, symbol: symbol))
+                LabeledContent(AppLocalization.string("Frozen"), value: AmountPresentation.exactAmount(frozen, symbol: symbol))
+                LabeledContent(AppLocalization.string("Existential Deposit"), value: AmountPresentation.exactAmount(existentialDeposit, symbol: symbol))
+                LabeledContent(AppLocalization.string("Transferable"), value: AmountPresentation.exactAmount(transferable, symbol: symbol))
             } footer: {
                 Text(AppLocalization.string("Reserved is held by the network for deposits and is not in the free balance. Frozen is free balance that staking or another lock keeps from moving. An account that falls below the existential deposit is removed, and what is left in it is lost."))
             }
@@ -109,9 +110,9 @@ struct WalletNetworkAccountView: View {
                 LabeledContent(
                     AppLocalization.string("Storage Used"),
                     value: AppLocalization.format("%lld bytes", count: Int(storageBytes), Int(storageBytes)))
-                amountRow(AppLocalization.string("Price per Byte"), storagePrice, symbol)
-                amountRow(AppLocalization.string("Locked Stake"), locked, symbol)
-                amountRow(AppLocalization.string("Kept for Storage"), storageReserve, symbol, emphasized: true)
+                LabeledContent(AppLocalization.string("Price per Byte"), value: AmountPresentation.exactAmount(storagePrice, symbol: symbol))
+                LabeledContent(AppLocalization.string("Locked Stake"), value: AmountPresentation.exactAmount(locked, symbol: symbol))
+                LabeledContent(AppLocalization.string("Kept for Storage"), value: AmountPresentation.exactAmount(storageReserve, symbol: symbol))
             } footer: {
                 Text(AppLocalization.string("Every byte an account stores must be covered by NEAR it holds, except for a small account within the network's free allowance. Locked stake counts toward it; the rest is kept back from the balance, and a send cannot move it."))
             }
@@ -126,7 +127,7 @@ struct WalletNetworkAccountView: View {
                     Text(verbatim: stakeAddress).font(.caption.monospaced()).foregroundStyle(.secondary)
                         .textSelection(.enabled)
                 }
-                amountRow(AppLocalization.string("Rewards"), rewards, symbol, emphasized: true)
+                LabeledContent(AppLocalization.string("Rewards"), value: AmountPresentation.exactAmount(rewards, symbol: symbol))
                 LabeledContent(AppLocalization.string("Pool")) {
                     Text(verbatim: delegatedPool ?? AppLocalization.string("None")).font(.caption.monospaced())
                         .lineLimit(1).truncationMode(.middle)
@@ -151,14 +152,6 @@ struct WalletNetworkAccountView: View {
             if limit > 0 {
                 ProgressView(value: Double(min(available, limit)), total: Double(limit))
             }
-        }
-    }
-
-    private func amountRow(_ title: String, _ amount: String, _ symbol: String, emphasized: Bool = false) -> some View {
-        LabeledContent(title) {
-            Text(verbatim: AmountPresentation.exactAmount(amount, symbol: symbol)).monospacedDigit()
-                .fontWeight(emphasized ? .semibold : .regular)
-                .foregroundStyle(emphasized ? Color.primary : Color.secondary)
         }
     }
 

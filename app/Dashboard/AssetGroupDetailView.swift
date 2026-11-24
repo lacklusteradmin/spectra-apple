@@ -174,7 +174,7 @@ private struct AssetBreakdownCard<Row: View>: View {
             Text(AppLocalization.string(title)).font(.headline).foregroundStyle(Color.primary)
             ForEach(0..<count, id: \.self) { index in
                 row(index)
-                if index < count - 1 { Divider().opacity(0.4) }
+                if index < count - 1 { Divider().opacity(SpectraLayout.dividerOpacity) }
             }
         }.padding(SpectraLayout.Space.l).frame(maxWidth: .infinity, alignment: .leading)
             .spectraCardFill()
