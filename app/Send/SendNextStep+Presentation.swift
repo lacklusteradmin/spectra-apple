@@ -23,10 +23,17 @@ extension SendNextStep {
     }
 }
 
+/// What a signing confirmation states, for a send and a staking action
+/// alike: the amount, the reviewed fee with its bound, the recipient and every
+/// review warning. `action` heads a staking action's: what it does, and to
+/// which validator.
 @MainActor
-func sendSigningConfirmationMessage(artifact: SendArtifact, amounts: AmountPresentation) -> String {
-    let amount = AmountPresentation.localizedDecimal(artifact.amount)
-    var lines = ["\(amount) \(artifact.symbol) · \(artifact.chainId.displayName)"]
+func sendSigningConfirmationMessage(
+    artifact: SendArtifact, amounts: AmountPresentation, action: String? = nil
+) -> String {
+    var lines = action.map { [$0] } ?? []
+    lines.append(
+        "\(AmountPresentation.exactAmount(artifact.amount, symbol: artifact.symbol)) · \(artifact.chainId.displayName)")
     if let fee = artifact.review.networkFee {
         lines.append(AppLocalization.format("Network Fee: %@", amounts.reviewedNetworkFee(fee, chain: artifact.chainId)))
     }

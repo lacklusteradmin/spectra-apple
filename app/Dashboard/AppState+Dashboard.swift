@@ -10,7 +10,7 @@ extension AppState {
     func resetPinnedDashboardAssets() { sendStateCommand(.resetPinnedDashboardAssets) }
     /// Wallets counted in the portfolio whose balances core has not read
     /// yet: their holdings are the import's zeros, not balances.
-    var portfolioWalletsReadingBalances: [WalletView] {
+    var portfolioWalletsReadingBalances: [WalletState] {
         wallets.filter { $0.includeInPortfolioTotal && $0.balancesReadAt == nil }
     }
     /// Every wallet in the total is still reading, so there is no total yet.

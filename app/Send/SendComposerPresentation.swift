@@ -5,8 +5,8 @@ import SwiftUI
 /// page body.
 @MainActor
 struct SendComposerPresentation {
-    let sendWallets: [WalletView]
-    let selectedWallet: WalletView?
+    let sendWallets: [WalletState]
+    let selectedWallet: WalletState?
     let availableSendCoins: [AssetHolding]
     let selectedCoin: AssetHolding?
     let selectedCoinAmountText: String?

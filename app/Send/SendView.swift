@@ -399,7 +399,7 @@ private struct SavedSendRow: View {
         HStack(spacing: SpectraLayout.Space.m) {
             CoinBadge(artworkName: badge.artworkName, fallbackText: artifact.symbol, color: badge.color, size: 28)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
-                Text(verbatim: "\(AmountPresentation.localizedDecimal(artifact.amount)) \(artifact.symbol)")
+                Text(verbatim: AmountPresentation.exactAmount(artifact.amount, symbol: artifact.symbol))
                     .font(.subheadline.weight(.semibold))
                     .spectraNumericTextLayout()
                 Text(verbatim: artifact.chainId.displayName)

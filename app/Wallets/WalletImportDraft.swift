@@ -46,9 +46,7 @@ final class WalletImportDraft {
     /// A path typed under Advanced. When set it replaces the profile's.
     var customDerivationPath: String = ""
     // Power-user derivation overrides (Advanced Options sheet). Each field is
-    // a user-entered string; blank/empty-picker means "use chain preset default".
-    // These are converted to WalletDerivationOverrides at import time via
-    // `resolvedDerivationOverrides`.
+    // the exact text typed; core reads a blank one as no override.
     var overridePassphrase: String = ""
     /// A new wallet's passphrase, typed again. Nothing else can catch a typo
     /// in it: backup verification checks the words, and a mistyped
@@ -144,10 +142,10 @@ final class WalletImportDraft {
         case .confirmationMismatch: return AppLocalization.string("Wallet password confirmation does not match.")
         }
     }
-    /// Core interprets exact secret input and refuses unsupported overrides.
+    /// The overrides exactly as typed. Core reads a blank one as none and
+    /// refuses one the chain does not take.
     var resolvedDerivationOverrides: WalletDerivationOverrides {
-        parseWalletDerivationInput(input: WalletDerivationInput(
-            passphrase: overridePassphrase, hmacKey: overrideHmacKey))
+        WalletDerivationOverrides(passphrase: overridePassphrase, hmacKey: overrideHmacKey)
     }
     /// The watched addresses, one per non-blank line.
     var watchOnlyEntries: [String] {
@@ -174,10 +172,9 @@ final class WalletImportDraft {
     func importCommit(name: String) -> WalletImportCommit? {
         guard let chain else { return nil }
         let kind = importKind
-        // A new Monero wallet scans from near now; a restored one from the
-        // height typed, if any.
-        let restoreHeight: UInt64? =
-            isCreateMode ? newWalletRestoreHeight(chain: chain) : self.restoreHeight
+        // A created wallet's scan starts now, which core sets; a restored one
+        // from the height typed, if any.
+        let restoreHeight: UInt64? = isCreateMode ? nil : self.restoreHeight
         return WalletImportCommit(
             password: walletPasswordInput,
             request: WalletImportRequest(walletName: name, chain: chain, kind: kind),
@@ -189,7 +186,8 @@ final class WalletImportDraft {
             namedAccount: asksNamedAccount && !namedAccountInput.trimmingCharacters(in: .whitespaces).isEmpty
                 ? namedAccountInput : nil,
             tonWalletVersion: asksTonWalletVersion ? tonWalletVersion : nil,
-            upgradeWalletId: upgradeWalletId)
+            upgradeWalletId: upgradeWalletId,
+            created: isCreateMode)
     }
     /// The commit an address preview reads: the form's, without the name and
     /// password, which change no address. `nil` until there is enough to
@@ -277,15 +275,13 @@ final class WalletImportDraft {
         derivationProfile = derivationProfiles.first
         if method == .createPhrase { regenerateSeedPhrase() }
     }
-    /// The lengths a phrase created on the network can have: those of the
-    /// format its setup descriptor creates in — BIP-39's five, Monero's 25,
-    /// TON's 24.
+    /// The lengths a phrase created on the network can have — BIP-39's five,
+    /// Monero's 25, TON's 24 — shortest first.
     var createdLengths: [SeedPhraseLength] {
         guard let chain else { return [] }
-        let created = walletSetupDescriptor(chain: chain).options.first { $0.method == .createPhrase }?.formats.first
-        return seedEntry.lengths.filter { $0.format == created }
+        return createdPhraseLengths(chain: chain)
     }
-    func configureForEditing(wallet: WalletView) {
+    func configureForEditing(wallet: WalletState) {
         clear()
         mode = .edit
         walletName = wallet.name

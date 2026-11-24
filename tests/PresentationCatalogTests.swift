@@ -66,7 +66,7 @@ struct PresentationCatalogTests {
     /// Colour follows deployment identity, never the ticker: a custom token
     /// that calls itself `ETH` is grey, not Ether's colour.
     @Test func coinColorsFollowDeploymentIdentity() throws {
-        for token in listTokenDeployments(chain: nil) {
+        for token in listAllBuiltinTokenDeployments() {
             if let color = token.color {
                 #expect(AssetPresentationCatalog.color(deploymentId: token.deploymentId) == color.color)
             }

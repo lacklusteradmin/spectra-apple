@@ -7,7 +7,7 @@ import SwiftUI
 /// through the same stages.
 struct WalletTokenStorageView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var storage: NearStorageDeposits?
     @State private var error: String?
     @State private var isLoading = false
@@ -80,7 +80,7 @@ extension NearStorageDeposit: @retroactive Identifiable {
 /// Building, signing and broadcasting one unregistration.
 private struct RefundTokenStorageView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let deposit: NearStorageDeposit
 
     var body: some View {

@@ -7,7 +7,7 @@ import SwiftUI
 /// broadcasts it through the same stages.
 struct WalletAccessKeysView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var keys: NearAccessKeys?
     @State private var error: String?
     @State private var isLoading = false
@@ -98,7 +98,7 @@ extension NearAccessKey: @retroactive Identifiable {
 /// Building, signing and broadcasting one key deletion.
 private struct DeleteAccessKeyView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let key: NearAccessKey
 
     var body: some View {

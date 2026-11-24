@@ -23,7 +23,7 @@ which `make check-ui` runs.
 
 | File | Purpose |
 |---|---|
-| `unreachable-exports.py` | Finds exported Rust interfaces with no detected Swift or CLI callers. |
+| `unreachable-exports.py` | Finds exported Rust interfaces no production Swift calls. |
 | `unused-strings.py` | Finds unused text, core sentences the tables do not translate, and inconsistent translation keys across locales. |
 | `swift-shell-literals.py` | Finds hard-coded chain names and amount precision in Swift, where domain rules should come from core. |
 | `check-design-tokens.py` | Finds corner radii, spacing, literal colours, glass tints and glass shapes that bypass shared UI design tokens. |

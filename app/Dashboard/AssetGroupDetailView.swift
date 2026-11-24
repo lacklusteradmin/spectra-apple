@@ -146,7 +146,7 @@ private struct AssetChainBreakdownCard: View {
 private struct AssetWalletBreakdownCard: View {
     let assetGroup: DashboardAssetGroup
     let store: AppState
-    private var shares: [(share: DashboardAssetWallet, wallet: WalletView)] {
+    private var shares: [(share: DashboardAssetWallet, wallet: WalletState)] {
         assetGroup.wallets.compactMap { share in store.wallet(for: share.walletId).map { (share, $0) } }
     }
     var body: some View {

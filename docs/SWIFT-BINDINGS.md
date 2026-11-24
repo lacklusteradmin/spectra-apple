@@ -61,10 +61,11 @@ statics itself.
 
 ## Callers
 
-An export's callers are this app and core's CLI. `scripts/unreachable-exports.py`
-reads both, the CLI in the core checkout `SPECTRA` names, and fails on an
-export neither calls. A call inside a `WalletServiceBridge` method counts only
-while that method is itself called. `SecretStore` and `RefreshObserver` are
+An export's callers are this app's production Swift: core's CLI links core as
+Rust and needs no export. `scripts/unreachable-exports.py` reads the exports in
+the core checkout `SPECTRA` names and fails on one the app does not call, apart
+from the fixtures it lists with their reasons. A call inside a
+`WalletServiceBridge` method counts only while that method is itself called. `SecretStore` and `RefreshObserver` are
 foreign callback protocols: their Swift implementations need no Swift caller.
 
 ## Common errors

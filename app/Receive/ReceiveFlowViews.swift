@@ -48,7 +48,7 @@ struct ReceiveView: View {
         }
     }
 
-    private func select(_ wallet: WalletView) {
+    private func select(_ wallet: WalletState) {
         spectraHaptic(.light)
         if store.receiveFlow.walletId != wallet.id {
             store.receiveFlow.walletId = wallet.id
@@ -71,7 +71,7 @@ private struct ReceiveAddressView: View {
     @State private var requestMemo = ""
     @State private var isRequestingAmount = false
 
-    private var selectedWallet: WalletView? {
+    private var selectedWallet: WalletState? {
         store.receiveEnabledWallets.first(where: { $0.id == store.receiveFlow.walletId })
     }
 

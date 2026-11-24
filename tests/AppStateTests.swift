@@ -19,23 +19,8 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
         let reopened = try WalletService(endpoints: [])
         let saved = try await reopened.openState(databasePath: path)
         #expect(saved.settings.pinnedDashboardTokenIds.isEmpty)
-        let options = try await reopened.dashboardPinOptions()
-        #expect(options.allSatisfy { !$0.isPinned })
         let reset = try await reopened.applyStateCommand(command: .resetPinnedDashboardAssets)
         #expect(reset.state.settings.pinnedDashboardTokenIds == initial.settings.pinnedDashboardTokenIds)
-    }
-
-    /// The pending sweep is reached through the app's one refresh entry
-    /// point; this holds its async export to a runtime across the binding.
-    @Test func ownedPendingMaintenanceCrossesTheAsyncBridge() async throws {
-        let service = try WalletService(endpoints: [])
-        let path = directory
-            .appendingPathComponent("pending-\(UUID().uuidString).sqlite").path
-        _ = try await service.openState(databasePath: path)
-        let result = try await service.refreshPendingTransactions()
-        #expect(result.chains.isEmpty)
-        #expect(result.changes.isEmpty)
-        #expect(result.failures.isEmpty)
     }
 
     @Test func manualStatusRecheckRefusesMissingTransactionAcrossAsyncBridge() async throws {
@@ -53,30 +38,9 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
     /// others. It reads what core stored: the EVM family shares one slot,
     /// so an Ethereum wallet answers for every EVM mainnet, and a
     /// Solana wallet is not asked to produce a Bitcoin address.
-    @Test func aWalletAnswersForItsOwnChainsAndNoOthers() async throws {
-        let store = makeState()
-        store.walletImport.draft.walletName = "Catalog Coverage"
-        store.walletImport.draft.seedEntry.paste("test test test test test test test test test test test junk")
-        store.walletImport.draft.chain = .ethereum
-        await store.importWallet()
-        #expect(store.walletImport.error == nil)
-        let wallet = try #require(store.wallets.first, "no wallet")
-
-        let resolved = Chain.mainnets.filter { wallet.address(on: $0) != nil }
-        #expect(
-            Set(resolved) == Set(Chain.mainnets.filter(\.isEVM)),
-            """
-            an Ethereum wallet answers for the EVM family — Ethereum Classic included, \
-            which has its own slot and one key — and for nothing else
-            """)
-    }
-
     @Test func aRenameThatLandsAfterADeleteDoesNotResurrectTheWallet() async throws {
         let store = makeState()
-        let wallet = WalletView(
-            id: UUID(), name: "Probe", chainId: Chain.ethereum,
-            addresses: [Chain.ethereum: "0xabc123"])
-        try await store.seedWalletForTesting(wallet)
+        let wallet = try await store.importWalletForTesting("Probe", on: .ethereum)
         let removed = await store.removeWallet(id: wallet.id)
         #expect(removed)
         await store.renameWallet(id: wallet.id, to: "Late rename")
@@ -85,22 +49,19 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
         #expect(store.wallets.isEmpty)
     }
 
-    @Test func editingWalletNamePreservesExistingHoldings() async throws {
+    /// An edit renames the wallet and leaves the rest of what core holds.
+    @Test func editingAWalletsNameKeepsItsOtherSettings() async throws {
         let store = makeState()
-        let existingHolding = AssetHolding.fixture(
-            name: "Ethereum", symbol: "ETH", coingeckoId: "ethereum", chainId: Chain.ethereum, amount: "2")
-        let wallet = WalletView(
-            id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!, name: "Primary ETH", chainId: Chain.ethereum,
-            addresses: [Chain.ethereum: "0xabc123"], holdings: [existingHolding], includeInPortfolioTotal: false
-        )
-        try await store.seedWalletForTesting(wallet)
+        var wallet = try await store.importWalletForTesting("Primary ETH", on: .ethereum)
+        _ = try await bridge.ready().applyStateCommand(
+            command: .setWalletPortfolioInclusion(walletId: wallet.id, included: false))
+        await store.rebuildWalletDerivedStateFromCore()
+        wallet = try #require(store.wallets.first)
         store.beginEditingWallet(wallet)
         store.walletImport.draft.walletName = "Renamed ETH"
                 await store.importWallet()
         #expect(store.wallets.count == 1)
         #expect(store.wallets[0].name == "Renamed ETH")
-        #expect(store.wallets[0].holdings.count == 1)
-        #expect(store.wallets[0].holdings[0].amount == existingHolding.amount)
         #expect(!store.wallets[0].includeInPortfolioTotal)
         #expect(store.walletImport.editingWalletId == nil)
         #expect(!store.walletImport.isPresented)
@@ -115,7 +76,7 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
         #expect(store.walletImport.error == nil)
         #expect(store.wallets.count == 1)
         #expect(store.wallets.first?.chainId == Chain.bitcoin)
-        #expect(store.wallets.first?.address(on: .bitcoin)?.isEmpty == false)
+        #expect(store.wallets.first?.address?.isEmpty == false)
     }
     @Test func importingNewEvmNetworksRetainsTheSelectedNetworkAcrossTheBridge() async throws {
         let store = makeState()
@@ -128,18 +89,17 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
             #expect(store.walletImport.error == nil, "\(chain.id)")
             let wallet = try #require(store.wallets.first, "\(chain.id)")
             #expect(wallet.chainId == chain)
-            #expect(wallet.address(on: chain)?.lowercased() == "0x9858effd232b4033e47d90003d41ec34ecaeda94")
-            #expect(wallet.address(on: .ethereum) == wallet.address(on: chain))
+            #expect(wallet.address?.lowercased() == "0x9858effd232b4033e47d90003d41ec34ecaeda94")
             let reopened = try await bridge.ready().portfolioSnapshot().wallets
             #expect(reopened.first?.chainId == chain)
-            #expect(reopened.first?.address(on: chain) == wallet.address(on: chain))
+            #expect(reopened.first?.address == wallet.address)
         }
     }
     /// A wallet carries its own network.
     @Test func bitcoinWalletDisplayTitleUsesWalletSpecificNetwork() {
-        let wallet = WalletView(
+        let wallet = WalletState(
             name: "BTC Testnet4", chainId: Chain.bitcoinTestnet4,
-            addresses: [Chain.bitcoinTestnet4: "tb1qexample"]
+            address: "tb1qexample"
         )
         #expect(wallet.networkTitle == "Bitcoin Testnet 4")
     }
@@ -190,14 +150,18 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
         for chain in [Chain.kaspa, .dash, .zcash, .ton, .icp, .bitcoinGold, .bittensor] {
             try await store.clearWalletsForTesting()
 
-            var wallet = WalletView(name: "Watch \(chain.id)", chainId: chain)
-            wallet.setAddress("address-for-\(chain.id)", on: chain)
-            try await store.seedWalletForTesting(wallet)
+            // A real address of the chain's, from a phrase wallet imported
+            // and removed, then watched.
+            let derived = try await store.importWalletForTesting("Derived \(chain.id)", on: chain)
+            let address = try #require(derived.address)
+            try await store.clearWalletsForTesting()
+            _ = try await store.importWalletForTesting(
+                "Watch \(chain.id)", on: chain, kind: .watchAddresses(addresses: [address]))
 
             // Read it back the way a fresh launch does.
             let reloaded = try await bridge.ready().portfolioSnapshot().wallets
             #expect(reloaded.count == 1, "\(chain.id) wallet was dropped on load")
-            #expect(reloaded.first?.address(on: chain) == "address-for-\(chain.id)", "\(chain.id) address did not round-trip")
+            #expect(reloaded.first?.address == address, "\(chain.id) address did not round-trip")
             #expect(reloaded.first?.chainId == chain)
         }
         try await store.clearWalletsForTesting()
@@ -462,9 +426,23 @@ struct AppStatePlatformBridgeTests: IsolatedAppStateSuite {
 
 @MainActor
 private extension AppState {
-    func seedWalletForTesting(_ wallet: WalletView) async throws {
-        _ = try await bridge.ready().applyStateCommand(command: .upsertWallet(wallet: wallet.walletState()))
+    /// A wallet in core, imported as the app imports one: `kind` on `chain`,
+    /// from a phrase core creates in the chain's own format where it takes
+    /// one, with no password.
+    func importWalletForTesting(
+        _ name: String, on chain: Chain, kind: WalletImportKind = .phrase
+    ) async throws -> WalletState {
+        let words = try #require(seedPhraseLengths(chain: chain).first).wordCount
+        let phrase = try generateSeedPhrase(chain: chain, wordCount: words)
+        let outcome = try await bridge.ready().importWallets(commit: WalletImportCommit(
+            password: nil,
+            request: WalletImportRequest(walletName: name, chain: chain, kind: kind),
+            derivationPath: nil,
+            derivationOverrides: WalletDerivationOverrides(passphrase: nil, hmacKey: nil),
+            seedPhrase: kind == .phrase ? phrase : nil,
+            privateKey: nil, restoreHeight: nil, namedAccount: nil, tonWalletVersion: nil, upgradeWalletId: nil))
         await rebuildWalletDerivedStateFromCore()
+        return try #require(outcome.wallets.first)
     }
     func clearWalletsForTesting() async throws {
         let stored = try await bridge.ready().portfolioSnapshot().wallets

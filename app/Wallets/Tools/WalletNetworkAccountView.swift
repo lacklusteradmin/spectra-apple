@@ -8,7 +8,7 @@ import SwiftUI
 /// address with its rewards and delegation. Read-only.
 struct WalletNetworkAccountView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var account: WalletNetworkAccount?
     @State private var error: String?
     @State private var isLoading = false
@@ -156,7 +156,7 @@ struct WalletNetworkAccountView: View {
 
     private func amountRow(_ title: String, _ amount: String, _ symbol: String, emphasized: Bool = false) -> some View {
         LabeledContent(title) {
-            Text(verbatim: "\(amount) \(symbol)").monospacedDigit()
+            Text(verbatim: AmountPresentation.exactAmount(amount, symbol: symbol)).monospacedDigit()
                 .fontWeight(emphasized ? .semibold : .regular)
                 .foregroundStyle(emphasized ? Color.primary : Color.secondary)
         }
@@ -207,7 +207,7 @@ extension TonAccountState {
 /// signing.
 private struct CloseAccountView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var destination = ""
     @State private var memoKind: PaymentMemoKind?
     @State private var memoText = ""

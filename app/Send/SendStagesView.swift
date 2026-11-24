@@ -42,7 +42,7 @@ struct SendStagesView: View {
             .padding(SpectraLayout.cardPadding)
             .spectraCardFill()
 
-            if artifact.attempts.isEmpty { reviewWarnings }
+            if artifact.attempts.isEmpty { ReviewWarnings(artifact: artifact) }
 
             if hasFinalHistoryStatus {
                 transactionReceipt
@@ -72,12 +72,18 @@ struct SendStagesView: View {
 
     private var displayedTransaction: TransactionRecord? { progress.transaction }
 
-    private var hasFinalHistoryStatus: Bool {
-        displayedTransaction?.status == .confirmed || displayedTransaction?.status == .failed
+    private var hasFinalHistoryStatus: Bool { progress.status.isSettled }
+
+    private var broadcastDestinations: some View {
+        BroadcastNodePicker(session: store.sendFlow.session)
+            .padding(SpectraLayout.cardPadding)
+            .spectraCardFill()
     }
 
-    private var hasAcceptedSubmission: Bool {
-        artifact.attempts.contains { $0.outcome == .accepted }
+    private var submissionResults: some View {
+        SubmissionResults(progress: progress)
+            .padding(SpectraLayout.cardPadding)
+            .spectraCardFill()
     }
 
     /// Nodes are chosen up front when submitting is the next step.
@@ -132,8 +138,7 @@ struct SendStagesView: View {
         SendAmountSummaryView(
             artworkName: AssetHolding.nativeChainBadge(for: artifact.chainId)?.artworkName,
             symbol: artifact.symbol, chain: artifact.chainId, amount: artifact.amount,
-            statusTitle: statusTitle, statusSystemImage: statusSystemImage,
-            statusColor: statusColor, isReceipt: displayedTransaction?.status == .confirmed)
+            status: progress.status, isReceipt: progress.status == .confirmed)
     }
 
     /// What the token's own rules do between the sender and the recipient.
@@ -141,20 +146,20 @@ struct SendStagesView: View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             if terms.fee != "0" {
                 LabeledContent(AppLocalization.string("Token Fee"),
-                               value: "\(AmountPresentation.localizedDecimal(terms.fee)) \(artifact.symbol)")
+                               value: AmountPresentation.exactAmount(terms.fee, symbol: artifact.symbol))
                 Divider().opacity(0.4)
                 LabeledContent(AppLocalization.string("Recipient Receives"),
-                               value: "\(AmountPresentation.localizedDecimal(terms.received)) \(artifact.symbol)")
+                               value: AmountPresentation.exactAmount(terms.received, symbol: artifact.symbol))
             }
             if let carried = terms.carriedNative {
                 if terms.fee != "0" { Divider().opacity(0.4) }
                 LabeledContent(AppLocalization.string("Sent With It"),
-                               value: "\(AmountPresentation.localizedDecimal(carried)) \(artifact.chainId.gasTokenSymbol)")
+                               value: AmountPresentation.exactAmount(carried, symbol: artifact.chainId.gasTokenSymbol))
             }
             if let registration = terms.recipientRegistration {
                 if terms.fee != "0" || terms.carriedNative != nil { Divider().opacity(0.4) }
                 LabeledContent(AppLocalization.string("Recipient Registration"),
-                               value: "\(AmountPresentation.localizedDecimal(registration)) \(artifact.chainId.gasTokenSymbol)")
+                               value: AmountPresentation.exactAmount(registration, symbol: artifact.chainId.gasTokenSymbol))
             }
             if let program = terms.hookProgram {
                 if terms.fee != "0" || terms.carriedNative != nil || terms.recipientRegistration != nil {
@@ -171,115 +176,6 @@ struct SendStagesView: View {
             }
         }
         .font(.subheadline)
-        .padding(SpectraLayout.cardPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .spectraCardFill()
-    }
-
-    private var statusTitle: String {
-        if let record = displayedTransaction {
-            switch record.status {
-            case .confirmed: return "Confirmed on-chain"
-            case .failed: return "Transaction failed"
-            case .pending: break
-            }
-        }
-        if artifact.stage == .prepared { return "Built, awaiting signing" }
-        if artifact.attempts.isEmpty { return "Signed, not submitted" }
-        if hasAcceptedSubmission { return "Awaiting confirmation" }
-        return artifact.attempts.contains { $0.outcome == .uncertain }
-            ? "Submission uncertain" : "Submission rejected"
-    }
-
-    private var statusSystemImage: String {
-        if let record = displayedTransaction {
-            switch record.status {
-            case .confirmed: return "checkmark"
-            case .failed: return "exclamationmark.triangle"
-            case .pending: break
-            }
-        }
-        if artifact.stage == .prepared { return "doc.text" }
-        if artifact.attempts.isEmpty { return "signature" }
-        if hasAcceptedSubmission { return "clock" }
-        return "exclamationmark.triangle"
-    }
-
-    private var statusColor: Color {
-        if displayedTransaction?.status == .confirmed { return .green }
-        if displayedTransaction?.status == .failed { return .red }
-        if !artifact.attempts.isEmpty, !hasAcceptedSubmission,
-           !artifact.attempts.contains(where: { $0.outcome == .uncertain }) { return .red }
-        return .spectraWarning
-    }
-
-    private var broadcastDestinations: some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            Text(AppLocalization.string("Select submission nodes")).font(.headline)
-            Text(AppLocalization.string("Signed and saved. Choose which nodes receive this transaction."))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            VStack(spacing: 0) {
-                ForEach(Array(store.sendFlow.session.endpoints.enumerated()), id: \.element) { index, endpoint in
-                    if index > 0 { Divider().opacity(0.4) }
-                    Toggle(isOn: Binding(
-                        get: { store.sendFlow.session.selectedEndpoints.contains(endpoint) },
-                        set: { selected in
-                            if selected { store.sendFlow.session.selectedEndpoints.insert(endpoint) }
-                            else { store.sendFlow.session.selectedEndpoints.remove(endpoint) }
-                        }
-                    )) {
-                        Text(verbatim: endpoint)
-                            .font(.caption.monospaced())
-                            .fixedSize(horizontal: false, vertical: true)
-                            .textSelection(.enabled)
-                    }
-                    .padding(.vertical, SpectraLayout.Space.s)
-                    .disabled(store.sendFlow.session.isBusy)
-                }
-            }
-            if store.sendFlow.session.selectedEndpoints.isEmpty {
-                Label(AppLocalization.string("Select at least one node to submit this transaction."), systemImage: "info.circle")
-                    .font(.caption)
-                    .foregroundStyle(.spectraWarning)
-            }
-            Text(AppLocalization.string("Only selected nodes receive this submission from Spectra. Those nodes may propagate the transaction to other nodes."))
-                .font(.caption)
-                .foregroundStyle(.secondary)
-        }
-        .padding(SpectraLayout.cardPadding)
-        .spectraCardFill()
-    }
-
-    private var submissionResults: some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            Text(AppLocalization.string("Submission results")).font(.headline)
-            ForEach(Array(artifact.attempts.enumerated()), id: \.offset) { index, attempt in
-                if index > 0 { Divider().opacity(0.4) }
-                VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                    Text(verbatim: attempt.endpoint)
-                        .font(.caption.monospaced())
-                        .textSelection(.enabled)
-                    Label(attempt.outcome.title, systemImage: attempt.outcome.systemImage)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(attempt.outcome.color)
-                    DisclosureGroup(AppLocalization.string("Submission details")) {
-                        Text(verbatim: attempt.detail)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        if let hash = attempt.transactionHash {
-                            transactionHash(hash)
-                        }
-                    }
-                    .font(.caption)
-                    .disclosureGroupStyle(.spectra)
-                }
-            }
-            if !hasFinalHistoryStatus, let hash = displayedTransaction?.transactionHash ?? artifact.transactionHash {
-                Divider().opacity(0.4)
-                transactionHash(hash)
-            }
-        }
         .padding(SpectraLayout.cardPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
         .spectraCardFill()
@@ -304,7 +200,7 @@ struct SendStagesView: View {
                 }
                 if let hash = record.transactionHash ?? artifact.transactionHash {
                     Divider().opacity(0.4)
-                    transactionHash(hash)
+                    TransactionHashRow(hash: hash)
                 }
                 if let explorer = record.explorerLink {
                     Link(destination: explorer.url) {
@@ -318,24 +214,6 @@ struct SendStagesView: View {
             }
             .padding(SpectraLayout.cardPadding)
             .spectraCardFill()
-        }
-    }
-
-    private func transactionHash(_ hash: String) -> some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-            Text(AppLocalization.string("Transaction Hash"))
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.secondary)
-            // Copied from a button in view, as an address is; a long press
-            // was the only way, and said nothing when it worked.
-            HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.s) {
-                Text(groupedAddress(hash))
-                    .font(.caption.monospaced())
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .accessibilityLabel(Text(verbatim: hash))
-                CopyButton(value: hash)
-            }
         }
     }
 
@@ -353,7 +231,7 @@ struct SendStagesView: View {
                             Text(AppLocalization.string("Review warnings"))
                                 .font(.caption.weight(.semibold))
                                 .foregroundStyle(.secondary)
-                            reviewWarnings
+                            ReviewWarnings(artifact: artifact)
                         }
                     }
                 }
@@ -430,14 +308,6 @@ struct SendStagesView: View {
         }
     }
 
-    private var reviewWarnings: some View {
-        ForEach(Array(warnings.enumerated()), id: \.offset) { _, reason in
-            Label(reason, systemImage: "exclamationmark.triangle")
-                .font(.subheadline)
-                .foregroundStyle(.spectraWarning)
-        }
-    }
-
     @ViewBuilder
     private var stageNotice: some View {
         if artifact.stage == .prepared {
@@ -446,7 +316,7 @@ struct SendStagesView: View {
                 .foregroundStyle(.secondary)
         } else if !hasFinalHistoryStatus, !artifact.attempts.isEmpty {
             VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                if hasAcceptedSubmission {
+                if progress.status == .awaitingConfirmation {
                     Label(AppLocalization.string("Node acceptance is not on-chain confirmation."), systemImage: "clock")
                         .foregroundStyle(.spectraWarning)
                 }
@@ -460,32 +330,4 @@ struct SendStagesView: View {
         }
     }
 
-}
-
-/// What a node said to a submission, as every send and staking page shows
-/// it: a word, a symbol and a colour, never the colour alone.
-extension SubmissionOutcome {
-    var title: String {
-        switch self {
-        case .accepted: AppLocalization.string("Node accepted")
-        case .rejected: AppLocalization.string("Node rejected")
-        case .uncertain: AppLocalization.string("Submission uncertain")
-        }
-    }
-
-    var systemImage: String {
-        switch self {
-        case .accepted: "checkmark.circle"
-        case .rejected: "xmark.circle"
-        case .uncertain: "questionmark.circle"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .accepted: .green
-        case .rejected: .red
-        case .uncertain: .spectraWarning
-        }
-    }
 }

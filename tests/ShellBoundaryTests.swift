@@ -9,7 +9,7 @@ struct ShellBoundaryTests: IsolatedAppStateSuite {
     // Live Activities are an iOS presentation.
     #if os(iOS)
         @Test func activityReconciliationFindsOldRecordsAndKeepsReadFailures() async throws {
-            let wallet = WalletView(name: "Archive", chainId: Chain.ethereum, addresses: [Chain.ethereum: "0x1111111111111111111111111111111111111111"])
+            let wallet = WalletState(name: "Archive", chainId: Chain.ethereum, address: "0x1111111111111111111111111111111111111111")
             let stored = Dictionary(uniqueKeysWithValues: [
                 ("record-0", TransactionStatus.confirmed), ("record-1", .failed), ("record-2", .pending),
             ].map { id, status in

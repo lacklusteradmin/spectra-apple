@@ -7,7 +7,7 @@ import SwiftUI
 /// will hold and confirms.
 struct WalletCopyView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @Environment(\.scenePhase) private var scenePhase
     @State private var targets: [ChainSelectionDescriptor]?
     @State private var chain: Chain?
@@ -19,7 +19,7 @@ struct WalletCopyView: View {
     /// The new wallet's name once core has stored it.
     @State private var added: String?
 
-    init(store: AppState, wallet: WalletView) {
+    init(store: AppState, wallet: WalletState) {
         self.store = store
         self.wallet = wallet
         _name = State(initialValue: wallet.name)

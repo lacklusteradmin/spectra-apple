@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Exports no front end can reach.
+"""Exports the app does not reach.
 
-An FFI export nothing calls still costs: it is generated into the bindings,
-it has to keep compiling, and it reads as API. This lists the ones whose
-camelCase name no production Swift calls and whose name no production CLI
-code calls. Tests do not count: an export only a test calls is a fixture,
-and it reads as API to everyone else.
+An FFI export nothing across the boundary calls still costs: it is generated
+into the bindings, it has to keep compiling, and it reads as API. This lists
+the ones whose camelCase name no production Swift calls. The CLI does not
+count: it links core as Rust and calls a plain `pub fn`. Tests do not count
+either: an export only a test calls is a fixture, and it reads as API to
+everyone else.
 
 A call inside a `WalletServiceBridge` method counts only while that method is
 itself called: the bridge is one-line wrappers, so a wrapper nothing calls
@@ -15,8 +16,7 @@ still names its export.
 import pathlib
 import re
 
-from source_scan import (CORE, app_swift, calls_only, camel, hand_written, production_text,
-                         report, run, strip_comments, test_modules)
+from source_scan import CORE, app_swift, calls_only, camel, hand_written, report, run, strip_comments
 
 EXPORTED_FN = re.compile(r'#\[uniffi::export[^\]]*\]\s*\npub(?:\([^)]*\))? (?:async )?fn (\w+)')
 EXPORTED_IMPL = re.compile(r'#\[uniffi::export[^\]]*\]\s*\nimpl ([^\{]*)\{')
@@ -25,16 +25,11 @@ METHOD = re.compile(r'\n    pub(?:\([^)]*\))? (?:async )?fn (\w+)')
 BRIDGE = pathlib.Path('app/App/WalletServiceBridge.swift')
 
 # Known-reachable by another route: `new` is a constructor UniFFI needs.
-#
-# And the test fixtures the iOS suite needs across the binding, each with the
-# reason a Rust test cannot stand in — a Rust test runs inside its own Tokio
-# runtime and cannot catch a missing reactor on the Swift side.
 ALLOWED = {
     'new',
-    # Seeds wallets into the service the `AppState` tests drive.
-    'core_wallet_state',
-    # Seeds and clears the transaction store those same tests read back.
-    'apply_transaction_command',
+    # The Tor test reads the status a committed toggle drives. The app learns
+    # it through `RefreshObserver`, which a test's AppState does not install.
+    'tor_status',
 }
 
 
@@ -107,22 +102,14 @@ def swift_calls():
                      + [body[name] for name in sorted(live)])
 
 
-def cli_calls():
-    """Production CLI code: a CLI test is no more a caller than a Swift one."""
-    sources = hand_written(CORE / 'cli/src', '.rs')
-    declared_tests = test_modules(sources)
-    return calls_only('\n'.join(production_text(path, declared_tests) for path in sources), 'fn')
-
-
 def scan():
-    swift, cli = swift_calls(), cli_calls()
+    swift = swift_calls()
 
     # A method is called on its object, so its Swift call has a receiver: a
     # bare name could match a different method with the same spelling.
     def reached(name, is_method):
         receiver = r'\.' if is_method else r'\b'
-        return (re.search(rf'{receiver}{re.escape(camel(name))}\s*\(', swift) is not None
-                or called(name, cli))
+        return re.search(rf'{receiver}{re.escape(camel(name))}\s*\(', swift) is not None
 
     dead = sorted((name, where) for name, where, is_method in exports()
                   if name not in ALLOWED and not reached(name, is_method))

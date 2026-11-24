@@ -74,7 +74,7 @@ extension AppState {
         guard let selectedSendCoin else { return [] }
         return addressBook.entries.filter { $0.chainId == selectedSendCoin.chainId }
     }
-    func selectedWalletForSend() -> WalletView? { wallet(for: sendFlow.walletId) }
+    func selectedWalletForSend() -> WalletState? { wallet(for: sendFlow.walletId) }
     /// Whether the composer is pushed on `tab`'s stack.
     func sendFlowBinding(on tab: MainAppTab) -> Binding<Bool> {
         Binding(
@@ -150,6 +150,6 @@ extension AppState {
     }
 
     func availableSendCoins(for walletId: String) -> [AssetHolding] { walletDerivedCache.availableSendCoinsByWalletId[walletId] ?? [] }
-    var sendEnabledWallets: [WalletView] { walletDerivedCache.sendEnabledWallets }
+    var sendEnabledWallets: [WalletState] { walletDerivedCache.sendEnabledWallets }
     var canBeginSend: Bool { !sendEnabledWallets.isEmpty }
 }

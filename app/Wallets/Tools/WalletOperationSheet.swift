@@ -9,7 +9,7 @@ import SwiftUI
 /// is its own.
 struct WalletOperationSheet<Fields: View, Summary: View>: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let title: String
     /// Why the device asks to authenticate before signing.
     let authenticationReason: String
@@ -34,7 +34,7 @@ struct WalletOperationSheet<Fields: View, Summary: View>: View {
     @State private var session: SendSession
 
     init(
-        store: AppState, wallet: WalletView, title: String, authenticationReason: String, submittedText: String,
+        store: AppState, wallet: WalletState, title: String, authenticationReason: String, submittedText: String,
         formIsComplete: Bool? = nil, canSign: Bool = true,
         endpoints: ((Chain) async throws -> [String])? = nil,
         build: @escaping () async throws -> SendArtifact,

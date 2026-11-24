@@ -58,7 +58,7 @@ struct WalletSetupMethodsView: View {
     let chain: Chain
     /// The watched wallet the methods give their keys to, and what doing so
     /// means, when the page was opened from that wallet's page.
-    var upgrading: (wallet: WalletView, note: String)? = nil
+    var upgrading: (wallet: WalletState, note: String)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var upgradeMethods: [WalletSetupMethod] = []
     private var descriptor: WalletSetupDescriptor { walletSetupDescriptor(chain: chain) }

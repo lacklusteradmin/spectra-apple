@@ -9,7 +9,7 @@ import SwiftUI
 /// can point at any host, and fetching from it tells that host who looked.
 struct WalletNftsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var nfts: WalletNfts?
     @State private var error: String?
     @State private var isLoading = false
@@ -96,7 +96,7 @@ extension NftStandard {
 /// the transaction core builds, signed and broadcast through the stages.
 private struct SendNftView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let nft: WalletNft
     @State private var recipient = ""
     @State private var quantity = "1"

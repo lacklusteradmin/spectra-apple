@@ -26,7 +26,7 @@ struct WalletMessageView: View {
     private enum Mode: Hashable { case sign, verify }
 
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let canSign: Bool
     @State private var mode: Mode
     @State private var scheme: MessageScheme?
@@ -39,14 +39,14 @@ struct WalletMessageView: View {
     @State private var isWorking = false
     @State private var didCopy = false
 
-    init(store: AppState, wallet: WalletView, canSign: Bool) {
+    init(store: AppState, wallet: WalletState, canSign: Bool) {
         self.store = store
         self.wallet = wallet
         self.canSign = canSign
         _mode = State(initialValue: canSign ? .sign : .verify)
     }
 
-    private var address: String { wallet.address(on: wallet.chain) ?? "" }
+    private var address: String { wallet.address ?? "" }
     private var needsPassword: Bool { wallet.signing.requiresPassword }
 
     var body: some View {

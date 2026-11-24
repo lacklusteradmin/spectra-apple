@@ -8,21 +8,20 @@ struct SendAmountSummaryView: View {
     let chain: Chain
     let amount: String
     var fiatText: String? = nil
-    var statusTitle: String? = nil
-    var statusSystemImage: String? = nil
-    var statusColor: Color = .accentColor
+    /// Where a staged transaction stands; `nil` before one is built.
+    var status: SendStatus? = nil
     var isReceipt = false
 
     var body: some View {
         VStack(spacing: SpectraLayout.Space.m) {
-            if isReceipt, let statusTitle, let statusSystemImage {
-                Image(systemName: statusSystemImage)
+            if isReceipt, let status {
+                Image(systemName: status.systemImage)
                     .font(.title.weight(.semibold))
-                    .foregroundStyle(statusColor)
+                    .foregroundStyle(status.color)
                     .frame(width: 64, height: 64)
                     .spectraInsetFill()
                     .accessibilityHidden(true)
-                Text(AppLocalization.string(statusTitle))
+                Text(status.title)
                     .font(.title2.weight(.bold))
                     .multilineTextAlignment(.center)
             } else {
@@ -46,10 +45,10 @@ struct SendAmountSummaryView: View {
 
             if isReceipt {
                 networkLabel
-            } else if let statusTitle, let statusSystemImage {
-                Label(AppLocalization.string(statusTitle), systemImage: statusSystemImage)
+            } else if let status {
+                Label(status.title, systemImage: status.systemImage)
                     .font(.caption.weight(.semibold))
-                    .foregroundStyle(statusColor)
+                    .foregroundStyle(status.color)
                     .padding(.horizontal, SpectraLayout.Space.s)
                     .padding(.vertical, SpectraLayout.Space.xs)
                     .spectraInsetFill(cornerRadius: SpectraLayout.Radius.inner)

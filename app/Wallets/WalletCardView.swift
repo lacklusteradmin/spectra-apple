@@ -56,7 +56,7 @@ struct WalletCardView: View, Equatable {
 extension WalletCardView.Presentation {
     /// A wallet as every list of wallets shows it: Home's and Receive's.
     @MainActor
-    init(wallet: WalletView, store: AppState) {
+    init(wallet: WalletState, store: AppState) {
         let badge = AssetHolding.nativeChainBadge(for: wallet.family) ?? (nil, .mint)
         let assetCount = wallet.shownHoldings.count
         self.init(

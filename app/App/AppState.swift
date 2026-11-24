@@ -117,12 +117,12 @@ final class AppState {
     /// `wallets`, or any field of `walletDerivedCache` (`wallet(for:)`,
     /// `portfolio` and the rest), is invalidated whenever that property is
     /// assigned, even for another wallet's balance.
-    private(set) var wallets: [WalletView] = []
+    private(set) var wallets: [WalletState] = []
 
     /// The only place the wallet projection is written. Everything else goes
     /// through a `StateCommand` and lands back here. Each value is assigned
     /// only when it changed, so an unchanged one invalidates no view.
-    func setWalletProjection(_ records: [WalletView], identityRevision: UInt64) {
+    func setWalletProjection(_ records: [WalletState], identityRevision: UInt64) {
         if wallets != records { wallets = records }
         if walletIdentityRevision != identityRevision { walletIdentityRevision = identityRevision }
     }

@@ -8,7 +8,7 @@ import SwiftUI
 /// broadcasts it through the same stages as any send.
 struct WalletShieldedFundsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var status: ZcashShieldedStatus?
     @State private var error: String?
     @State private var scan = ScanRun()
@@ -84,13 +84,13 @@ struct WalletShieldedFundsView: View {
     private func balanceSection(_ status: ZcashShieldedStatus) -> some View {
         let symbol = wallet.chain.gasTokenSymbol
         return Section {
-            LabeledContent(AppLocalization.string("Spendable"), value: "\(status.spendable) \(symbol)")
+            LabeledContent(AppLocalization.string("Spendable"), value: AmountPresentation.exactAmount(status.spendable, symbol: symbol))
             if status.pending != "0" {
-                LabeledContent(AppLocalization.string("Pending"), value: "\(status.pending) \(symbol)")
+                LabeledContent(AppLocalization.string("Pending"), value: AmountPresentation.exactAmount(status.pending, symbol: symbol))
             }
             if status.shieldable != "0" {
                 LabeledContent(AppLocalization.string("Transparent, to Shield"),
-                               value: "\(status.shieldable) \(symbol)")
+                               value: AmountPresentation.exactAmount(status.shieldable, symbol: symbol))
                 Button(AppLocalization.string("Shield Transparent Funds")) { flow = .moveIn }
                     .disabled(scan.isRunning)
             }
@@ -163,7 +163,7 @@ struct WalletShieldedFundsView: View {
 /// network's lightwalletd servers.
 private struct ShieldedTransactionView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let flow: PrivateFundsFlow
     @State private var recipient = ""
     @State private var amount = ""
@@ -240,7 +240,7 @@ private struct ShieldedTransactionView: View {
 /// review it: the recipient, the amount, and the memo it carries.
 struct PrivatePaymentSummary: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let artifact: SendArtifact
     let memo: String?
 

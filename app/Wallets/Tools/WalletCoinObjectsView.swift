@@ -7,7 +7,7 @@ import SwiftUI
 /// through the same stages.
 struct WalletCoinObjectsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var types: [SuiCoinType]?
     @State private var error: String?
     @State private var isLoading = false
@@ -72,7 +72,7 @@ extension SuiCoinType: @retroactive Identifiable {
 /// Building, signing and broadcasting one merge.
 private struct MergeCoinsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let type: SuiCoinType
 
     var body: some View {

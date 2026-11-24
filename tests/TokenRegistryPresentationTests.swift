@@ -49,8 +49,7 @@ struct TokenRegistryPresentationTests: IsolatedAppStateSuite {
 
     @Test func tokenManagementScreensRenderInARealWindow() async throws {
         let state = makeState()
-        let seeded = try await bridge.ready().applyStateCommand(command: .mergeBuiltInTokens)
-        state.applyCoreState(seeded.state)
+        state.applyCoreState(try await bridge.ready().appState())
         let entry = try #require(state.tokenPreferences.entries.first { $0.token.symbol == "USDC" })
         let views: [(String, AnyView)] = [
             ("Known tokens", AnyView(NavigationStack { TokenRegistrySettingsView(tokens: state.tokenPreferences) })),

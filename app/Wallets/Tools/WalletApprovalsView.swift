@@ -7,7 +7,7 @@ import SwiftUI
 /// through the same stages.
 struct WalletApprovalsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var approvals: TokenApprovals?
     @State private var error: String?
     @State private var isLoading = false
@@ -87,7 +87,7 @@ extension TokenApproval: @retroactive Identifiable {
 /// Building, signing and broadcasting one revocation.
 private struct RevokeApprovalView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let approval: TokenApproval
 
     var body: some View {

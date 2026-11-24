@@ -8,7 +8,7 @@ import SwiftUI
 /// stages as any send.
 struct WalletMwebFundsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var status: LitecoinMwebStatus?
     @State private var error: String?
     @State private var scan = ScanRun()
@@ -76,9 +76,9 @@ struct WalletMwebFundsView: View {
     private func balanceSection(_ status: LitecoinMwebStatus) -> some View {
         let symbol = wallet.chain.gasTokenSymbol
         return Section {
-            LabeledContent(AppLocalization.string("Spendable"), value: "\(status.spendable) \(symbol)")
+            LabeledContent(AppLocalization.string("Spendable"), value: AmountPresentation.exactAmount(status.spendable, symbol: symbol))
             if status.pending != "0" {
-                LabeledContent(AppLocalization.string("Pending"), value: "\(status.pending) \(symbol)")
+                LabeledContent(AppLocalization.string("Pending"), value: AmountPresentation.exactAmount(status.pending, symbol: symbol))
             }
             Button(AppLocalization.string("Move LTC into MWEB")) { flow = .moveIn }
                 .disabled(scan.isRunning)
@@ -148,7 +148,7 @@ struct WalletMwebFundsView: View {
 /// transaction core builds, signed and broadcast through the stages.
 private struct MwebTransactionView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let flow: PrivateFundsFlow
     @State private var recipient = ""
     @State private var amount = ""

@@ -134,7 +134,7 @@
 
         /// A broadcast was accepted and the transaction is waiting on the chain.
         func startSendLiveActivity(for transaction: TransactionRecord, amounts: AmountPresentation) {
-            guard transaction.isSubmittedOperation, transaction.status == .pending else { return }
+            guard transaction.submitted, transaction.status == .pending else { return }
             SendLiveActivityStore.start(
                 transactionId: transaction.id,
                 state: sendLiveActivityState(for: transaction, phase: .sending, amounts: amounts))

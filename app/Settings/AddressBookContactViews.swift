@@ -283,7 +283,7 @@ struct AddressBookContactView: View {
     }
 
     /// A wallet that can pay this contact: one on its network that signs.
-    private var payingWallet: WalletView? {
+    private var payingWallet: WalletState? {
         store.sendEnabledWallets.first { $0.chain == contact.chainId }
     }
 

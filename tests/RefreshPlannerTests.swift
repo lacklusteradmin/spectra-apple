@@ -20,8 +20,15 @@ struct WalletRefreshPlannerTests: IsolatedAppStateSuite {
     }
 
     @Test func coreRefreshEngineDoesNotKeepAppStateAlive() async throws {
-        let wallet = WalletView(name: "Watch", chainId: Chain.ethereum, addresses: [Chain.ethereum: "0x" + String(repeating: "1", count: 40)])
-        _ = try await bridge.ready().applyStateCommand(command: .upsertWallet(wallet: wallet.walletState()))
+        _ = try await bridge.ready().importWallets(commit: WalletImportCommit(
+            password: nil,
+            request: WalletImportRequest(
+                walletName: "Watch", chain: .ethereum,
+                kind: .watchAddresses(addresses: ["0x" + String(repeating: "1", count: 40)])),
+            derivationPath: nil,
+            derivationOverrides: WalletDerivationOverrides(passphrase: nil, hmacKey: nil),
+            seedPhrase: nil, privateKey: nil, restoreHeight: nil, namedAccount: nil,
+            tonWalletVersion: nil, upgradeWalletId: nil))
         var store: AppState? = AppState(bridge: bridge, startServices: false)
         store?.isNetworkReachable = false
         let observer = WalletRefreshObserver()

@@ -7,7 +7,7 @@ import SwiftUI
 /// broadcasts them through the same stages as a send.
 struct WalletTrustLinesView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var lines: WalletTrustLines?
     @State private var error: String?
     @State private var isLoading = false
@@ -113,7 +113,7 @@ private struct TrustLineChange: Identifiable {
 /// Building, signing and broadcasting one trust line change.
 private struct TrustLineChangeView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let change: TrustLineChange
 
     var body: some View {

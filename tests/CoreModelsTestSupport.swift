@@ -9,85 +9,36 @@ import SpectraCore
 
 @testable import Spectra
 
-extension WalletView {
+extension WalletState {
     /// A wallet record with every field a test does not name defaulted. The
-    /// app never builds one; core returns them. `addresses` is keyed by chain
-    /// id and stored under that chain's slot, as core stores it.
+    /// app never builds one; core returns them.
     init(
         id: UUID = UUID(),
         name: String,
         chainId: Chain,
-        addresses: [Chain: String] = [:],
-        bitcoinXpub: String? = nil,
+        address: String? = nil,
+        xpub: String? = nil,
         derivationPath: String? = nil,
-        derivationOverrides: WalletDerivationOverrides = WalletDerivationOverrides(passphrase: nil, hmacKey: nil),
+        derivationFlags: WalletDerivationFlags = WalletDerivationFlags(passphrase: false, hmacKey: false, uniformExpansion: false),
         holdings: [AssetHolding] = [],
         includeInPortfolioTotal: Bool = true,
         signing: WalletSigning = .watchOnly
     ) {
         self.init(
-            id: id.uuidString, name: name, chainId: chainId,
-            addresses: Dictionary(
-                addresses.map { chain, address in (chain.addressSlot, address) },
-                uniquingKeysWith: { first, _ in first }),
-            accountXpub: bitcoinXpub,
-            derivationPath: derivationPath,
-            derivationOverrides: derivationOverrides,
-            holdings: holdings,
+            id: id.uuidString, name: name, signing: signing, chainId: chainId,
             includeInPortfolioTotal: includeInPortfolioTotal,
-            signing: signing,
+            address: address,
+            xpub: xpub,
+            derivationPath: derivationPath,
+            derivationProfile: nil,
+            derivationFlags: derivationFlags,
+            holdings: holdings,
             restoreHeight: nil,
             hiddenHoldings: [],
             icpPrincipal: nil,
             nearAccountKey: nil,
             multisigPolicy: nil
         )
-    }
-
-    /// Set this wallet's address on a chain. Passing `nil` clears it.
-    ///
-    /// Spares the bridge tests rebuilding the record to change one field. The
-    /// app never edits a wallet record in place — it renders what core sends
-    /// and issues commands back.
-    mutating func setAddress(_ address: String?, on chain: Chain) {
-        let slot = chain.addressSlot
-        guard !slot.isEmpty else { return }
-        if let address, !address.isEmpty {
-            addresses[slot] = address
-        } else {
-            addresses.removeValue(forKey: slot)
-        }
-    }
-
-    /// The authoritative model this view model was rendered from, the same
-    /// mapping as core's `WalletView::to_wallet_state`, for seeding a test
-    /// through the command the app issues.
-    func walletState() -> WalletState {
-        // The wallet's own slot first: core reads the first receive address as
-        // the primary one.
-        let ownSlot = family.addressSlot
-        let slots = addresses.keys.sorted { ($0 == ownSlot ? 0 : 1, $0) < ($1 == ownSlot ? 0 : 1, $1) }
-        return WalletState(
-            id: id, name: name, signing: signing, chainId: chainId,
-            includeInPortfolioTotal: includeInPortfolioTotal, xpub: accountXpub,
-            derivationPath: derivationPath, derivationOverrides: derivationOverrides,
-            holdings: holdings,
-            addresses: slots.compactMap { slot in
-                guard let address = addresses[slot] else { return nil }
-                let owner: Chain
-                if slot == chain.addressSlot {
-                    owner = chain
-                } else {
-                    guard let slotOwner = Chain.all.first(where: { $0.addressSlot == slot }) else { return nil }
-                    owner = slotOwner
-                }
-                return WalletAddress(
-                    chainId: owner, address: address, kind: "receive", derivationPath: owner == chain ? derivationPath : nil)
-            },
-            restoreHeight: restoreHeight,
-            hiddenHoldings: hiddenHoldings,
-            icpPrincipal: icpPrincipal,
-            nearAccountKey: nearAccountKey, multisigPolicy: multisigPolicy)
     }
 }
 
@@ -98,10 +49,12 @@ extension TransactionRecord {
         id: String, walletId: String? = nil, deploymentId: String? = nil, kind: TransactionKind,
         status: TransactionStatus, walletName: String, assetDisplayName: String, symbol: String,
         chainId: Chain, amount: String, address: String, transactionHash: String? = nil,
-        nonce: Int64? = nil, failureReason: TransactionFailure? = nil
+        nonce: Int64? = nil, failureReason: TransactionFailure? = nil,
+        direction: TransactionDirection = .neutral, submitted: Bool? = nil
     ) {
         self.init(
             actions: TransactionActions(recheckUnavailableReason: "Not evaluated", rebroadcastUnavailableReason: "Not evaluated"),
+            direction: direction, submitted: submitted ?? (kind != .receive),
             deploymentId: deploymentId, id: id, walletId: walletId, kind: kind, status: status,
             walletName: walletName, assetDisplayName: assetDisplayName, symbol: symbol,
             chainId: chainId, amount: amount, address: address, transactionHash: transactionHash,
@@ -110,7 +63,7 @@ extension TransactionRecord {
             feeRateDescription: nil, confirmationCount: nil, confirmedNetworkFee: nil,
             usedChangeOutput: nil, sourceDerivationPath: nil,
             changeDerivationPath: nil, sourceAddress: nil, changeAddress: nil,
-            failureReason: failureReason, transactionHistorySource: nil,
+            failureReason: failureReason, historySource: nil,
             createdAtUnix: Date().timeIntervalSince1970)
     }
 }
@@ -135,19 +88,29 @@ extension WalletDiagnosticsState {
 }
 
 extension SendProgress {
-    /// A staged send as a test sets it up. Core decides the next step; a
-    /// test names it, or takes the one the artifact's stage and submissions
-    /// first reach.
+    /// A staged send as a test sets it up. Core decides the status and the
+    /// next step; a test names them, or takes the ones the artifact's stage,
+    /// submissions and record first reach.
     static func staged(
-        _ artifact: SendArtifact, transaction: TransactionRecord? = nil, next: SendNextStep? = nil,
-        canRebroadcast: Bool = false, canRepair: Bool = false, canRecheck: Bool = false
+        _ artifact: SendArtifact, transaction: TransactionRecord? = nil, status: SendStatus? = nil,
+        next: SendNextStep? = nil, canRebroadcast: Bool = false, canRepair: Bool = false,
+        canRecheck: Bool = false
     ) -> SendProgress {
         let reached: SendNextStep =
             artifact.stage == .prepared ? .sign
             : artifact.attempts.contains { $0.outcome == .accepted } ? .done
             : artifact.attempts.isEmpty ? .broadcast : .rebroadcast
+        let settled = artifact.attempts.isEmpty ? nil : transaction?.status
+        let stands: SendStatus =
+            settled == .confirmed ? .confirmed
+            : settled == .failed ? .failed
+            : artifact.stage == .prepared ? .awaitingSignature
+            : artifact.attempts.isEmpty ? .signed
+            : artifact.attempts.contains { $0.outcome == .accepted } ? .awaitingConfirmation
+            : artifact.attempts.contains { $0.outcome == .uncertain } ? .uncertain : .rejected
         return SendProgress(
-            artifact: artifact, transaction: transaction, next: next ?? reached,
-            canRebroadcast: canRebroadcast, canRepair: canRepair, canRecheck: canRecheck)
+            artifact: artifact, transaction: transaction, status: status ?? stands,
+            next: next ?? reached, canRebroadcast: canRebroadcast, canRepair: canRepair,
+            canRecheck: canRecheck)
     }
 }

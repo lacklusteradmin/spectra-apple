@@ -43,7 +43,7 @@ final class TokenPreferencesState {
     /// network's only one when `nil` — or edit `editing`, which keeps its own.
     func addCustom(
         chain: Chain, standard: TokenStandard? = nil, symbol: String, name: String, contractAddress: String,
-        coingeckoId: String = "", coinpaprikaId: String = "", decimals: UInt32, editing: TokenPreferenceEntry? = nil
+        coingeckoId: String = "", coinpaprikaId: String = "", decimals: UInt32?, editing: TokenPreferenceEntry? = nil
     ) async -> String? {
         let command: StateCommand
         if let editing {
@@ -93,5 +93,6 @@ private func tokenPreferenceRejectionMessage(_ reason: TokenPreferenceRejection)
     case .unknownToken: return AppLocalization.string("That token is no longer in the list.")
     case .standardRequired: return AppLocalization.string("Choose the standard the token was issued under.")
     case .unsupportedStandard: return AppLocalization.string("That network does not support this token standard.")
+    case .decimalsRequired: return AppLocalization.string("Enter the token's decimal places.")
     }
 }

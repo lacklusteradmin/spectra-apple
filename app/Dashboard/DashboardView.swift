@@ -8,7 +8,7 @@ struct DashboardView: View {
     @State private var selectedWalletId: String?
     @State private var selectedAssetGroupId: String?
     @ScaledMetric(relativeTo: .caption2) private var torBadgeFontSize: CGFloat = 8
-    private var selectedWallet: WalletView? {
+    private var selectedWallet: WalletState? {
         guard let selectedWalletId else { return nil }
         return store.wallet(for: selectedWalletId)
     }

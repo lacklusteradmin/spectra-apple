@@ -103,7 +103,7 @@ struct AddCustomTokenView: View {
                         formMessage = await tokens.addCustom(
                             chain: selectedChain, standard: standard?.standard, symbol: symbolInput, name: nameInput,
                             contractAddress: identifierInput, coingeckoId: coingeckoIdInput,
-                            coinpaprikaId: coinpaprikaIdInput, decimals: fixedDecimals ?? decimalsInput, editing: editing)
+                            coinpaprikaId: coinpaprikaIdInput, decimals: fixedDecimals == nil ? decimalsInput : nil, editing: editing)
                         isSaving = false
                         if formMessage == nil { dismiss() }
                     }

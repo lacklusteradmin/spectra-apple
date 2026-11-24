@@ -2,11 +2,11 @@ import Foundation
 import SpectraCore
 
 extension AppState {
-    func wallet(for walletId: String) -> WalletView? { walletDerivedCache.walletById[walletId] }
+    func wallet(for walletId: String) -> WalletState? { walletDerivedCache.walletById[walletId] }
     /// Reveal a wallet's seed phrase after device authentication. The
     /// password goes to core as typed; core applies its password rule and
     /// says why a phrase was not revealed.
-    func revealSeedPhrase(for wallet: WalletView, password: String? = nil) async throws -> String {
+    func revealSeedPhrase(for wallet: WalletState, password: String? = nil) async throws -> String {
         if let failure = await authenticate(.secretMaterial,
             reason: AppLocalization.format("Authenticate to view seed phrase for %@", wallet.name)) {
             throw SeedPhraseRevealError.authenticationFailed(failure)

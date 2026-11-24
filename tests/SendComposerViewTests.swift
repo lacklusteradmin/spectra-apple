@@ -97,15 +97,19 @@ struct SendComposerViewTests: IsolatedAppStateSuite {
         ]
         // The capability flag is render-fixture metadata. No secret is stored
         // and this suite never calls signing, preview transport or broadcast.
-        let wallet = WalletView(
+        let wallet = WalletState(
             name: "Main Wallet", chainId: .ethereum,
-            addresses: [.ethereum: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"], holdings: holdings,
+            address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", holdings: holdings,
             signing: .privateKey(passwordProtected: false))
-        _ = try await bridge.ready().applyStateCommand(command: .mergeBuiltInTokens)
-        _ = try await bridge.ready().applyStateCommand(command: .upsertWallet(wallet: wallet.walletState()))
         _ = try await bridge.ready().applyStateCommand(command: .addAddressBookEntry(
             name: "Alex", chainId: .ethereum, address: recipient, note: ""))
-        let snapshot = try await bridge.ready().portfolioSnapshot()
+        // The wallet and its balances are what the composer renders: view
+        // state here, beside core's own snapshot, with what core would derive
+        // of a funded wallet that signs.
+        var snapshot = try await bridge.ready().portfolioSnapshot()
+        snapshot.wallets = [wallet]
+        snapshot.derived.sendEnabledWalletIds = [wallet.id]
+        snapshot.derived.sendCoinsByWalletId = [wallet.id: holdings]
         state.applyPortfolioSnapshot(snapshot)
         let coin = try #require(state.availableSendCoins(for: wallet.id).first { $0.symbol == "ETH" })
         #expect(state.sendEnabledWallets.contains { $0.id == wallet.id })

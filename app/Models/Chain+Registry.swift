@@ -32,9 +32,6 @@ extension Chain: @retroactive Identifiable {
     /// One spelling per chain: the registry has a test that says so.
     var displayName: String { entry?.name ?? "" }
 
-    /// Which chain's slot this chain's address is stored under. The EVM family
-    /// shares Ethereum's.
-    var addressSlot: String { entry?.addressSlot ?? "" }
     /// A wallet on this chain is an account of many addresses, which a
     /// rescan can walk.
     var usesAccountUTXO: Bool { entry?.usesAccountUtxo ?? false }

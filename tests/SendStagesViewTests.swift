@@ -61,6 +61,54 @@ struct SendStagesViewTests: IsolatedAppStateSuite {
         #expect(state.sendFlow.session.artifact == artifact, "Rendering must leave the durable send unchanged")
     }
 
+    /// A wallet tool's stage sections, in the form its sheet shows them: the
+    /// nodes to choose, what they answered and where the transaction stands,
+    /// from the same parts as a send's.
+    @Test(arguments: [RenderStage.signed, .pending, .confirmed])
+    func toolStageSectionsRenderWithoutSubmitting(stage: RenderStage) async throws {
+        let state = makeState()
+        let session = SendSession(progress: { .staged($0) })
+        session.endpoints = ["https://ethereum.example/rpc"]
+        let submitted = stage != .signed
+        let hash = "0x3f5d2c8af442824595b091e1761b8db5bf8d9ef8fa93b512d283850d08a7ef11"
+        let sender = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        let artifact = SendArtifact(id: "tool-fixture", revision: 1, stage: .signed,
+            walletId: "fixture", chainId: Chain.ethereumSepolia, sender: sender,
+            recipient: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8", memo: nil,
+            amount: "0", asset: "ETH", symbol: "ETH", staking: nil, operation: nil, createdAt: 0,
+            reviewDigest: "reviewed-content",
+            review: SendArtifactReview(warnings: [], staking: nil, transferTerms: nil,
+                networkFee: NetworkFee(amount: "0.000021", bound: .estimate, value: nil)),
+            preparedDetails: "", signingPayloadHex: "02", signedPayload: "0x02…",
+            transactionHash: submitted ? hash : nil,
+            attempts: submitted ? [BroadcastAttempt(endpoint: "https://ethereum.example/rpc", attemptedAt: 0,
+                outcome: .accepted, transactionHash: hash, detail: "Accepted by the node.")] : [],
+            selectedEndpoints: [])
+        let record: TransactionRecord? = submitted ? TransactionRecord(
+            id: artifact.id, walletId: artifact.walletId, kind: .revokeApproval,
+            status: stage == .confirmed ? .confirmed : .pending, walletName: "Main Wallet",
+            assetDisplayName: "Ethereum", symbol: artifact.symbol, chainId: artifact.chainId,
+            amount: artifact.amount, address: artifact.recipient, transactionHash: hash) : nil
+        session.progress = .staged(artifact, transaction: record, next: submitted ? .done : nil)
+        let wallet = WalletState(
+            name: "Main Wallet", chainId: .ethereumSepolia, address: sender,
+            signing: .seedPhrase(passwordProtected: false))
+        let view = Form {
+            SendArtifactStageSections(
+                store: state, wallet: wallet, session: session, authenticationReason: "Revoke",
+                submittedText: "Submitted. The approval ends once it confirms.")
+        }.frame(width: RenderWindow.phoneSize.width, height: RenderWindow.phoneSize.height)
+        let window = try RenderWindow()
+        defer { window.close() }
+        window.show(view)
+        try await Task.sleep(for: .milliseconds(300))
+        window.layout()
+        try await Task.sleep(for: .milliseconds(100))
+        try window.record(named: "Tool stage: \(stage.rawValue)")
+        #expect(session.selectedEndpoints.isEmpty, "Rendering must not select destinations or submit")
+        #expect(session.artifact == artifact, "Rendering must leave the durable transaction unchanged")
+    }
+
     /// What a token's own rules do is said before signing, in core's exact
     /// amounts and with the symbol of the coin each is paid in.
     @Test func transferTermWarningsAreWordedWithCoreAmounts() {

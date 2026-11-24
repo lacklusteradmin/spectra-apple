@@ -41,15 +41,9 @@ extension HighRiskSendWarning {
                 "This send is %@ of your %@ balance.",
                 (Double(percent) / 100.0).formatted(.percent.precision(.fractionLength(0)).locale(AppLocalization.locale)),
                 symbol)
-        case .nonEvmOnEvm(let chain):
-            AppLocalization.format("Destination appears to be a non-EVM address while sending on %@.", chain.displayName)
         case .ensOffEthereum(let chain):
             AppLocalization.format(
                 "ENS names are Ethereum-specific. For %@, verify the resolved EVM address very carefully.", chain.displayName)
-        case .ethOnUtxo(let chain):
-            AppLocalization.format("Destination appears to be an Ethereum-style address while sending on %@.", chain.displayName)
-        case .foreignAddressFormat(let chain):
-            AppLocalization.format("Destination appears to be another network's address format while sending on %@.", chain.displayName)
         case .chainMismatch:
             AppLocalization.string("Wallet-chain context mismatch detected for this send.")
         }

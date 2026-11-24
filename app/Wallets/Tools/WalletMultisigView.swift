@@ -7,7 +7,7 @@ import SwiftUI
 /// and how a session reaches the network; this view only asks.
 struct WalletMultisigView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var account: MultisigAccount?
     @State private var sessions: [MultisigSession]?
     @State private var error: String?
@@ -200,11 +200,11 @@ private struct MultisigSessionView: View {
     @State private var error: String?
     @State private var isWorking = false
 
-    private var signers: [WalletView] {
+    private var signers: [WalletState] {
         account.signerWalletIds.compactMap { id in store.wallets.first { $0.id == id } }
     }
 
-    private var signer: WalletView? {
+    private var signer: WalletState? {
         signers.first { $0.id == signerId } ?? signers.first
     }
 
@@ -352,7 +352,7 @@ private struct MultisigSessionView: View {
         }
     }
 
-    private func submit(executor: WalletView?) async {
+    private func submit(executor: WalletState?) async {
         if let executor,
            let failure = await store.authenticate(.send, reason: AppLocalization.format("Authenticate to sign from %@", executor.name)) {
             error = failure

@@ -25,7 +25,7 @@ final class WalletImportSession {
         draft = WalletImportDraft()
     }
 
-    func begin(editing wallet: WalletView? = nil, configure: (WalletImportDraft) -> Void) {
+    func begin(editing wallet: WalletState? = nil, configure: (WalletImportDraft) -> Void) {
         invalidate()
         editingWalletId = wallet?.id
         configure(draft)

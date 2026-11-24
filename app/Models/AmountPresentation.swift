@@ -96,7 +96,12 @@ struct AmountPresentation {
     /// An amount of the chain's gas token — a fee, a deposit, rent — exactly
     /// as core stated it.
     func formattedNativeAmount(_ amount: String, chain: Chain) -> String {
-        "\(Self.localizedDecimal(amount)) \(chain.gasTokenSymbol)"
+        Self.exactAmount(amount, symbol: chain.gasTokenSymbol)
+    }
+    /// An exact amount core gave, every digit, in the reader's decimal
+    /// separator, beside its symbol.
+    static func exactAmount(_ amount: String, symbol: String) -> String {
+        "\(localizedDecimal(amount)) \(symbol)"
     }
     /// A fee as a compact row shows it: core's significant-digit policy at
     /// the gas token's precision, with its display-currency value when core
@@ -158,13 +163,11 @@ struct AmountPresentation {
         else { return nil }
         return description
     }
-    /// What the detail sheet names as the record's history source. Core says
-    /// what the stored id means; the sentence around a chain's providers is
-    /// this app's to translate, and Spectra's own reader is not named at all.
+    /// What the detail sheet names as the record's history source: an
+    /// indexer's proper name. Spectra's own reader is not named.
     func historySourceText(for transaction: TransactionRecord) -> String? {
-        switch transaction.transactionHistorySource.flatMap({ historySource(source: $0) }) {
-        case .provider(let name): return name
-        case .chainProviders(let chainId): return AppLocalization.format("%@ providers", chainId.displayName)
+        switch transaction.historySource {
+        case .indexer(let name): return name
         case .internal, nil: return nil
         }
     }

@@ -51,6 +51,6 @@ extension AppState {
         let receiveCoins = availableReceiveCoins(for: walletId)
         return receiveCoins.first { $0.contractAddress == nil } ?? receiveCoins.first
     }
-    var receiveEnabledWallets: [WalletView] { walletDerivedCache.receiveEnabledWallets }
+    var receiveEnabledWallets: [WalletState] { walletDerivedCache.receiveEnabledWallets }
     var canBeginReceive: Bool { !receiveEnabledWallets.isEmpty }
 }

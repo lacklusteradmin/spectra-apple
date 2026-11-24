@@ -4,7 +4,7 @@ import SwiftUI
 
 struct WalletDetailView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
     @State private var isShowingManagePage: Bool = false
@@ -21,7 +21,7 @@ struct WalletDetailView: View {
         let identityRevision: UInt64
         let settings: AppSettings
     }
-    init(store: AppState, wallet: WalletView) {
+    init(store: AppState, wallet: WalletState) {
         self.store = store
         self.wallet = wallet
     }
@@ -32,7 +32,7 @@ struct WalletDetailView: View {
         var id: String { coin.id }
     }
     private struct DetailPresentation {
-        let wallet: WalletView
+        let wallet: WalletState
         let walletAddress: String?
         let derivationPathsText: String?
         let walletBadge: (artworkName: String?, color: Color)
@@ -43,7 +43,7 @@ struct WalletDetailView: View {
     }
     private var isWatchOnly: Bool { displayedWallet.signing.isWatchOnly }
     private var isPrivateKeyWallet: Bool { displayedWallet.signing.isPrivateKey }
-    private var displayedWallet: WalletView {
+    private var displayedWallet: WalletState {
         store.wallet(for: wallet.id) ?? wallet
     }
     private var firstActivityDateText: String {
@@ -67,7 +67,7 @@ struct WalletDetailView: View {
         return DetailPresentation(
             wallet: wallet,
             // A wallet is on one chain, so its address is that chain's.
-            walletAddress: wallet.address(on: wallet.chain),
+            walletAddress: wallet.address,
             derivationPathsText: derivationPathsText(for: wallet),
             walletBadge: AssetHolding.nativeChainBadge(for: wallet.family) ?? (nil, .mint),
             visibleHoldingPresentations: holdingPresentations,
@@ -77,11 +77,10 @@ struct WalletDetailView: View {
     }
     /// The wallet's derivation path, named by its profile and account when
     /// core reads it as one.
-    private func derivationPathsText(for wallet: WalletView) -> String? {
+    private func derivationPathsText(for wallet: WalletState) -> String? {
         guard !isWatchOnly, !isPrivateKeyWallet else { return nil }
-        let chain = wallet.chainId
         guard let path = wallet.derivationPath, !path.isEmpty else { return nil }
-        guard let choice = derivationProfileOfPath(chain: chain, path: path) else { return path }
+        guard let choice = wallet.derivationProfile else { return path }
         return AppLocalization.format(
             "wallet.detail.chainPath",
             AppLocalization.format("derivation.profile_account_format", choice.profile.title, Int(choice.account)), path)

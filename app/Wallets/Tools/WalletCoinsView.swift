@@ -5,7 +5,7 @@ import SwiftUI
 /// coins they hold, as core reads them from the network. Read-only.
 struct WalletCoinsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var coins: WalletCoins?
     @State private var error: String?
     @State private var isLoading = false
@@ -57,7 +57,7 @@ struct WalletCoinsView: View {
             ForEach(coins.outputs, id: \.outpoint) { output in
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     HStack {
-                        Text(verbatim: "\(output.amount) \(coins.symbol)").font(.subheadline.weight(.semibold))
+                        Text(verbatim: AmountPresentation.exactAmount(output.amount, symbol: coins.symbol)).font(.subheadline.weight(.semibold))
                             .monospacedDigit()
                         Spacer()
                         Text(output.confirmationsText).font(.caption).foregroundStyle(.secondary)
@@ -86,7 +86,7 @@ struct WalletCoinsView: View {
                                 Text(verbatim: "#\(index)").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Text(verbatim: "\(row.balance) \(coins.symbol)").font(.subheadline).monospacedDigit()
+                            Text(verbatim: AmountPresentation.exactAmount(row.balance, symbol: coins.symbol)).font(.subheadline).monospacedDigit()
                         }
                         addressText(row.address)
                         if !row.used {

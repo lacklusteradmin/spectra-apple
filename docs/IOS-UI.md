@@ -246,6 +246,11 @@ actions with `GlassEffectContainer(spacing: SpectraLayout.Space.s)`.
 
 ## Additional constraints
 
+- A staged transaction's page shows core's `SendProgress.status` and picks
+  nodes and lists their answers with the parts in
+  [SendStageComponents.swift](../app/Send/SendStageComponents.swift); a send,
+  a staking action and a wallet tool lay out only their own review around
+  them.
 - Rounded display typography is reserved for icon artwork.
 - Avoid custom glass on every small element or stacked glass surfaces.
 - Do not add `.ultraThinMaterial` or `.thinMaterial` where `.glassEffect` is appropriate.

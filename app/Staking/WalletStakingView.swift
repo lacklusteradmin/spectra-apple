@@ -13,14 +13,14 @@ struct WalletStakingView: View {
     @State private var confirmsSigning = false
     @State private var confirmsBroadcast = false
 
-    init(store: AppState, wallet: WalletView) {
+    init(store: AppState, wallet: WalletState) {
         chain = wallet.chain
         walletId = wallet.id
         self.store = store
         _vm = State(wrappedValue: StakingState(chain: wallet.chain, bridge: store.bridge))
     }
 
-    private var wallet: WalletView? { store.wallet(for: vm.walletId) }
+    private var wallet: WalletState? { store.wallet(for: vm.walletId) }
     /// The wallet's balance of the network's coin, as its rows show it.
     private var availableToStake: String? {
         guard let coin = store.availableSendCoins(for: vm.walletId).first(where: \.isNativeCoin) else { return nil }
@@ -87,11 +87,9 @@ struct WalletStakingView: View {
                 .disabled(requiresPassword && vm.password.isEmpty)
         } message: {
             if let artifact = vm.session.artifact, let intent = artifact.staking {
-                let validator = intent.validatorId.flatMap(vm.validatorName).map { "\($0)\n" } ?? ""
-                Text(
-                    verbatim:
-                        "\(intent.action.localizedTitle) · \(chain.displayName)\n\(AmountPresentation.localizedDecimal(artifact.amount)) \(artifact.symbol)\n\(validator)\(artifact.recipient)\n\n\(AppLocalization.string("Signing authorizes this transaction. You will choose nodes and broadcast it separately."))"
-                )
+                let action = [intent.action.localizedTitle, intent.validatorId.flatMap(vm.validatorName)]
+                    .compactMap { $0 }.joined(separator: " · ")
+                Text(verbatim: sendSigningConfirmationMessage(artifact: artifact, amounts: store.amounts, action: action))
             }
         }
         .confirmationDialog(
@@ -214,7 +212,7 @@ struct WalletStakingView: View {
                     VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
                         Text(saved.staking?.action.localizedTitle ?? AppLocalization.string("Staking")).font(
                             .subheadline.weight(.semibold))
-                        Text(verbatim: "\(AmountPresentation.localizedDecimal(saved.amount)) \(saved.symbol)").font(.caption).foregroundStyle(
+                        Text(verbatim: AmountPresentation.exactAmount(saved.amount, symbol: saved.symbol)).font(.caption).foregroundStyle(
                             .secondary)
                         Text(AppLocalization.string(saved.stage == .prepared ? "Awaiting signing" : "Signed"))
                             .font(.caption).foregroundStyle(.secondary)

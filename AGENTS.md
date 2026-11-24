@@ -1,6 +1,7 @@
 ## Git
 
-Do not git commit or push unless I said so.
+Do not git commit or push unless I said so. Before a commit, tidy the
+CHANGELOG as [CHANGELOG](#changelog) says.
 
 ## Repositories
 
@@ -29,6 +30,7 @@ Read the one that covers what you are changing:
 | [IOS-UI.md](docs/IOS-UI.md) | Liquid Glass, typography, color, layout and corner radii, and what the Mac app does differently |
 | [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md) | The core package the app links, and its Swift bindings |
 | [OPEN-ITEMS.md](docs/OPEN-ITEMS.md) | Remaining app work |
+| [CHANGELOG.md](docs/CHANGELOG.md) | What each commit changed, and why |
 | [scripts/README.md](scripts/README.md) | Source-scan and icon-export tools |
 | spectra's `docs/` | Core's architecture, chain support, FFI boundary and open items |
 
@@ -36,9 +38,57 @@ Keep them true:
 
 - A change that alters what a doc says updates that doc in the same change: a
   script in `scripts/README.md`, a design rule in `IOS-UI.md`.
-- A doc states what is true now. History belongs in git, and a file or symbol
-  is named only while it exists.
+- A doc states what is true now, and names a file or symbol only while it
+  exists. History belongs in `CHANGELOG.md` and git.
 - `OPEN-ITEMS.md` holds remaining work only. Delete an item when it is done.
+
+## CHANGELOG
+
+[CHANGELOG.md](docs/CHANGELOG.md) records what each commit changed and why,
+newest first. Record a change under `## Uncommitted` as it is made. A section
+written before the split covers only this repository's part of that commit;
+spectra keeps its own for core.
+
+**Tidy it before a commit.** When I am about to commit, or ask for the
+CHANGELOG to be tidied, check `## Uncommitted` against the actual change
+(`git diff`). Every sub-item matches one change in the diff: delete one that
+does not, which is usually an unchanged part, the whole picture after the
+change, or process. Add what the diff has and the entries lack. Numbers match
+the code, and no claim goes beyond what was done. Then rename the heading to
+the commit's title, such as `## Beta Commit 253`.
+
+How to write it:
+
+- **Voice.** An objective record. Do not address the reader, and write no
+  asides. A decision for me goes in the conversation or in `OPEN-ITEMS.md`.
+- **The result, not the process.** Write what the changed part is now, with
+  the before or the reason in one parenthesised sentence when it helps. No
+  process ("first … then", "found … so", "tried …", debugging), and no whole
+  picture after the change: the docs hold that, so point there in a few words.
+- **One sub-item per change.** Each change is a bullet whose bold headline
+  states the result, with where in parentheses (views, files, types). Under
+  it, one sub-item per change, in one or two sentences. A change is one thing
+  `git diff` shows: a behaviour, a screen or control, a number or default, a
+  file that moved, whether stored data still loads. A change with only one
+  such thing is the headline alone, with no sub-items.
+- **No padding.** Leave out unchanged parts, unless a reader would think they
+  changed; per-item visual detail, which `IOS-UI.md` and the code hold; lists
+  of functions and call sites; mechanical edits such as an added property, a
+  rename or a rebuilt `SpectraCore/`; anything that repeats the headline. A
+  refactor that keeps behaviour is one line naming what moved where.
+- **Names as they were.** A section names files and symbols as they were at
+  that commit, even after they move or go.
+- **Each section ends with these, in order, when they apply:**
+  - `Measured:` one line per run: date, device or simulator, result, key
+    numbers only, before → after.
+  - `Tests: N new`: one line per area, "area N: what it guards against". Not
+    what each test checks. An existing test that was only updated is left out
+    unless what it guards changed.
+  - `Docs:` which doc, and which sections.
+  - `Total:` always, last: N .swift files changed (M new), +X −Y lines; data,
+    resource and config files by name or grouped by folder, or none; tests
+    passing in `make test-ios` before → after. "No code changed" when the
+    change is docs alone.
 
 ## Verification
 

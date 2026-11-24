@@ -21,7 +21,7 @@ struct SendConfirmationStep: View {
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                     SendTransferPartiesView(
                         store: store, walletId: store.sendFlow.walletId, chain: selectedCoin.chain,
-                        sender: store.selectedWalletForSend()?.address(on: selectedCoin.chain),
+                        sender: store.selectedWalletForSend()?.address,
                         recipient: recipientAddress)
                     Divider().opacity(0.4)
                     SendCostRows(fee: networkFeeText, total: totalText)

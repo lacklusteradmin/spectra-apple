@@ -11,7 +11,6 @@ struct ChainSelectionDescriptor: Identifiable {
     let color: Color
     /// In `listChainTags()` order, from core.
     let tags: [ChainTag]
-    let searchKeywords: [String]
     var title: String { AppLocalization.string(titleKey) }
     var isTestnet: Bool { tags.contains(.testnet) }
     /// The tags as one line under the chain's name.
@@ -24,7 +23,6 @@ struct ChainSelectionDescriptor: Identifiable {
         self.artworkName = entry.artworkName
         self.color = entry.color.color
         self.tags = entry.tags
-        self.searchKeywords = entry.searchKeywords
     }
 
     /// `chains` in the catalog's popular order. A testnet shares its mainnet's
@@ -36,10 +34,11 @@ struct ChainSelectionDescriptor: Identifiable {
             .map { ChainSelectionDescriptor(chain: $0.chain, entry: $0.entry) }
     }
 
+    /// Core's match — name, symbol, keywords, tags — or what the chain and
+    /// its tags are called in the reader's language.
     func matches(_ query: String) -> Bool {
-        title.localizedCaseInsensitiveContains(query)
-            || symbol.localizedCaseInsensitiveContains(query)
-            || searchKeywords.contains { $0.localizedCaseInsensitiveContains(query) }
+        chainMatchesSearch(chain: id, query: query)
+            || title.localizedCaseInsensitiveContains(query)
             || tags.contains { $0.title.localizedCaseInsensitiveContains(query) }
     }
 }

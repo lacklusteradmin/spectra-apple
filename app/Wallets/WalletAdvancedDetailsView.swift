@@ -8,7 +8,7 @@ import SwiftUI
 /// page is only what the wallet holds.
 struct WalletAdvancedDetailsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     /// What core offers for managing the wallet, in its order.
     let manageOffers: [WalletActionOffer]
     let derivationPathsText: String?
@@ -16,7 +16,7 @@ struct WalletAdvancedDetailsView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var seedReveal = SeedPhraseRevealState()
     @State private var isShowingDeleteWalletAlert: Bool = false
-    private var displayedWallet: WalletView {
+    private var displayedWallet: WalletState {
         store.wallet(for: wallet.id) ?? wallet
     }
     private func offers(_ action: WalletAction) -> Bool { manageOffers.contains { $0.action == action } }

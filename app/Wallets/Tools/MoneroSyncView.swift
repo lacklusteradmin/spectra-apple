@@ -91,7 +91,7 @@ struct MoneroSyncView: View {
 /// the wallet was added, and the scan itself.
 struct WalletBlockScanView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
 
     var body: some View {
         ScrollView(showsIndicators: false) {

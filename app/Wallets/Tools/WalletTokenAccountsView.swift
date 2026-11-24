@@ -7,7 +7,7 @@ import SwiftUI
 /// through the same stages.
 struct WalletTokenAccountsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @State private var empty: EmptyTokenAccounts?
     @State private var error: String?
     @State private var isLoading = false
@@ -84,7 +84,7 @@ struct WalletTokenAccountsView: View {
 /// Building, signing and broadcasting one closure of every closable account.
 private struct CloseTokenAccountsView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
 
     var body: some View {
         WalletOperationSheet(

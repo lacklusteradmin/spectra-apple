@@ -66,7 +66,7 @@ struct StakingTransactionView: View {
                 reviewRow(AppLocalization.string("staking.action"), value: intent.action.localizedTitle)
                 reviewRow(
                     AppLocalization.string("Amount"),
-                    value: "\(AmountPresentation.localizedDecimal(artifact.amount)) \(artifact.symbol)")
+                    value: AmountPresentation.exactAmount(artifact.amount, symbol: artifact.symbol))
                 if intent.amount == nil {
                     Text(AppLocalization.string("staking.full_position_action")).font(.caption)
                         .foregroundStyle(.secondary)
@@ -124,7 +124,7 @@ struct StakingTransactionView: View {
                     reviewRow(
                         AppLocalization.string("staking.refundable_deposit"),
                         value:
-                            "\(AmountPresentation.localizedDecimal(deposit)) \(artifact.chainId.gasTokenSymbol)")
+                            AmountPresentation.exactAmount(deposit, symbol: artifact.chainId.gasTokenSymbol))
                 }
                 if review.rewardPayoutIsDelayed {
                     Text(AppLocalization.string("staking.delayed_reward_payout")).font(.caption)
@@ -134,6 +134,7 @@ struct StakingTransactionView: View {
                 Text(AppLocalization.string("staking.review_unavailable")).font(.caption).foregroundStyle(
                     .red)
             }
+            ReviewWarnings(artifact: artifact)
             Text(AppLocalization.string("staking.saved_review")).font(.caption).foregroundStyle(
                 .secondary)
         }.padding(SpectraLayout.cardPadding).spectraElevatedFill()
@@ -147,55 +148,33 @@ struct StakingTransactionView: View {
     }
 
     private var statusCard: some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-            if let transaction = progress.transaction {
-                Text(transaction.status.localizedTitle).font(.headline)
-                if let failure = transaction.localizedFailureReason {
-                    Text(verbatim: failure).font(.subheadline).foregroundStyle(.red)
-                }
-            } else {
-                Text(AppLocalization.string(artifact.stage == .prepared ? "Awaiting signing" : "Signed"))
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
+            SendStatusLabel(status: progress.status)
+            if let failure = progress.transaction?.localizedFailureReason {
+                Text(verbatim: failure).font(.subheadline).foregroundStyle(.red)
             }
-            if artifact.attempts.contains(where: { $0.outcome == .accepted }),
-                progress.transaction == nil || progress.transaction?.status == .pending
-            {
+            if progress.status == .awaitingConfirmation {
                 Text(AppLocalization.string("staking.submission_pending")).font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            if let hash = artifact.transactionHash {
-                Text(verbatim: hash).font(.caption.monospaced()).foregroundStyle(.secondary).textSelection(
-                    .enabled)
+            if !artifact.attempts.isEmpty {
+                Divider().opacity(0.4)
+                SubmissionResults(progress: progress)
             }
-            ForEach(Array(artifact.attempts.enumerated()), id: \.offset) { _, attempt in
-                VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-                    Text(verbatim: attempt.endpoint).font(.caption.monospaced())
-                    Label(attempt.outcome.title, systemImage: attempt.outcome.systemImage)
-                        .font(.subheadline.weight(.semibold)).foregroundStyle(attempt.outcome.color)
-                    Text(verbatim: attempt.detail).font(.caption).foregroundStyle(.secondary)
-                }
+            // The results name the hash until the chain settles it; a staking
+            // page has no receipt to name it after.
+            if progress.status.isSettled,
+               let hash = progress.transaction?.transactionHash ?? artifact.transactionHash {
+                Divider().opacity(0.4)
+                TransactionHashRow(hash: hash)
             }
-        }.padding(SpectraLayout.cardPadding).spectraCardFill()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(SpectraLayout.cardPadding).spectraCardFill()
     }
 
     private var destinations: some View {
-        VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-            Text(AppLocalization.string("Select submission nodes")).font(.headline)
-            ForEach(vm.session.endpoints, id: \.self) { endpoint in
-                Toggle(
-                    isOn: Binding(
-                        get: { vm.session.selectedEndpoints.contains(endpoint) },
-                        set: { selected in
-                            if selected {
-                                vm.session.selectedEndpoints.insert(endpoint)
-                            } else {
-                                vm.session.selectedEndpoints.remove(endpoint)
-                            }
-                        })
-                ) {
-                    Text(verbatim: endpoint).font(.caption.monospaced()).textSelection(.enabled)
-                }
-            }
-        }.padding(SpectraLayout.cardPadding).spectraCardFill().disabled(vm.isBusy)
+        BroadcastNodePicker(session: vm.session)
+            .padding(SpectraLayout.cardPadding).spectraCardFill().disabled(vm.isBusy)
     }
 }

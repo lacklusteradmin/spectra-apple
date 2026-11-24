@@ -13,13 +13,13 @@ extension AppState {
         walletImport.begin { $0.configure(chain: chain, method: method, upgrading: walletId) }
     }
     func cancelWalletImport() { walletImport.close() }
-    func beginEditingWallet(_ wallet: WalletView) {
+    func beginEditingWallet(_ wallet: WalletState) {
         walletImport.begin(editing: wallet) { $0.configureForEditing(wallet: wallet) }
     }
     /// Deletes a wallet the user has already confirmed. Nothing is held
     /// between the confirmation and the authentication, so a refused Face ID
     /// leaves no half-started deletion behind.
-    func deleteWallet(_ wallet: WalletView) async {
+    func deleteWallet(_ wallet: WalletState) async {
         if let failure = await authenticate(.deleteWallet, reason: AppLocalization.string("Authenticate to delete wallet")) {
             commandError = failure
             return

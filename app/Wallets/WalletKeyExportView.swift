@@ -30,7 +30,7 @@ extension WalletKeyKind {
 /// a minute.
 struct WalletKeyExportView: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     @Environment(\.scenePhase) private var scenePhase
     @State private var kinds: [WalletKeyKind] = []
     @State private var password = ""

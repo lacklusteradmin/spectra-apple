@@ -32,15 +32,8 @@ extension FundsFinderCandidate {
 extension DiagnosticLogInput {
     var chainName: String? { chainId?.displayName }
 }
-extension WalletView: @retroactive Identifiable {}
-extension WalletView {
-    /// This wallet's address on a chain. Slot resolution (including "every
-    /// EVM chain shares Ethereum's") lives in the Rust registry.
-    func address(on chain: Chain) -> String? {
-        let slot = chain.addressSlot
-        guard !slot.isEmpty else { return nil }
-        return addresses[slot]
-    }
+extension WalletState: @retroactive Identifiable {}
+extension WalletState {
     /// The network this wallet is on.
     var chain: Chain { chainId }
     /// The mainnet whose family this wallet belongs to.
@@ -179,24 +172,21 @@ extension TransactionRecord: @retroactive Identifiable {
         return String(format: copy.transactionSubtitleFormat, asset, walletName)
     }
     var badgeColor: Color {
-        switch kind {
-        case .send, .stake: return .red
-        case .receive, .withdraw, .claimRewards: return .green
-        case .unstake, .revokeApproval, .deleteAccessKey, .mergeCoins, .closeTokenAccounts, .refundTokenStorage,
-             .trustAsset, .removeTrustLine, .shield: return .secondary
+        switch direction {
+        case .outgoing: return .red
+        case .incoming: return .green
+        case .neutral: return .secondary
         }
     }
-    var isSubmittedOperation: Bool { transactionKindIsSubmitted(kind: kind) }
-    var amountDirection: TransactionDirection { transactionAmountDirection(kind: kind, amount: amount) }
     var amountSign: String {
-        switch amountDirection {
+        switch direction {
         case .incoming: return "+"
         case .outgoing: return "-"
         case .neutral: return ""
         }
     }
     var amountColor: Color {
-        switch amountDirection {
+        switch direction {
         case .incoming: return .spectraTransactionAmountColor(isReceive: true)
         case .outgoing: return .spectraTransactionAmountColor(isReceive: false)
         case .neutral: return .secondary
@@ -266,6 +256,6 @@ extension TransactionRecord: @retroactive Identifiable {
     }
 }
 
-extension WalletView {
+extension WalletState {
     var networkTitle: String { chainId.displayName }
 }

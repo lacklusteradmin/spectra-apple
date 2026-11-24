@@ -7,11 +7,12 @@ import SwiftUI
 /// `session` adopts its answers.
 struct SendArtifactStageSections: View {
     let store: AppState
-    let wallet: WalletView
+    let wallet: WalletState
     let session: SendSession
     /// Why the device asks to authenticate before signing.
     let authenticationReason: String
-    /// What the page says once the transaction is submitted.
+    /// What the page says once the transaction is submitted, until the chain
+    /// settles it.
     let submittedText: String
     /// Whether the page's own confirmation lets the transaction be signed.
     var canSign = true
@@ -41,18 +42,8 @@ struct SendArtifactStageSections: View {
                     }.disabled(!canSign || session.isBusy || (needsPassword && password.isEmpty))
                 }.onDisappear { password = "" }
             case .broadcast, .rebroadcast:
-                Section(AppLocalization.string("Broadcast To")) {
-                    ForEach(session.endpoints, id: \.self) { endpoint in
-                        Toggle(isOn: Binding(
-                            get: { session.selectedEndpoints.contains(endpoint) },
-                            set: { selected in
-                                if selected { session.selectedEndpoints.insert(endpoint) }
-                                else { session.selectedEndpoints.remove(endpoint) }
-                            }
-                        )) {
-                            Text(verbatim: endpoint).font(.caption.monospaced()).lineLimit(1)
-                        }
-                    }
+                Section {
+                    BroadcastNodePicker(session: session)
                     Button(AppLocalization.string(progress.next.title)) {
                         Task {
                             if await session.broadcast(submit: {
@@ -65,21 +56,19 @@ struct SendArtifactStageSections: View {
                                || (progress.next == .rebroadcast && !progress.canRebroadcast))
                 }
                 if !progress.artifact.attempts.isEmpty {
-                    Section(AppLocalization.string("Submission results")) {
-                        ForEach(Array(progress.artifact.attempts.enumerated()), id: \.offset) { _, attempt in
-                            VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-                                Text(verbatim: attempt.endpoint).font(.caption.monospaced()).lineLimit(1)
-                                Label(attempt.outcome.title, systemImage: attempt.outcome.systemImage)
-                                    .font(.subheadline.weight(.semibold)).foregroundStyle(attempt.outcome.color)
-                            }
-                        }
+                    Section {
+                        SendStatusLabel(status: progress.status)
+                        SubmissionResults(progress: progress)
                     }
                 }
             case .done:
                 Section {
-                    Label(submittedText, systemImage: "checkmark.circle.fill").foregroundStyle(.tint)
-                    if let hash = progress.artifact.transactionHash {
-                        Text(verbatim: hash).font(.caption2.monospaced()).textSelection(.enabled)
+                    SendStatusLabel(status: progress.status)
+                    if !progress.status.isSettled {
+                        Text(submittedText).font(.subheadline).foregroundStyle(.secondary)
+                    }
+                    if let hash = progress.transaction?.transactionHash ?? progress.artifact.transactionHash {
+                        TransactionHashRow(hash: hash)
                     }
                 }
             }

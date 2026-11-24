@@ -46,7 +46,7 @@ struct TransactionDetailView: View {
             .task(id: transaction.id) { await loadPaymentProof() }
             .pageSheet(isPresented: $isShowingPaymentProof) {
                 if let paymentProof {
-                    NavigationStack { MoneroPaymentProofView(proof: paymentProof) }
+                    NavigationStack { MoneroPaymentProofView(proof: paymentProof, chain: transaction.chainId) }
                 }
             }
     }
@@ -311,9 +311,9 @@ struct TransactionDetailView: View {
         var items: [TransactionTimelineItem] = [
             TransactionTimelineItem(
                 id: "recorded",
-                title: displayedTransaction.isSubmittedOperation ? "Created" : "Recorded",
+                title: displayedTransaction.submitted ? "Created" : "Recorded",
                 detail: displayedTransaction.fullTimestampText,
-                systemImage: displayedTransaction.isSubmittedOperation ? "paperplane.fill" : "arrow.down.circle.fill",
+                systemImage: displayedTransaction.submitted ? "paperplane.fill" : "arrow.down.circle.fill",
                 tint: .accentColor,
                 isComplete: true,
                 isCurrent: false
@@ -324,9 +324,9 @@ struct TransactionDetailView: View {
             items.append(
                 TransactionTimelineItem(
                     id: "network-hash",
-                    title: displayedTransaction.isSubmittedOperation ? "Broadcast" : "Detected",
+                    title: displayedTransaction.submitted ? "Broadcast" : "Detected",
                     // The hash is the Details card's; here, only that the network has it.
-                    detail: displayedTransaction.isSubmittedOperation
+                    detail: displayedTransaction.submitted
                         ? "The network accepted the transaction." : "Spectra found this transaction on the network.",
                     systemImage: "link",
                     tint: .accentColor,
