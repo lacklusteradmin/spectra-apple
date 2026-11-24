@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		90A5CA760000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A5CA750000000000000001 /* Assets.xcassets */; };
 		93C0DE012F80000100AAA001 /* SpectraCore in Frameworks */ = {isa = PBXBuildFile; productRef = 93C0DE032F80000100AAA001 /* SpectraCore */; };
 		91C100012F70000100AAA001 /* SpectraLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 91C100032F70000100AAA001 /* SpectraLiveActivityExtension.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -45,13 +44,19 @@
 
 /* Begin PBXFileReference section */
 		907491632F56D1E500D098D2 /* Spectra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Spectra.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		90A5CA750000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90AEE1792F5AFB43008CFE5E /* Spectra.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = Spectra.xctestplan; sourceTree = "<group>"; };
 		91B000012F5B000100AAA001 /* SpectraTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SpectraTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		91C100032F70000100AAA001 /* SpectraLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SpectraLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		90A5CA770000000000000001 /* Exceptions for "app" folder in "Spectra" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 907491622F56D1E500D098D2 /* Spectra */;
+		};
 		90F0BA0D2F5C4A76004E29F3 /* Exceptions for "extensions/SpectraLiveActivityExtension" folder in "SpectraLiveActivityExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -69,6 +74,9 @@
 		};
 		9074916C2F56D1E500D098D2 /* app */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				90A5CA770000000000000001 /* Exceptions for "app" folder in "Spectra" target */,
+			);
 			path = app;
 			sourceTree = "<group>";
 		};
@@ -85,9 +93,8 @@
 			path = extensions/SpectraLiveActivityExtension;
 			sourceTree = "<group>";
 		};
-		90AA000A2F60000100BBB001 /* SharedResources */ = {
+		90AA000A2F60000100BBB001 /* resources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			name = SharedResources;
 			path = resources;
 			sourceTree = "<group>";
 		};
@@ -122,12 +129,11 @@
 		9074915A2F56D1E500D098D2 = {
 			isa = PBXGroup;
 			children = (
-				90A5CA750000000000000001 /* Assets.xcassets */,
 				90AEE1792F5AFB43008CFE5E /* Spectra.xctestplan */,
 				9074916C2F56D1E500D098D2 /* app */,
 				9074916D2F56D1E500D098D2 /* extensions/SharedLiveActivities */,
 				907491712F56D1E600D098D2 /* extensions/SpectraLiveActivityExtension */,
-				90AA000A2F60000100BBB001 /* SharedResources */,
+				90AA000A2F60000100BBB001 /* resources */,
 				9074916B2F56D1E500D098D2 /* tests */,
 				907491642F56D1E500D098D2 /* Products */,
 			);
@@ -164,7 +170,7 @@
 			fileSystemSynchronizedGroups = (
 				9074916C2F56D1E500D098D2 /* app */,
 				9074916D2F56D1E500D098D2 /* extensions/SharedLiveActivities */,
-				90AA000A2F60000100BBB001 /* SharedResources */,
+				90AA000A2F60000100BBB001 /* resources */,
 			);
 			name = Spectra;
 			packageProductDependencies = (
@@ -270,7 +276,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90A5CA760000000000000001 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -411,6 +416,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -474,6 +480,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -490,13 +497,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Spectra.macOS.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = app/Spectra.macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -505,7 +512,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sheny.Spectra;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -526,13 +532,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Spectra.macOS.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = app/Spectra.macOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				ENABLE_PREVIEWS = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = app/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -541,7 +547,6 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.sheny.Spectra;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

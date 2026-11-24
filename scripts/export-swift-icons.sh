@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Syncs the icon sources into Assets.xcassets/:
+# Syncs the icon sources into app/Assets.xcassets/:
 #
 #   icons/appicon/         → AppIcon.appiconset/ (SVG → 1024×1024 PNG, and the
 #                            light icon again in the Mac's shape and sizes)
@@ -39,8 +39,8 @@ if ! compgen -G "$CRYPTO_SRC/*.svg" >/dev/null; then
   exit 2
 fi
 
-APPICON_DEST="$REPO_ROOT/Assets.xcassets/AppIcon.appiconset"
-CRYPTO_DEST="$REPO_ROOT/Assets.xcassets/crypto"
+APPICON_DEST="$REPO_ROOT/app/Assets.xcassets/AppIcon.appiconset"
+CRYPTO_DEST="$REPO_ROOT/app/Assets.xcassets/crypto"
 
 # ── helpers ────────────────────────────────────────────────────────────────────
 

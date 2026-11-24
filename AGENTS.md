@@ -164,10 +164,13 @@ pre-existing without evidence.
   core records and the catalogs built from them), `Components/` (shared views
   and design tokens), then one folder per feature — `Dashboard/`, `Wallets/`
   (with `Tools/`), `Send/`, `Receive/`, `History/`, `Staking/`, `Settings/`,
-  `Diagnostics/`, `Wiki/` — with a feature's state beside its views. The
-  folder is an Xcode synchronized group: adding or moving a file under it needs
-  no project edit, and file names stay unique across the module. The Live
-  Activity extension is in `extensions/`, the tests in `tests/`.
+  `Diagnostics/`, `Wiki/` — with a feature's state beside its views. The app
+  target's `Assets.xcassets/`, `Info.plist` and `Spectra.macOS.entitlements`
+  sit at its top level. The folder is an Xcode synchronized group: adding or
+  moving a file under it needs no project edit, and file names stay unique
+  across the module. `Info.plist` is excluded from the group's membership,
+  since the build reads it through `INFOPLIST_FILE`. The Live Activity
+  extension is in `extensions/`, the tests in `tests/`.
 - Name an extension file `<Type>+<Topic>.swift` (`AppState+SendFlow.swift`,
   `SendFlowState+Preview.swift`), a file of free functions or of extensions
   across several types after its topic, and any other file after its type.
@@ -203,7 +206,7 @@ as `RuntimeStrings.en.json`. Two rules follow:
 
 ## Icons
 
-Never edit `Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
+Never edit `app/Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
 generates its icons from two sources.
 
 - `icons/appicon/` holds the 1024-point app icon sources. They export as

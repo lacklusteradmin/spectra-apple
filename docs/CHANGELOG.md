@@ -1,5 +1,37 @@
 # Changelog
 
+## Beta Commit 258
+
+- **The app target's asset catalog, `Info.plist` and macOS entitlements are in
+  `app/`** (`app/Assets.xcassets/`, `app/Info.plist`,
+  `app/Spectra.macOS.entitlements`; before: the repository root). The build
+  settings and `scripts/export-swift-icons.sh` follow the new paths.
+  - `Assets.xcassets/` belongs to the target through the `app/` synchronized
+    group (before: a file reference of its own in the Resources phase).
+  - `app/Info.plist` is excluded from the group's membership, as the build
+    reads it through `INFOPLIST_FILE`.
+- **The `resources/` group is named `resources` in Xcode**
+  (`Spectra.xcodeproj`; before: `SharedResources`, though only the app target
+  uses it).
+- **The Live Activity extension's version follows the app's**
+  (`extensions/SpectraLiveActivityExtension/Info.plist`, `Spectra.xcodeproj`)
+  - The extension's `CFBundleShortVersionString` is `$(MARKETING_VERSION)`
+    (before: `1.0.0`).
+  - `MARKETING_VERSION` is a project setting every target inherits (before: set
+    on the app target alone).
+- **The source scans match a test module whose `#[path]` leaves its directory
+  with `..`** (`scripts/source_scan.py`; before: such a path did not equal the
+  listed file, and only a `tests/` directory in it marked the file as test
+  code). The real-file check in `scripts/test-source-scan.py` follows
+  spectra's substrate tests to `core/src/api/tests/substrate_json_rpc.rs`.
+- Docs: `AGENTS.md` (Swift conventions: what `app/` holds; Icons).
+- Total: no .swift files changed; 312 files moved, no lines changed:
+  `Assets.xcassets/` (310), `Info.plist`, `Spectra.macOS.entitlements`; config
+  files: `Spectra.xcodeproj/` (1), `scripts/export-swift-icons.sh`,
+  `scripts/source_scan.py`, `scripts/test-source-scan.py`,
+  `extensions/SpectraLiveActivityExtension/Info.plist`; tests passing in
+  `make test-ios` 153 → 153.
+
 ## Beta Commit 257
 
 - **A network fee is labelled with the asset it is paid in**
