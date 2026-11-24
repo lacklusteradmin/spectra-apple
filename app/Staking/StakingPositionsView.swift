@@ -77,7 +77,7 @@ struct StakingPositionsView: View {
     }
 
     private func amount(_ units: String) -> String {
-        "\(formatNativeAmount(chain: staking.chain, smallestUnit: units).map(AmountPresentation.localizedDecimal) ?? "—") \(staking.chain.gasTokenSymbol)"
+        "\(formatNativeAmount(chain: staking.chain, smallestUnit: units).map(AmountPresentation.localizedDecimal) ?? "—") \(staking.chain.coinSymbol)"
     }
 
     private func time(_ unix: UInt64) -> String {

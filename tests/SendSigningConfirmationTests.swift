@@ -52,7 +52,7 @@ struct SendSigningConfirmationTests {
         let message = sendSigningConfirmationMessage(artifact: built, amounts: amounts)
         #expect(message.contains(AppLocalization.format("Network Fee: %@", "")))
         #expect(message.contains("≈ " + AmountPresentation.localizedDecimal("0.00042")))
-        #expect(message.contains(Chain.ethereum.gasTokenSymbol))
+        #expect(message.contains(Chain.ethereum.coinSymbol))
         built.review.networkFee = NetworkFee(amount: "0.00042", bound: .atMost, value: nil)
         #expect(sendSigningConfirmationMessage(artifact: built, amounts: amounts)
             .contains("≤ " + AmountPresentation.localizedDecimal("0.00042")))

@@ -187,8 +187,8 @@ struct WalletSecretStep: View {
         }
     }
     /// A named account the key controls, on a network that has them. The
-    /// import confirms on the network that the key is one of its full-access
-    /// keys before the wallet is added.
+    /// import confirms on the network that the key controls it before the
+    /// wallet is added.
     @ViewBuilder
     private var namedAccountCard: some View {
         if draft.asksNamedAccount {
@@ -198,7 +198,7 @@ struct WalletSecretStep: View {
                     .textInputAutocapitalization(.never).autocorrectionDisabled().font(.body.monospaced())
                     .padding(SpectraLayout.Space.m).spectraInputFieldStyle()
                 Text(AppLocalization.string(
-                    "If this key controls a named account, enter it. Adding the wallet checks on the network that the key is one of its full-access keys."
+                    "If this key controls a named account, enter it. Adding the wallet checks on the network that the key controls that account."
                 )).font(.caption).foregroundStyle(.secondary)
             }
             .padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill()

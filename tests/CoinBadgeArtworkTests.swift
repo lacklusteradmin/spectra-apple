@@ -53,7 +53,7 @@ struct CoinBadgeArtworkTests {
         for chain in Chain.all {
             let native = try #require(AssetHolding.nativeChainBadge(for: chain), "\(chain.displayName)")
             let badge = CoinBadge(
-                artworkName: native.artworkName, fallbackText: chain.gasTokenSymbol, color: native.color)
+                artworkName: native.artworkName, fallbackText: chain.coinSymbol, color: native.color)
             #expect(PlatformImage(named: badge.artworkName) != nil, "\(chain.displayName) drew a letter")
         }
         let base = CoinBadge(

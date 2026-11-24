@@ -52,6 +52,8 @@ extension DerivationProfile {
         case .nestedSegWit: AppLocalization.string("Nested SegWit")
         case .nativeSegWit: AppLocalization.string("Native SegWit")
         case .taproot: AppLocalization.string("Taproot")
+        case .ecdsa: AppLocalization.string("ECDSA")
+        case .evm: AppLocalization.string("EVM")
         }
     }
 }

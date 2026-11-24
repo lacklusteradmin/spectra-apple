@@ -122,7 +122,7 @@ struct StakingTransactionView: View {
                     SpectraValueRow(
                         label: AppLocalization.string("staking.refundable_deposit"),
                         value:
-                            AmountPresentation.exactAmount(deposit, symbol: artifact.chainId.gasTokenSymbol))
+                            AmountPresentation.exactAmount(deposit, symbol: artifact.chainId.coinSymbol))
                 }
                 if review.rewardPayoutIsDelayed {
                     Text(AppLocalization.string("staking.delayed_reward_payout")).font(.caption)

@@ -27,7 +27,7 @@ struct WalletMultisigView: View {
                     AddressEntryRow(
                         title: AppLocalization.string("Recipient"), text: $recipient, chain: wallet.chainId,
                         contacts: store.addressBook.entries.filter { $0.chainId == wallet.chainId })
-                    TextField(AppLocalization.format("Amount (%@)", wallet.chainId.gasTokenSymbol), text: $amount)
+                    TextField(AppLocalization.format("Amount (%@)", wallet.chainId.coinSymbol), text: $amount)
                         .keyboardType(.decimalPad)
                     if case let kinds = paymentMemoKinds(chain: wallet.chainId), !kinds.isEmpty {
                         SendPaymentMemoField(kinds: kinds, kind: $memoKind, text: $memo)
@@ -209,7 +209,7 @@ private struct MultisigSessionView: View {
     }
 
     private func amount(_ smallestUnit: String) -> String {
-        "\(formatNativeAmount(chain: session.chain, smallestUnit: smallestUnit).map(AmountPresentation.localizedDecimal) ?? smallestUnit) \(session.chain.gasTokenSymbol)"
+        "\(formatNativeAmount(chain: session.chain, smallestUnit: smallestUnit).map(AmountPresentation.localizedDecimal) ?? smallestUnit) \(session.chain.coinSymbol)"
     }
 
     var body: some View {

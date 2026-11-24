@@ -168,7 +168,7 @@ struct SendNetworkStep: View {
             } else if let quote {
                 Text(networkFeeText(quote, chain: chain)).font(.subheadline.weight(.semibold))
                 if !selectedCoin.isNativeCoin {
-                    Text(AppLocalization.format("Token transfers on %@ pay network fees in %@. Keep a %@ balance for fees.", chainName, chain.gasTokenSymbol, chain.gasTokenSymbol))
+                    Text(AppLocalization.format("Token transfers on %@ pay network fees in %@. Keep a %@ balance for fees.", chainName, chain.feeSymbol, chain.feeSymbol))
                         .font(.caption).foregroundStyle(.secondary)
                 }
             } else if let error = store.sendFlow.previewError {

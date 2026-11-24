@@ -164,7 +164,7 @@ private struct ReceiveAddressView: View {
                 HStack(spacing: SpectraLayout.Space.s) {
                     TextField(AppLocalization.string("Amount"), text: $requestedAmount)
                         .keyboardType(.decimalPad).monospacedDigit()
-                    Text(verbatim: chain.gasTokenSymbol).foregroundStyle(.secondary)
+                    Text(verbatim: chain.coinSymbol).foregroundStyle(.secondary)
                 }
                 .padding(SpectraLayout.Space.m)
                 .spectraInputFieldStyle()

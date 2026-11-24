@@ -19,7 +19,7 @@ struct ChainSelectionDescriptor: Identifiable {
     init(chain: Chain, entry: ChainEntry) {
         self.id = chain
         self.titleKey = entry.name
-        self.symbol = entry.gasTokenSymbol
+        self.symbol = entry.coinSymbol
         self.artworkName = entry.artworkName
         self.color = entry.color.color
         self.tags = entry.tags

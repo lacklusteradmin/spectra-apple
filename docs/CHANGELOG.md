@@ -1,11 +1,43 @@
 # Changelog
 
-## Uncommitted
+## Beta Commit 257
 
-- **Core's error field is `reason`** (`app/App/SecureStores.swift`
-  `SecretStoreError.Backend(reason:)`; `tests/StakingStateTests.swift`): core
-  renamed the field every `SpectraBridgeError` and `SecretStoreError` variant
-  called `message`, which the Kotlin bindings could not carry.
+- **A network fee is labelled with the asset it is paid in**
+  (`Chain.feeSymbol`; `app/Models/AmountPresentation.swift`
+  `formattedNetworkFee`, `compactNetworkFee`; `app/Send/SendNetworkStep.swift`):
+  core's `ChainEntry.fee_symbol`, VTHO on VeChainThor (before: the coin's
+  symbol, VET).
+- **The new import formats and derivation profiles have titles**
+  (`WalletSecretFormat.title`, `DerivationProfile.title`): Algorand's 25-word
+  mnemonic, Tezos's `edsk` key, a Stark key, Hedera's DER key, and the ECDSA
+  and EVM profiles, in all three languages.
+- **Twenty-five icons** (`Assets.xcassets/crypto/`: `akash`, `algorand`,
+  `allora`, `astar`, `babylon`, `band`, `celestia`, `cosmos`, `digibyte`,
+  `dydx`, `dymension`, `ecash`, `filecoin`, `fractalbitcoin`, `hedera`,
+  `injective`, `kusama`, `osmosis`, `qtum`, `saga`, `starknet`, `terra`,
+  `tezos`, `vechain`, `vtho`), exported from core's library: 24 of the 25
+  mainnets core adds (Kava's icon was already there) and VTHO.
+- **The named-account hint names no NEAR term** (`app/Wallets/WalletSecretStep.swift`):
+  the import checks that the key controls the account (before: "one of its
+  full-access keys"), as Hedera's named accounts also use the field.
+- **Core's 35 new sentences are translated** (`resources/strings/`): the
+  refusals and import messages of the 25 mainnets core adds, and the text
+  memo's per-network length.
+- **A test no longer carries a removed test's doc comment**
+  (`tests/AppStateTests.swift`
+  `aRenameThatLandsAfterADeleteDoesNotResurrectTheWallet`; before: the
+  comment of `aWalletAnswersForItsOwnChainsAndNoOthers`, removed in Beta
+  Commit 253).
+- Tests: 0 new; `ImportMethodTests` also guards Hedera offering no created
+  phrase.
+- Docs: `CHANGELOG.md` (the sections from "Take the core as the spectra
+  submodule" to Beta Commit 256, matched to their commits).
+- Total: 24 .swift files changed, +52 −41 lines; data and resource files:
+  `resources/strings/` (3), `Assets.xcassets/crypto/` (25 new); tests passing
+  in `make test-ios` 153 → 153.
+
+## Beta Commit 256
+
 - **A TON payment takes a comment** (`app/Send/SendPaymentMemoField.swift`
   `PaymentMemoKind.comment`): the memo field core offers on TON is titled
   Comment and types text; "Comment", core's comment length rule and its
@@ -15,19 +47,25 @@
   `metis`, `peaq`, `robinhood`, `somnia`, `stable`, `xdc`), exported from
   core's library for the sixteen EVM mainnets core adds.
 - Tests: 0 new; `SendPaymentMemoTests` also guards TON's memo kinds.
+- Total: 4 .swift files changed, +9 −7 lines; resource files:
+  `resources/strings/` (3), `Assets.xcassets/crypto/` (16 new); test
+  functions unchanged at 153.
 
 ## Beta Commit 255
 
 - **Builds, tests and screenshots use the iPhone Air simulator alone**
-  (`AGENTS.md` "Verification"): its UDID, what to do when it is missing, and
-  asking before a second device or an experiment on its stored wallet.
-- **An address hint is built from core's `addressPrefixHint` on every chain**
+  (`AGENTS.md` "Verification"): its UDID, what to do when it is missing,
+  asking before a second device, and backing up its store before an
+  experiment on the wallet it may hold.
+- **An address hint is built from core's `addressPrefixHint` on every chain
+  that has one**
   (`app/Settings/AddressBookState.swift` `addressBookAddressValidationMessage`)
   - The hint for an empty or invalid address has no per-chain sentence (before:
     11 chains read `addressHint.<chain id>.empty` or `.invalid` first); the 22
     keys are removed in all three languages.
-  - `scripts/unused-strings.py` counts a dotted key reached only through
-    `"<namespace>.\(…)"` (before: `"<namespace>_\(…)"` too).
+  - `scripts/unused-strings.py` takes a key's namespace up to its first dot
+    and counts the key reached through `"<namespace>.\(…)"` alone (before: up
+    to its first dot or underscore, and through `"<namespace>_\(…)"` too).
 - **The transaction page draws its rows with the shared components**
   (`app/History/TransactionDetailView.swift`)
   - The hash, a technical identifier and the From and To addresses copy
@@ -82,13 +120,15 @@
     key, so text already localized was looked up again, among it a node's
     own failure message on the transaction timeline).
 - **Hide Balances masks the balances the send, staking and wallet tool pages
-  showed** (`BalanceText`, `LabeledContent(_:balance:isHidden:)`)
+  showed** (`BalanceText`, `LabeledContent(_:balance:isHidden:)`,
+  `SpectraValueRow(…, isHidden:)`)
   - Masked: each asset's balance on Send's asset page; Available to Send and
     the wallet balance under it; Available on the staking page; the MWEB
     page's Spendable and Pending, and the shielded page's with Transparent,
     to Shield; the network account's Balance, Spendable, Free, Reserved,
-    Frozen, Transferable, Locked Stake and Rewards; and the coins page's
-    maturing amount, coins and address balances (before: shown while Hide
+    Frozen, Transferable, Locked Stake and Rewards; the coins page's maturing
+    amount, coins and address balances; and a staking position's staked,
+    unbonding, withdrawable and reward amounts (before: shown while Hide
     Balances was on).
   - `BalanceText` takes the sentence a balance sits in and masks the balance
     alone; VoiceOver hears "Hidden" in its place.
@@ -107,9 +147,9 @@
     `CoreReferenceTables.endpointGroups(for:)` and `.donationDestinations`,
     read once (before: `AppEndpointDirectory`, and `donationDestinations()`
     called on every read).
-  - The Report a Problem address is a constant in `SettingsView` (before:
-    `resources/AppLinks.json`, read through `AppLinks`, which stopped the app
-    if the file was missing; both deleted).
+- **The Report a Problem address is a constant in `SettingsView`** (before:
+  `resources/AppLinks.json`, read through `AppLinks`, which stopped the app if
+  the file was missing; both deleted).
 - **Notification permission is asked with the async API**
   (`PlatformNotifications.requestPermission`): a failure is logged under
   Notifications (before: a completion handler that dropped it).
@@ -117,15 +157,14 @@
   `TorToolbarIndicator`): the toolbar holds it only while Tor runs, connects
   or fails, so its stopped colour, with a macOS branch, and the "Tor off"
   string in all three languages are removed.
-- **`SendSessionTests` runs on `.isolatedAppState`**: its `AppState` test has
-  the test secret store, and its directory goes after the queued writes
-  finish (before: its own service, bridge and directory).
 - **The send-authentication preference is `authenticateSends`**
   (`AppUserPreferences`; before: `requireBiometricForSendActions`, a name
   without Touch ID, Optic ID or the passcode): it is stored under
   `settings.platform.authenticateSends`, so a value stored under the old key
   is not read and the preference starts on.
-- **The app adopts core's narrower state and its new answers**.
+- **The app adopts core's narrower state and its new answers** (`AppState`,
+  `DashboardView`, `ReceiveView`, `WalletRefreshObserver`,
+  `AddCustomEndpointView`)
   - A command, the store opening, a reset and each portfolio snapshot give
     the app a `CommittedState`, read with `committedState()` (before: the
     whole `ResidentState`, through `appState()`); the quote notices come from
@@ -140,26 +179,22 @@
   - The refresh observer's `onBalanceRefreshed` re-reads the portfolio only
     after a balance landed (before: `onBalanceUpdated`, with a `WalletState`
     it ignored).
-  - The custom-endpoint form sends the chosen API as `EndpointApi`, and the
-    reset and TON version lists are core's `resetScopes()` and
-    `tonWalletVersions()` (before: written out in Swift).
-- **A staking position's amounts follow Hide Balances**
-  (`StakingPositionsView`; `SpectraValueRow` gains `isHidden`): the staked,
-  unbonding, withdrawable and reward amounts are masked as `BalanceText`
-  masks a balance (before: shown while balances were hidden).
+  - The custom-endpoint form sends the chosen API as `EndpointApi` (before:
+    the option's string id), and the reset and TON version lists are core's
+    `resetScopes()` and `tonWalletVersions()` (before: written out in Swift).
 - Tests: 5 new
   - Found-account import 5: a scanned account imported with a changed phrase,
     passphrase or password, or deriving elsewhere than it was found; choosing
     a used account disturbing the rest of the form.
-- Docs: `IOS-UI.md` "Design baseline" (balances) and the label/value row
-  (identifiers); `ARCHITECTURE.md` "Presentation" (`CoreReferenceTables`,
-  localization and finished text); `AGENTS.md` "Verification".
+- Docs: `IOS-UI.md` "Design baseline" (balances) and "Examples in the app"
+  (the label/value row's identifiers); `ARCHITECTURE.md` "Presentation"
+  (`CoreReferenceTables`, localization and finished text); `AGENTS.md`
+  "Verification".
 - Total: 95 .swift files changed (2 new, 1 deleted), +930 −992 lines; data
   and config files: `resources/strings/RuntimeStrings.en.json`,
   `resources/strings/RuntimeStrings.zh-Hans.json`,
   `resources/strings/RuntimeStrings.zh-Hant.json`, `resources/AppLinks.json`
-  (deleted), `scripts/unused-strings.py`; dependencies unchanged; test
-  functions 148 → 153.
+  (deleted), `scripts/unused-strings.py`; test functions 148 → 153.
 
 ## Beta Commit 254
 
@@ -168,20 +203,24 @@
   `DiagnosticsViews.swift`; `DiagnosticsExportsBrowserView.swift` deleted)
   - The export is written to the temporary directory and handed to the share
     sheet (before: kept in `Documents/Diagnostics Bundles`, which no reset
-    cleared).
+    cleared); bundles already kept there stay on disk, and nothing lists or
+    deletes them.
   - "Import Diagnostics Bundle", which showed a date and dropped the rest,
-    and the "Past Exports" browser are removed, with their seven strings in
-    all three languages; the notice reads "Diagnostics bundle ready to
-    share."
+    and the "Past Exports" browser are removed, with their six strings in all
+    three languages; the notice reads "Diagnostics bundle ready to share."
+    (before: "Diagnostics exported to %@").
 - **`make apple` needs the current stable Rust** (`README.md`): spectra no
   longer pins a toolchain.
-- **Every label/value row is one `SpectraValueRow`**
+- **Detail, review, fee and wiki rows are one `SpectraValueRow`**
   (`app/Components/SpectraValueRow.swift`; before: `TransactionDetailRow`,
   `SendSummaryRow`, `WalletDetailRow` and the private `valueRow`,
   `amountRow`, `reviewRow` and `wikiStatRow`)
   - The staking review and a wallet's Details section put a label and its
     value side by side while both fit (before: the label always above its
     value); their values stay selectable.
+  - The send page's preview rows and a chain wiki page's facts put the value
+    under the label when both do not fit (before: always side by side).
+  - Each row is one VoiceOver element (before: only `SendSummaryRow`'s).
   - A staking position's amounts and unlock times are rows at the detail
     size (before: caption-size rows).
   - The network account page's amounts are `LabeledContent` rows, as on the
@@ -209,8 +248,10 @@
     `BalanceRefreshTests`, `SpectraSecretStoreAdapterTests` and
     `AppStateTests`, with the files `MoneroSyncStateTests.swift`,
     `BalanceRefreshTests.swift` and `SpectraSecretStoreAdapterTests.swift`
-    (before: named for view models, a refresh planner and a seed store that
-    do not exist).
+    (before: `StakingViewModelTests`, `MoneroSyncViewModelTests`,
+    `WalletRefreshPlannerTests`, `SecureSeedStoreTests` and
+    `AppStatePlatformBridgeTests`, three named for view models, a refresh
+    planner and a seed store that do not exist).
 - **`scripts/swift-shell-literals.py` has no allowlist** (before: one entry
   for a `"Base"` literal no file holds), and its docstring names
   `AmountPresentation` (before: two functions that do not exist).
@@ -219,22 +260,22 @@
   the Mac build, `AppState` and its domains, `SendFlowState` and
   `SendSession`, the presentation catalogs and the rules that keep the shell
   thin, moved from spectra's `docs/ARCHITECTURE.md`.
-- Tests: none new or removed; the diagnostics bundle test also fails an
-  export kept outside the temporary directory, and reads the file as JSON
-  (before: through the deleted import).
+- Tests: 0 new; the diagnostics bundle test also fails an export kept
+  outside the temporary directory, and reads the file as JSON (before:
+  through the deleted import).
 - Docs: `ARCHITECTURE.md` (new); `IOS-UI.md` "Design baseline" (dividers),
-  the label/value row, the design-token check, the shared helpers and the
-  examples; `SWIFT-BINDINGS.md` "Common errors" (the `Codable` and key-path
-  rows); `scripts/README.md` (`check-design-tokens.py`); `AGENTS.md` "Docs"
-  and "Resources"; `README.md` (the Rust toolchain).
+  "Corner radii" (the design-token check, the shared helpers), "Examples in
+  the app" (the label/value row, the renamed files); `SWIFT-BINDINGS.md`
+  "Common errors" (the `Codable` and key-path rows); `scripts/README.md`
+  (`check-design-tokens.py`); `AGENTS.md` "Docs" and "Resources";
+  `README.md` (the Rust toolchain).
 - Total: 51 .swift files changed (2 new, 1 deleted, 9 renamed), +565 −731
   lines; data and config files:
   `resources/strings/RuntimeStrings.en.json`,
   `resources/strings/RuntimeStrings.zh-Hans.json`,
   `resources/strings/RuntimeStrings.zh-Hant.json`,
   `docs/LocalizationGlossary.json` (deleted), `scripts/check-design-tokens.py`,
-  `scripts/swift-shell-literals.py`; dependencies unchanged; test functions
-  unchanged at 148.
+  `scripts/swift-shell-literals.py`; test functions unchanged at 148.
 
 ## Beta Commit 253
 
@@ -249,25 +290,25 @@
   `parseWalletDerivationInput`).
 - **Tests put wallets in core through its import** (`tests/AppStateTests.swift`
   `importWalletForTesting`, `tests/RefreshPlannerTests.swift`; before: an
-  `upsertWallet` state command with a `WalletState` built in Swift, whose helper
-  `WalletView.walletState()` is deleted from
-  `tests/CoreModelsTestSupport.swift`): wallets are imported from a phrase core
-  generates in the chain's format, or watched at an address derived that way;
-  the send composer test hands its funded wallet to the snapshot as view state;
-  the `WalletState` fixture (before: `WalletView`) takes `WalletDerivationFlags`
-  in place of override values and one `address`; no test sends
-  `mergeBuiltInTokens`, and a token test reads `appState()`.
+  `upsertWallet` state command with a `WalletState` built by
+  `WalletView.walletState()`, deleted from `tests/CoreModelsTestSupport.swift`)
+  - A wallet is imported from a phrase core generates in the chain's format;
+    the watch round-trip test watches an address derived that way, and the
+    refresh test a fixed EVM address.
+  - The send composer test hands its funded wallet to the snapshot as view
+    state.
+  - No test sends `mergeBuiltInTokens`; the token screens test reads
+    `appState()`.
 - **`docs/CHANGELOG.md` records what each commit changed, newest first, from the
-  Initial Commit on**, written from the git history; `AGENTS.md` gains a
-  "CHANGELOG" section on how it is written and tidied before a commit, and its
-  Git rule points there.
+  Initial Commit on**; `AGENTS.md` gains a "CHANGELOG" section on how it is
+  written and tidied before a commit, and its Git rule points there.
 - **An export counts as reached only by production Swift**
   (`scripts/unreachable-exports.py`; `docs/SWIFT-BINDINGS.md` "Callers")
   - The CLI's calls no longer keep an export alive: core's CLI links core as
     Rust.
-  - The allowlist holds `tor_status`, which the Tor test reads because a
-    test's `AppState` installs no `RefreshObserver` (before: `new` and two
-    names no longer in core).
+  - The allowlist adds `tor_status`, which the Tor test reads because a
+    test's `AppState` installs no `RefreshObserver`, and drops two names no
+    longer in core.
   - Tests stop calling exports only they reached: the pinned-assets test
     drops its `dashboardPinOptions` read, the pending-sweep bridge test is
     removed, and the colour test lists `listAllBuiltinTokenDeployments`.
@@ -287,11 +328,14 @@
     red).
   - The history source row names `historySource`'s indexer; the
     `%@ providers` string is removed in all three languages.
-- **A staking action's signing confirmation is the send's, with its fee and
-  warnings, and its review lists core's warnings**
-  (`sendSigningConfirmationMessage(artifact:amounts:action:)`;
-  `app/Components/ReviewWarnings.swift`, used by `SendStagesView` and
-  `StakingTransactionView`)
+- **A staking action is confirmed and reviewed as a send is**
+  (`WalletStakingView`, `StakingTransactionView`)
+  - Its signing confirmation is
+    `sendSigningConfirmationMessage(artifact:amounts:action:)`, which adds the
+    network fee and the review warnings (before: the action, amount,
+    validator and recipient only).
+  - Its review lists core's warnings (`app/Components/ReviewWarnings.swift`,
+    shared with `SendStagesView`).
 - **Exact amounts read in the reader's decimal separator everywhere**
   (`AmountPresentation.exactAmount(_:symbol:)`): the MWEB, shielded,
   network-account and coins pages (before: core's string with a `.`), and
@@ -313,9 +357,11 @@
     the nodes' answers, and the staking page in a fourth way).
   - The node picker and the submission results are one each (before:
     written in `SendStagesView`, `StakingTransactionView` and
-    `SendArtifactStageSections`); a wallet tool's page now has the empty
-    selection warning, each answer's details and the transaction hash, and a
-    staking page keeps each answer's details behind a disclosure.
+    `SendArtifactStageSections`). A wallet tool's and a staking page now have
+    the picker's explanation and empty-selection warning, and the hash row's
+    copy button (before: selectable text); a wallet tool's page shows each
+    answer's details, and a staking page puts them behind a disclosure
+    (before: always shown).
   - A wallet tool's page names the status once submitted and says its
     submitted text only until the chain settles it; its "Broadcast To"
     heading, whose string is removed in all three languages, is the picker's
@@ -336,8 +382,7 @@
   files: `resources/strings/RuntimeStrings.en.json`,
   `resources/strings/RuntimeStrings.zh-Hans.json`,
   `resources/strings/RuntimeStrings.zh-Hant.json`,
-  `scripts/unreachable-exports.py`; dependencies unchanged; test functions
-  149 → 148.
+  `scripts/unreachable-exports.py`; test functions 149 → 148.
 
 ## Beta Commit 252
 
@@ -353,9 +398,9 @@
   which `AGENTS.md` tells the reader to read.
 - Docs: `AGENTS.md` "Repositories" and "Icons"; `README.md`;
   `SWIFT-BINDINGS.md`; `OPEN-ITEMS.md`; `scripts/README.md`.
-- Total: no .swift files changed, +139 −155 lines; data and config files:
-  `scripts/` (4), `.gitignore`, `Makefile`, `Spectra.xcodeproj/` (1);
-  dependencies unchanged; test functions unchanged at 149.
+- Total: no .swift files changed; data and config files:
+  `scripts/` (4), `.gitignore`, `Makefile`, `Spectra.xcodeproj/` (1); test
+  functions unchanged at 149.
 
 ## Beta Commit 251
 
@@ -365,15 +410,15 @@
   package; the scripts, `.gitignore` and docs follow the new paths, and the
   source scans read `app/` and `extensions/`. Behaviour unchanged.
 - Docs: `AGENTS.md`, `README.md`, `IOS-UI.md`, `SWIFT-BINDINGS.md` (paths).
-- Total: 221 .swift files changed, +56 −54 lines; data and config files:
+- Total: 221 .swift files moved, no lines changed; data and config files:
   `Assets.xcassets/crypto/` (215), `Assets.xcassets/AppIcon.appiconset/` (11),
   `scripts/` (7), `.gitignore`, `Assets.xcassets/AccentColor.colorset/` (1),
   `Assets.xcassets/` (1), `Info.plist`, `Makefile`,
   `Spectra.macOS.entitlements`, `Spectra.xcodeproj/` (1),
   `Spectra.xcodeproj/project.xcworkspace/` (1),
   `Spectra.xcodeproj/xcshareddata/` (1), `Spectra.xctestplan`,
-  `extensions/SpectraLiveActivityExtension/` (1); dependencies unchanged; test
-  functions unchanged at 149.
+  `extensions/SpectraLiveActivityExtension/` (1); test functions unchanged at
+  149.
 
 ## Beta Commit 250
 
@@ -394,10 +439,10 @@
 - Docs: `SWIFT-BINDINGS.md` ("The core package", "Changing the Rust API", common
   errors); `AGENTS.md` "Repositories"; `README.md`; `OPEN-ITEMS.md`;
   `scripts/README.md`.
-- Total: 166 .swift files changed, +406 −472 lines; data and config files:
+- Total: 166 .swift files changed, +198 −31 lines; data and config files:
   `scripts/` (5), `.cargo/` (1), `.github/workflows/` (1), `.gitignore`,
-  `.gitmodules`, `Makefile`, `spectra`, `swift/Spectra.xcodeproj/` (1);
-  dependencies unchanged; test functions unchanged at 149.
+  `.gitmodules`, `Makefile`, `spectra`, `swift/Spectra.xcodeproj/` (1); test
+  functions unchanged at 149.
 
 ## Take the core as the spectra submodule
 
@@ -417,10 +462,9 @@
   app work (the two Mac items); `AGENTS.md` "Repositories" and Verification
   (four targets); `README.md`; `scripts/README.md`; three Swift comments point
   at `spectra/` paths.
-- Total: 3 .swift files changed, +228 −501 lines; data and config files:
+- Total: 3 .swift files changed, +3 −3 lines; data and config files:
   `scripts/` (7), `.github/workflows/` (1), `.gitignore`, `.gitmodules`,
-  `Makefile`, `spectra`; dependencies unchanged; test functions unchanged at
-  149.
+  `Makefile`, `spectra`; test functions unchanged at 149.
 
 ## Beta Commit 249
 

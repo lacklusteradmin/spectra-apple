@@ -18,7 +18,7 @@ struct MoneroPaymentProofView: View {
                 copyRow(AppLocalization.string("Transaction ID"), proof.txid)
                 copyRow(AppLocalization.string("Transaction Key"), proof.txKey)
                 copyRow(AppLocalization.string("Address"), proof.address)
-                LabeledContent(AppLocalization.string("Proves"), value: AmountPresentation.exactAmount(proof.amount, symbol: chain.gasTokenSymbol))
+                LabeledContent(AppLocalization.string("Proves"), value: AmountPresentation.exactAmount(proof.amount, symbol: chain.coinSymbol))
             } footer: {
                 Text(AppLocalization.string("Anyone with these three can see that this address received the amount, and nothing else about the wallet. Share them only with whoever needs to check the payment."))
             }

@@ -154,12 +154,12 @@ struct SendStagesView: View {
             if let carried = terms.carriedNative {
                 if terms.fee != "0" { Divider().opacity(SpectraLayout.dividerOpacity) }
                 LabeledContent(AppLocalization.string("Sent With It"),
-                               value: AmountPresentation.exactAmount(carried, symbol: artifact.chainId.gasTokenSymbol))
+                               value: AmountPresentation.exactAmount(carried, symbol: artifact.chainId.coinSymbol))
             }
             if let registration = terms.recipientRegistration {
                 if terms.fee != "0" || terms.carriedNative != nil { Divider().opacity(SpectraLayout.dividerOpacity) }
                 LabeledContent(AppLocalization.string("Recipient Registration"),
-                               value: AmountPresentation.exactAmount(registration, symbol: artifact.chainId.gasTokenSymbol))
+                               value: AmountPresentation.exactAmount(registration, symbol: artifact.chainId.coinSymbol))
             }
             if let program = terms.hookProgram {
                 if terms.fee != "0" || terms.carriedNative != nil || terms.recipientRegistration != nil {

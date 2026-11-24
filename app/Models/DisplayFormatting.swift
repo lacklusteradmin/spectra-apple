@@ -70,11 +70,11 @@ extension SendArtifact {
             case .carriesNative(let amount):
                 AppLocalization.format(
                     "The token goes with %@ %@, the least its output can hold; the recipient keeps it.",
-                    AmountPresentation.localizedDecimal(amount), chainId.gasTokenSymbol)
+                    AmountPresentation.localizedDecimal(amount), chainId.coinSymbol)
             case .registersRecipient(let deposit):
                 AppLocalization.format(
                     "The token has not registered the recipient. This send registers it first for %@ %@, which the token keeps for the recipient.",
-                    AmountPresentation.localizedDecimal(deposit), chainId.gasTokenSymbol)
+                    AmountPresentation.localizedDecimal(deposit), chainId.coinSymbol)
             case .transferHook(let program):
                 AppLocalization.format("This token runs program %@ on every transfer, and it can refuse this one.", program)
             }

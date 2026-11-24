@@ -165,7 +165,7 @@ struct WalletStakingView: View {
                 )
                 .keyboardType(.decimalPad).padding(SpectraLayout.Space.m).spectraInputFieldStyle()
                     .overlay(alignment: .trailing) {
-                        Text(verbatim: chain.gasTokenSymbol).font(.subheadline).foregroundStyle(.secondary)
+                        Text(verbatim: chain.coinSymbol).font(.subheadline).foregroundStyle(.secondary)
                             .padding(.trailing, SpectraLayout.Space.m)
                     }
                 // What there is to stake. No Max: what a stake must leave for

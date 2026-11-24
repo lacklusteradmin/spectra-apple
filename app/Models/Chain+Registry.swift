@@ -47,7 +47,10 @@ extension Chain: @retroactive Identifiable {
     var faucetURL: URL? { entry?.faucetUrl.flatMap(URL.init(string:)) }
 
     /// The network’s native token symbol, derived by core.
-    var gasTokenSymbol: String { entry?.gasTokenSymbol ?? "" }
+    var coinSymbol: String { entry?.coinSymbol ?? "" }
+    /// The symbol of the asset the network's fees are paid in: the coin's
+    /// own, or VTHO on VeChainThor.
+    var feeSymbol: String { entry?.feeSymbol ?? "" }
 
     /// The chain's native asset decimals, from the catalog. `nil` only if the
     /// enum and the catalog have drifted; a guessed precision would misstate

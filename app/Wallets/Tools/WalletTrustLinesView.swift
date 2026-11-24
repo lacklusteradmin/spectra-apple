@@ -25,7 +25,7 @@ struct WalletTrustLinesView: View {
                     } footer: {
                         Text(AppLocalization.format(
                             "Each trust line locks %@ %@ of reserve while it exists.",
-                            lines.reservePerLine, wallet.chainId.gasTokenSymbol))
+                            lines.reservePerLine, wallet.chainId.coinSymbol))
                     }
                 }
                 if !wallet.signing.isWatchOnly {

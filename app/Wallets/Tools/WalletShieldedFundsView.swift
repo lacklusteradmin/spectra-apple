@@ -82,7 +82,7 @@ struct WalletShieldedFundsView: View {
     }
 
     private func balanceSection(_ status: ZcashShieldedStatus) -> some View {
-        let symbol = wallet.chainId.gasTokenSymbol
+        let symbol = wallet.chainId.coinSymbol
         return Section {
             LabeledContent(AppLocalization.string("Spendable"), balance: AmountPresentation.exactAmount(status.spendable, symbol: symbol), isHidden: store.preferences.hideBalances)
             if status.pending != "0" {

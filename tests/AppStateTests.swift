@@ -34,10 +34,6 @@ struct AppStateTests: IsolatedAppStateSuite {
         #expect(message.contains("Transaction not found"))
     }
 
-    /// A wallet answers for the chains it was imported for and for no
-    /// others. It reads what core stored: the EVM family shares one slot,
-    /// so an Ethereum wallet answers for every EVM mainnet, and a
-    /// Solana wallet is not asked to produce a Bitcoin address.
     @Test func aRenameThatLandsAfterADeleteDoesNotResurrectTheWallet() async throws {
         let store = makeState()
         let wallet = try await store.importWalletForTesting("Probe", on: .ethereum)

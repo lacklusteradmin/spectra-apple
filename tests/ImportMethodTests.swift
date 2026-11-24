@@ -13,10 +13,13 @@ struct ImportMethodTests {
     }
 
     @Test func everyNetworkOffersAPhraseAndOnlyWhatItSupports() {
-        for chain in Chain.all {
+        // A Hedera account exists only once a transaction creates it, so a
+        // new phrase would hold none: Hedera imports a key whose account exists.
+        for chain in Chain.all where chain != .hedera {
             let offered = methods(chain)
             #expect(offered.starts(with: [.createPhrase, .importPhrase]), "\(chain.id)")
         }
+        #expect(methods(.hedera) == [.importPhrase, .importPrivateKey, .watchAddresses])
         // Monero needs scan keys: no raw key, and no watching an address alone.
         #expect(methods(.monero) == [.createPhrase, .importPhrase, .watchViewKey])
         #expect(!methods(.bitcoin).contains(.watchViewKey))
