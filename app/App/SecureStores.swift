@@ -192,22 +192,22 @@ final class SpectraSecretStoreAdapter: SecretStore, Sendable {
     func loadSecret(kind: SecretClass, key: String) throws -> String {
         do { return try Self.storage(kind).loadValue(for: key) }
         catch KeychainStoreError.missingValue { throw SecretStoreError.NotFound }
-        catch { throw SecretStoreError.Backend(message: String(describing: error)) }
+        catch { throw SecretStoreError.Backend(reason: String(describing: error)) }
     }
     func saveSecret(kind: SecretClass, key: String, value: String) throws {
         do { try Self.storage(kind).save(value, for: key) }
-        catch { throw SecretStoreError.Backend(message: String(describing: error)) }
+        catch { throw SecretStoreError.Backend(reason: String(describing: error)) }
     }
     func deleteSecret(kind: SecretClass, key: String) throws {
         do { try Self.storage(kind).deleteValue(for: key) }
-        catch { throw SecretStoreError.Backend(message: String(describing: error)) }
+        catch { throw SecretStoreError.Backend(reason: String(describing: error)) }
     }
     func wrapDeviceKey(key: Data) throws -> Data {
         do { return try DeviceKeyWrapping.wrap(key) }
-        catch { throw SecretStoreError.Backend(message: String(describing: error)) }
+        catch { throw SecretStoreError.Backend(reason: String(describing: error)) }
     }
     func unwrapDeviceKey(wrapped: Data) throws -> Data {
         do { return try DeviceKeyWrapping.unwrap(wrapped) }
-        catch { throw SecretStoreError.Backend(message: String(describing: error)) }
+        catch { throw SecretStoreError.Backend(reason: String(describing: error)) }
     }
 }

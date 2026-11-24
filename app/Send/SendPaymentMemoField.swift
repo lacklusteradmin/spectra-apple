@@ -22,7 +22,7 @@ struct SendPaymentMemoField: View {
                 .pickerStyle(.segmented)
             }
             TextField(AppLocalization.string("Optional"), text: $text)
-                .keyboardType(selected == .memoText ? .default : .numberPad)
+                .keyboardType(selected == .memoText || selected == .comment ? .default : .numberPad)
                 .textInputAutocapitalization(.never).autocorrectionDisabled().font(.body.monospaced())
                 .padding(.horizontal, SpectraLayout.Space.m)
                 .frame(minHeight: 44)
@@ -42,6 +42,7 @@ extension PaymentMemoKind {
         case .destinationTag: AppLocalization.string("Destination Tag")
         case .memoText: AppLocalization.string("Text Memo")
         case .memoId: AppLocalization.string("ID Memo")
+        case .comment: AppLocalization.string("Comment")
         }
     }
 }

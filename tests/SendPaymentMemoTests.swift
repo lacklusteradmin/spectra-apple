@@ -10,6 +10,7 @@ struct SendPaymentMemoTests: IsolatedAppStateSuite {
     @Test func memoFollowsCoreKindsAndTheSelectedHolding() {
         #expect(paymentMemoKinds(chain: .xrp) == [.destinationTag])
         #expect(paymentMemoKinds(chain: .stellar) == [.memoText, .memoId])
+        #expect(paymentMemoKinds(chain: .ton) == [.comment])
         #expect(paymentMemoKinds(chain: .ethereum).isEmpty)
 
         let flow = makeState().sendFlow

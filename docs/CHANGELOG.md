@@ -1,5 +1,21 @@
 # Changelog
 
+## Uncommitted
+
+- **Core's error field is `reason`** (`app/App/SecureStores.swift`
+  `SecretStoreError.Backend(reason:)`; `tests/StakingStateTests.swift`): core
+  renamed the field every `SpectraBridgeError` and `SecretStoreError` variant
+  called `message`, which the Kotlin bindings could not carry.
+- **A TON payment takes a comment** (`app/Send/SendPaymentMemoField.swift`
+  `PaymentMemoKind.comment`): the memo field core offers on TON is titled
+  Comment and types text; "Comment", core's comment length rule and its
+  refusal of a scanned code with a message body are translated.
+- **Sixteen network icons** (`Assets.xcassets/crypto/`: `0g`, `arc`,
+  `chiliz`, `flare`, `kaia`, `katana`, `kava`, `manta`, `megaeth`, `merlin`,
+  `metis`, `peaq`, `robinhood`, `somnia`, `stable`, `xdc`), exported from
+  core's library for the sixteen EVM mainnets core adds.
+- Tests: 0 new; `SendPaymentMemoTests` also guards TON's memo kinds.
+
 ## Beta Commit 255
 
 - **Builds, tests and screenshots use the iPhone Air simulator alone**

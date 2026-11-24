@@ -219,7 +219,7 @@ struct StakingStateTests: IsolatedAppStateSuite {
     @Test func aFailedBuildKeepsThePasswordAndShowsTheErrorAtTheForm() async throws {
         var operations = StakingTestSupport.operations()
         operations.build = { _, _ in
-            throw SpectraBridgeError.InvalidInput(message: LocalizableMessage(template: "Wrong password", args: []))
+            throw SpectraBridgeError.InvalidInput(reason: LocalizableMessage(template: "Wrong password", args: []))
         }
         let staking = StakingState(
             chain: .solana, bridge: bridge, operations: operations, authentication: { _ in nil })
