@@ -16,7 +16,7 @@ extension AppState {
         receiveFlow.isPresented = true
     }
     func syncReceiveAssetSelection() {
-        receiveFlow.holdingKey = selectedReceiveCoin(for: receiveFlow.walletId)?.holdingKey ?? ""
+        receiveFlow.holdingKey = selectedReceiveCoin(for: receiveFlow.walletId)?.id ?? ""
         receiveFlow.clearAddress()
     }
     func refreshReceiveAddress() async {
@@ -27,7 +27,7 @@ extension AppState {
         receiveFlow.isResolving = false
         guard let wallet = wallet(for: receiveFlow.walletId),
             let coin = selectedReceiveCoin(for: receiveFlow.walletId) else { return }
-        let chain = coin.chain
+        let chain = coin.chainId
         receiveFlow.isResolving = true
         defer {
             if receiveFlow.requestId == requestId { receiveFlow.isResolving = false }
@@ -36,7 +36,7 @@ extension AppState {
             let address = try await self.bridge.ready().receiveAddress(
                 walletId: wallet.id, chain: chain, reserve: true)
             guard !Task.isCancelled, receiveFlow.requestId == requestId,
-                receiveFlow.walletId == wallet.id, receiveFlow.holdingKey == coin.holdingKey else { return }
+                receiveFlow.walletId == wallet.id, receiveFlow.holdingKey == coin.id else { return }
             receiveFlow.resolvedAddress = address ?? ""
             if address == nil { receiveFlow.error = AppLocalization.string("No receive address is available for this wallet and network.") }
         } catch {
@@ -49,7 +49,7 @@ extension AppState {
     /// for the receive screen's symbol and icon. This does not select an address.
     func selectedReceiveCoin(for walletId: String) -> AssetHolding? {
         let receiveCoins = availableReceiveCoins(for: walletId)
-        return receiveCoins.first { $0.contractAddress == nil } ?? receiveCoins.first
+        return receiveCoins.first(where: \.isNativeCoin) ?? receiveCoins.first
     }
     var receiveEnabledWallets: [WalletState] { walletDerivedCache.receiveEnabledWallets }
     var canBeginReceive: Bool { !receiveEnabledWallets.isEmpty }

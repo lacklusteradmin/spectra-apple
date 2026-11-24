@@ -32,7 +32,7 @@ extension Binding {
 @MainActor @ViewBuilder
 func spectraDetailCard(title: String? = nil, @ViewBuilder content: () -> some View) -> some View {
     VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-        if let title { Text(AppLocalization.string(title)).font(.headline) }
+        if let title { Text(title).font(.headline) }
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) { content() }
     }.padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill()
 }
@@ -196,10 +196,10 @@ struct SpectraLoadingRow: View {
         HStack(spacing: SpectraLayout.Space.m) {
             SpectraLoadingGlyph(size: 30)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
-                Text(AppLocalization.string(title))
+                Text(title)
                     .font(.subheadline.weight(.semibold))
                 if let subtitle {
-                    Text(AppLocalization.string(subtitle))
+                    Text(subtitle)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -226,7 +226,7 @@ struct SpectraEmptyStateCard: View {
             SpectraEmptyStateContent(title: title, message: message, systemImage: systemImage)
             if let actionTitle, let action {
                 Button(action: action) {
-                    Label(AppLocalization.string(actionTitle), systemImage: actionSystemImage)
+                    Label(actionTitle, systemImage: actionSystemImage)
                         .font(.subheadline.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, SpectraLayout.Space.s)
@@ -255,9 +255,9 @@ struct SpectraEmptyStateContent: View {
                 .frame(width: 40, height: 40)
                 .background(Color.accentColor.opacity(0.14), in: Circle())
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-                Text(AppLocalization.string(title))
+                Text(title)
                     .font(.headline)
-                Text(AppLocalization.string(message))
+                Text(message)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -278,8 +278,8 @@ func spectraPageHeader(title: String, subtitle: String, systemImage: String) -> 
             .background(Color.accentColor.opacity(0.14), in: Circle())
 
         VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-            Text(AppLocalization.string(title)).font(.title2.weight(.bold))
-            Text(AppLocalization.string(subtitle)).font(.subheadline).foregroundStyle(.secondary)
+            Text(title).font(.title2.weight(.bold))
+            Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
         }
     }
 }

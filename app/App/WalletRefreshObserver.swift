@@ -25,8 +25,8 @@ final class WalletRefreshObserver: RefreshObserver {
     init() { (events, continuation) = AsyncStream.makeStream() }
     deinit { continuation.finish() }
 
-    func onBalanceUpdated(chainId: Chain, walletId: String, summary: WalletState?) {
-        continuation.yield(.balanceUpdated)
+    func onBalanceRefreshed(chainId: Chain, walletId: String, failure: String?) {
+        if failure == nil { continuation.yield(.balanceUpdated) }
     }
     func onRefreshCycleComplete(refreshed: UInt32, errors: UInt32) {}
     func onRefreshComplete(result: AppRefreshResult) {

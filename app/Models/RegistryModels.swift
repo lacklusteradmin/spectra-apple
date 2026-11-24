@@ -23,6 +23,6 @@ extension AssetHolding {
         guard let entry = chain?.entry else { return nil }
         return (entry.artworkName, entry.color.color)
     }
-    var artworkName: String { AssetPresentationCatalog.artwork(deploymentId: holdingKey) }
+    var artworkName: String { AssetPresentationCatalog.artwork(deploymentId: id) }
 
 }

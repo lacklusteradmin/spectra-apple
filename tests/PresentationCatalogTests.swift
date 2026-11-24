@@ -82,15 +82,14 @@ struct PresentationCatalogTests {
     /// from the shipped formats so the assertion is about that shape rather
     /// than about English.
     @Test func transactionSubtitleNamesTheChainOnlyWhenItIsNotTheAsset() {
-        let copy = CommonLocalizationContent.current
         func subtitle(asset: String, chainId: Chain) -> String {
             TransactionRecord(
                 id: "tx", kind: .receive, status: .confirmed, walletName: "Main Wallet",
                 assetDisplayName: asset, symbol: "SOL", chainId: chainId, amount: "0.1", address: "address"
             ).subtitleText
         }
-        func wallet(_ asset: String) -> String { String(format: copy.transactionSubtitleFormat, asset, "Main Wallet") }
-        func onChain(_ asset: String, _ chain: String) -> String { String(format: copy.assetOnChainFormat, asset, chain) }
+        func wallet(_ asset: String) -> String { AppLocalization.format("common.transactionSubtitleFormat", asset, "Main Wallet") }
+        func onChain(_ asset: String, _ chain: String) -> String { AppLocalization.format("common.assetOnChainFormat", asset, chain) }
 
         #expect(subtitle(asset: "Solana", chainId: Chain.solana) == wallet("Solana"))
         #expect(subtitle(asset: "solana", chainId: Chain.solana) == wallet("solana"))
@@ -113,9 +112,7 @@ struct PresentationCatalogTests {
     /// A localized string ships in a locale's table and nothing else; a
     /// locale-independent data file ships once, unsuffixed.
     @Test func localeIndependentDataShipsOnce() {
-        for name in ["AppLinks", "BuyProviders"] {
-            #expect(Bundle.main.url(forResource: name, withExtension: "json") != nil, "\(name)")
-        }
+        #expect(Bundle.main.url(forResource: "BuyProviders", withExtension: "json") != nil)
         for name in ["CommonContent", "DiagnosticsContent", "DonationsContent",
                      "EndpointsContent", "ImportFlowContent", "SettingsContent"] {
             #expect(Bundle.main.url(forResource: "\(name).en", withExtension: "json") == nil, "\(name)")

@@ -101,11 +101,11 @@ struct WalletAdvancedDetailsView: View {
                 }
             }
             Section(AppLocalization.string("Details")) {
-                SpectraValueRow(label: "Wallet ID", value: wallet.id).textSelection(.enabled)
+                SpectraValueRow(label: AppLocalization.string("Wallet ID"), value: wallet.id).textSelection(.enabled)
                 if let derivationPathsText {
-                    SpectraValueRow(label: "Derivation Path", value: derivationPathsText).textSelection(.enabled)
+                    SpectraValueRow(label: AppLocalization.string("Derivation Path"), value: derivationPathsText).textSelection(.enabled)
                 }
-                SpectraValueRow(label: "First Activity", value: firstActivityDateText).textSelection(.enabled)
+                SpectraValueRow(label: AppLocalization.string("First Activity"), value: firstActivityDateText).textSelection(.enabled)
             }
             if offers(.delete) {
                 Section {

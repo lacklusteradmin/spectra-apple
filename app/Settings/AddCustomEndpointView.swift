@@ -16,7 +16,6 @@ struct AddCustomEndpointView: View {
     @State private var capabilities: Set<EndpointCapability> = []
     @State private var errorMessage: String?
     @State private var isSaving = false
-    private let copy = EndpointsContentCopy.current
     /// Every network that takes an endpoint, in catalog order — including one
     /// with no built-in provider, which is the network that most needs one.
     private var networks: [Chain] { Chain.all.filter { !endpointApiOptions(chain: $0).isEmpty } }
@@ -32,10 +31,10 @@ struct AddCustomEndpointView: View {
                     }
                 }
                 .disabled(editing != nil)
-                Picker(copy.typeTitle, selection: $api) {
+                Picker(AppLocalization.string("endpoints.typeTitle"), selection: $api) {
                     ForEach(types, id: \.self) { Text($0).tag($0) }
                 }
-                TextField(copy.urlPlaceholder, text: $url)
+                TextField(AppLocalization.string("endpoints.urlPlaceholder"), text: $url)
                     .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
             }
             Section {
@@ -61,7 +60,7 @@ struct AddCustomEndpointView: View {
             }
             if let errorMessage { Section { Text(errorMessage).foregroundStyle(.red) } }
         }
-        .navigationTitle(editing == nil ? copy.addEndpointTitle : AppLocalization.string("Edit Endpoint"))
+        .navigationTitle(editing == nil ? AppLocalization.string("endpoints.addEndpointTitle") : AppLocalization.string("Edit Endpoint"))
         .inlineNavigationTitle()
         .disabled(isSaving)
         .onAppear {
@@ -89,20 +88,20 @@ struct AddCustomEndpointView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button(AppLocalization.string("Save")) {
-                    guard let chain else { return }
+                    guard let chain, let selected = options.first(where: { $0.id == api })?.api else { return }
                     isSaving = true
                     Task { @MainActor in
                         do {
                             let update: AppSettingUpdate = if let editing {
                                 .replaceCustomEndpoint(
-                                    chainId: chain, endpoint: editing.record.endpoint, api: api, newEndpoint: url,
+                                    chainId: chain, endpoint: editing.record.endpoint, api: selected, newEndpoint: url,
                                     capabilities: Array(capabilities))
                             } else {
-                                .addCustomEndpoint(capabilities: Array(capabilities), chainId: chain, api: api, endpoint: url)
+                                .addCustomEndpoint(capabilities: Array(capabilities), chainId: chain, api: selected, endpoint: url)
                             }
                             let transition = try await store.stateCommands.apply(.setAppSetting(update: update))
                             if transition.events.contains(where: { if case .appSettingRejected = $0 { return true }; return false }) {
-                                errorMessage = copy.invalidEndpointMessage
+                                errorMessage = AppLocalization.string("endpoints.invalidEndpointMessage")
                             } else {
                                 dismiss()
                             }

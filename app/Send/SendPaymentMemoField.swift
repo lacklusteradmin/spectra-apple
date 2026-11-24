@@ -14,7 +14,7 @@ struct SendPaymentMemoField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-            sendComposerSectionLabel(kinds == [.destinationTag] ? "Destination Tag" : "Memo")
+            sendComposerSectionLabel(AppLocalization.string(kinds == [.destinationTag] ? "Destination Tag" : "Memo"))
             if kinds.count > 1 {
                 Picker(AppLocalization.string("Memo"), selection: Binding(get: { selected }, set: { kind = $0 })) {
                     ForEach(kinds, id: \.self) { Text($0.localizedTitle).tag($0) }

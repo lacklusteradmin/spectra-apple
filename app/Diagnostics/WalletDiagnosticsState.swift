@@ -97,13 +97,10 @@ final class WalletDiagnosticsState {
         return [detail, degradedSyncSuffix(for: chain)].filter { !$0.isEmpty }.joined(separator: " ")
     }
     private func degradedSyncSuffix(for chain: Chain) -> String {
-        let copy = DiagnosticsContentCopy.current
         if let lastGood = lastGoodSyncByChain[chain] {
-            return String(
-                format: copy.degradedLastGoodSyncFormat, lastGood.appFormatted(time: .shortened)
-            )
+            return AppLocalization.format("diagnostics.degradedLastGoodSyncFormat", lastGood.appFormatted(time: .shortened))
         }
-        return copy.degradedNoPriorSuccessfulSyncYet
+        return AppLocalization.string("diagnostics.degradedNoPriorSuccessfulSyncYet")
     }
 }
 

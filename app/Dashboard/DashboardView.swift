@@ -7,7 +7,6 @@ struct DashboardView: View {
     @State private var isNavigatingToPinnedAssets = false
     @State private var selectedWalletId: String?
     @State private var selectedAssetGroupId: String?
-    @ScaledMetric(relativeTo: .caption2) private var torBadgeFontSize: CGFloat = 8
     private var selectedWallet: WalletState? {
         guard let selectedWalletId else { return nil }
         return store.wallet(for: selectedWalletId)
@@ -45,12 +44,12 @@ struct DashboardView: View {
                 }
                 // Tor is off by default and lives in Settings; the toolbar
                 // reports it only while it is doing something.
-                if store.tor.status != .stopped {
+                if let indicator = TorToolbarIndicator(status: store.tor.status) {
                     ToolbarItem(placement: .barLeading) {
                         NavigationLink {
                             TorSettingsView(store: store)
                         } label: {
-                            torToolbarIndicator
+                            indicator
                         }
                     }
                 }
@@ -109,54 +108,6 @@ struct DashboardView: View {
                 : AppLocalization.format("%lld active notices", count: count, count)
         )
     }
-    private var torToolbarIndicator: some View {
-        let status = store.tor.status
-        let color: Color
-        let icon: String
-        switch status {
-        case .ready:
-            color = .green; icon = "network.badge.shield.half.filled"
-        case .bootstrapping:
-            color = .spectraWarning; icon = "network.badge.shield.half.filled"
-        case .error:
-            color = .red; icon = "network.slash"
-        case .stopped:
-            #if os(macOS)
-                color = Color(.tertiaryLabelColor)
-            #else
-                color = Color(.systemGray3)
-            #endif
-            icon = "network"
-        }
-        return ZStack(alignment: .bottomTrailing) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(color)
-                .frame(width: 24, height: 24)
-            if case .bootstrapping(let pct) = status {
-                Text("\(pct)%")
-                    .font(.system(size: torBadgeFontSize, weight: .bold))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, SpectraLayout.Space.xxs)
-                    .padding(.vertical, SpectraLayout.Space.xxs)
-                    .background(Capsule().fill(Color.spectraWarning))
-                    .offset(x: 6, y: 4)
-            } else if case .error = status {
-                Circle().fill(color).frame(width: 7, height: 7).offset(x: 3, y: 3)
-            }
-        }
-        .frame(width: 30, height: 28, alignment: .center)
-        .accessibilityLabel(torAccessibilityLabel(status))
-    }
-    private func torAccessibilityLabel(_ status: TorStatus) -> String {
-        switch status {
-        case .stopped:          return AppLocalization.string("Tor off")
-        case .bootstrapping(let p): return AppLocalization.format("Tor connecting, %lld%%", Int(p))
-        case .ready:            return AppLocalization.string("Tor on")
-        case .error:            return AppLocalization.string("Tor error")
-        }
-    }
     private var actionButtons: some View {
         DashboardActionButtons(store: store)
     }
@@ -186,8 +137,8 @@ struct DashboardView: View {
     }
     private func pageSwitch(assetCount: Int) -> some View {
         HStack(spacing: SpectraLayout.Space.l) {
-            dashboardPageTab(.assets, title: "Assets", count: assetCount)
-            dashboardPageTab(.wallets, title: "Wallets", count: store.wallets.count)
+            dashboardPageTab(.assets, title: AppLocalization.string("Assets"), count: assetCount)
+            dashboardPageTab(.wallets, title: AppLocalization.string("Wallets"), count: store.wallets.count)
             Spacer(minLength: 0)
             if dashboardPage == .assets { pinAssetsButton }
         }
@@ -200,7 +151,7 @@ struct DashboardView: View {
             dashboardPage = page
         } label: {
             HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.xs) {
-                Text(AppLocalization.string(title)).font(.headline)
+                Text(title).font(.headline)
                     .foregroundStyle(isSelected ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary))
                 Text("\(count)").font(.subheadline.weight(.semibold)).monospacedDigit()
                     .foregroundStyle(isSelected ? AnyShapeStyle(.secondary) : AnyShapeStyle(.tertiary))
@@ -216,7 +167,7 @@ struct DashboardView: View {
     /// or why there is nothing to list.
     @ViewBuilder
     private func assetsFooter(shown: [DashboardAssetRowPresentation]) -> some View {
-        let reading = !store.portfolioWalletsReadingBalances.isEmpty
+        let reading = (store.portfolioQuotedTotal?.unreadWalletCount ?? 0) > 0
         let smallCount = store.cachedDashboardAssetGroups.filter(\.isSmall).count
         if shown.isEmpty && reading {
             VStack(spacing: SpectraLayout.Space.m) {
@@ -237,7 +188,7 @@ struct DashboardView: View {
             .accessibilityLabel(AppLocalization.string("Reading balances…"))
         } else if shown.isEmpty && smallCount == 0 {
             SpectraEmptyStateContent(
-                title: "No balances yet", message: "Pull down to read balances again.", systemImage: "chart.pie")
+                title: AppLocalization.string("No balances yet"), message: AppLocalization.string("Pull down to read balances again."), systemImage: "chart.pie")
                 .padding(.horizontal, SpectraLayout.rowHorizontal).padding(.vertical, SpectraLayout.Space.m)
         } else if reading {
             Divider().opacity(SpectraLayout.dividerOpacity)
@@ -315,7 +266,7 @@ struct DashboardAssetRowPresentation: Identifiable, Equatable {
     init(assetGroup: DashboardAssetGroup, amounts: AmountPresentation, hidesBalance: Bool) {
         self.assetGroup = assetGroup
         amountText = amounts.formattedAssetAmount(
-            assetGroup.totalAmount, symbol: assetGroup.symbol, deploymentId: assetGroup.identity.holdingKey)
+            assetGroup.totalAmount, symbol: assetGroup.symbol, deploymentId: assetGroup.identity.id)
         totalValueText = amounts.formattedFiat(assetGroup.totalValue)
         priceText = amounts.formattedFiatIfAvailable(assetGroup.price)
         self.hidesBalance = hidesBalance
@@ -384,7 +335,7 @@ private struct DashboardPortfolioHeader: View {
     @Bindable var store: AppState
     var body: some View {
         let hidden = store.preferences.hideBalances
-        let reading = !store.portfolioWalletsReadingBalances.isEmpty
+        let reading = (store.portfolioQuotedTotal?.unreadWalletCount ?? 0) > 0
         VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
             HStack(spacing: SpectraLayout.Space.xs) {
                 Text(AppLocalization.string("Portfolio")).font(.subheadline).foregroundStyle(.secondary)
@@ -409,7 +360,7 @@ private struct DashboardPortfolioHeader: View {
                 .accessibilityHint(AppLocalization.string("Choose which wallets count in the total."))
             }
             .padding(.vertical, -SpectraLayout.Space.m)
-            if store.portfolioTotalIsUnknown {
+            if store.portfolioQuotedTotal?.isUnread == true {
                 SpectraShimmer(height: 34).frame(maxWidth: 200)
                     .accessibilityLabel(AppLocalization.string("Reading balances…"))
             } else {
@@ -430,7 +381,7 @@ private struct DashboardPortfolioHeader: View {
                 Text(AppLocalization.format("portfolio.counted_format", count: store.wallets.count, counted, store.wallets.count))
                     .font(.caption).foregroundStyle(.secondary)
             }
-            if !store.portfolioTotalIsUnknown, let total = store.portfolioQuotedTotal {
+            if let total = store.portfolioQuotedTotal, !total.isUnread {
                 if total.unpricedCount > 0 {
                     Text(AppLocalization.format(
                         "portfolio.unpriced_format", count: Int(total.unpricedCount), Int(total.unpricedCount)))
@@ -489,5 +440,55 @@ private struct DashboardActionButtons: View {
                     .disabled(!canReceive)
             }
         }
+    }
+}
+
+/// Tor's glyph while it is connecting, connected or failing. There is none
+/// while it is stopped.
+private struct TorToolbarIndicator: View {
+    let status: TorStatus
+    private let color: Color
+    private let icon: String
+    private let label: String
+    @ScaledMetric(relativeTo: .caption2) private var badgeFontSize: CGFloat = 8
+
+    init?(status: TorStatus) {
+        switch status {
+        case .stopped:
+            return nil
+        case .ready:
+            color = .green; icon = "network.badge.shield.half.filled"
+            label = AppLocalization.string("Tor on")
+        case .bootstrapping(let progress):
+            color = .spectraWarning; icon = "network.badge.shield.half.filled"
+            label = AppLocalization.format("Tor connecting, %lld%%", Int(progress))
+        case .error:
+            color = .red; icon = "network.slash"
+            label = AppLocalization.string("Tor error")
+        }
+        self.status = status
+    }
+
+    var body: some View {
+        ZStack(alignment: .bottomTrailing) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 24, height: 24)
+            if case .bootstrapping(let pct) = status {
+                Text("\(pct)%")
+                    .font(.system(size: badgeFontSize, weight: .bold))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, SpectraLayout.Space.xxs)
+                    .padding(.vertical, SpectraLayout.Space.xxs)
+                    .background(Capsule().fill(Color.spectraWarning))
+                    .offset(x: 6, y: 4)
+            } else if case .error = status {
+                Circle().fill(color).frame(width: 7, height: 7).offset(x: 3, y: 3)
+            }
+        }
+        .frame(width: 30, height: 28, alignment: .center)
+        .accessibilityLabel(label)
     }
 }

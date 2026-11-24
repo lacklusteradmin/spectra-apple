@@ -74,11 +74,11 @@ struct WalletMwebFundsView: View {
     }
 
     private func balanceSection(_ status: LitecoinMwebStatus) -> some View {
-        let symbol = wallet.chain.gasTokenSymbol
+        let symbol = wallet.chainId.gasTokenSymbol
         return Section {
-            LabeledContent(AppLocalization.string("Spendable"), value: AmountPresentation.exactAmount(status.spendable, symbol: symbol))
+            LabeledContent(AppLocalization.string("Spendable"), balance: AmountPresentation.exactAmount(status.spendable, symbol: symbol), isHidden: store.preferences.hideBalances)
             if status.pending != "0" {
-                LabeledContent(AppLocalization.string("Pending"), value: AmountPresentation.exactAmount(status.pending, symbol: symbol))
+                LabeledContent(AppLocalization.string("Pending"), balance: AmountPresentation.exactAmount(status.pending, symbol: symbol), isHidden: store.preferences.hideBalances)
             }
             Button(AppLocalization.string("Move LTC into MWEB")) { flow = .moveIn }
                 .disabled(scan.isRunning)
@@ -171,8 +171,8 @@ private struct MwebTransactionView: View {
             Section {
                 if flow == .send {
                     AddressEntryRow(
-                        title: AppLocalization.string("Destination Address"), text: $recipient, chain: wallet.chain,
-                        contacts: store.addressBook.entries.filter { $0.chainId == wallet.chain })
+                        title: AppLocalization.string("Destination Address"), text: $recipient, chain: wallet.chainId,
+                        contacts: store.addressBook.entries.filter { $0.chainId == wallet.chainId })
                 }
                 TextField(AppLocalization.string("Amount"), text: $amount)
                     .keyboardType(.decimalPad).monospacedDigit()
@@ -189,7 +189,7 @@ private struct MwebTransactionView: View {
                 Section {
                     LabeledContent(
                         AppLocalization.string("Into MWEB"),
-                        value: store.amounts.formattedNativeAmount(amount, chain: wallet.chain))
+                        value: store.amounts.formattedNativeAmount(amount, chain: wallet.chainId))
                 }
             case .shieldedPayment:
                 if let artifact {

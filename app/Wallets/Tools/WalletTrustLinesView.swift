@@ -18,14 +18,14 @@ struct WalletTrustLinesView: View {
         List {
             if let lines {
                 if lines.lines.isEmpty {
-                    WalletToolEmptySection(message: "No trust lines.")
+                    WalletToolEmptySection(message: AppLocalization.string("No trust lines."))
                 } else {
                     Section {
                         ForEach(lines.lines, id: \.asset) { row($0) }
                     } footer: {
                         Text(AppLocalization.format(
                             "Each trust line locks %@ %@ of reserve while it exists.",
-                            lines.reservePerLine, wallet.chain.gasTokenSymbol))
+                            lines.reservePerLine, wallet.chainId.gasTokenSymbol))
                     }
                 }
                 if !wallet.signing.isWatchOnly {
@@ -58,7 +58,7 @@ struct WalletTrustLinesView: View {
 
     /// What the network's issued-asset protocol identifies an asset by.
     private var identifierPrompt: String {
-        wallet.chain.entry?.tokenStandards.first?.identifierPrompt ?? "Token Identifier"
+        wallet.chainId.entry?.tokenStandards.first?.identifierPrompt ?? "Token Identifier"
     }
 
     private func row(_ line: WalletTrustLine) -> some View {
@@ -131,11 +131,11 @@ private struct TrustLineChangeView: View {
         ) { artifact in
             switch artifact?.operation {
             case let .trustAsset(asset, reserve):
-                summary(asset: asset, reserveTitle: "Reserve Locked", reserve: reserve,
-                        note: "The line accepts any amount of this asset from now on; removing it later frees the reserve.")
+                summary(asset: asset, reserveTitle: AppLocalization.string("Reserve Locked"), reserve: reserve,
+                        note: AppLocalization.string("The line accepts any amount of this asset from now on; removing it later frees the reserve."))
             case let .removeTrustLine(asset, reserve):
-                summary(asset: asset, reserveTitle: "Reserve Freed", reserve: reserve,
-                        note: "The wallet stops accepting this asset; trust it again to receive it.")
+                summary(asset: asset, reserveTitle: AppLocalization.string("Reserve Freed"), reserve: reserve,
+                        note: AppLocalization.string("The wallet stops accepting this asset; trust it again to receive it."))
             default:
                 EmptyView()
             }
@@ -145,9 +145,9 @@ private struct TrustLineChangeView: View {
     private func summary(asset: String, reserveTitle: String, reserve: String, note: String) -> some View {
         Section {
             Text(verbatim: asset).font(.caption.monospaced()).textSelection(.enabled)
-            LabeledContent(AppLocalization.string(reserveTitle), value: store.amounts.formattedNativeAmount(reserve, chain: wallet.chain))
+            LabeledContent(reserveTitle, value: store.amounts.formattedNativeAmount(reserve, chain: wallet.chainId))
         } footer: {
-            Text(AppLocalization.string(note))
+            Text(note)
         }
     }
 }

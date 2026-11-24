@@ -4,8 +4,8 @@ import Testing
 @testable import Spectra
 
 @MainActor
-@Suite(.timeLimit(.minutes(1)))
-struct SendSessionTests {
+@Suite(.isolatedAppState, .timeLimit(.minutes(1)))
+struct SendSessionTests: IsolatedAppStateSuite {
     private func artifact(_ id: String, stage: SendStage = .prepared) -> SendArtifact {
         SendArtifact(id: id, revision: 0, stage: stage, walletId: "wallet", chainId: .ethereum,
             sender: "sender", recipient: "recipient", memo: nil, amount: "1.000000000000000001", asset: "ETH", symbol: "ETH", staking: nil, operation: nil,
@@ -114,14 +114,8 @@ struct SendSessionTests {
         #expect(session.error == "New session error")
     }
 
-    @Test func broadcastCompletionRefreshesApplicationAfterComposerIsReplaced() async throws {
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
-        let service = try WalletService(endpoints: [])
-        let bridge = WalletServiceBridge(databasePath: directory.appendingPathComponent("state.sqlite").path, service: service)
-        _ = try await bridge.ready()
-        let store = AppState(bridge: bridge, startServices: false)
+    @Test func broadcastCompletionRefreshesApplicationAfterComposerIsReplaced() async {
+        let store = makeState()
         store.sendFlow.session.progress = .staged(artifact("old", stage: .signed))
         let gate = SuspensionGate<Bool>()
         let work = Task {

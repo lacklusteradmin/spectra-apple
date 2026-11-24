@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 
 struct BuyCryptoHelpView: View {
-    private let copy = SettingsContentCopy.current
 
     /// Resolve once per process to keep row identities stable during balance
     /// and price updates; replacing a row mid-tap can prevent its link firing.
@@ -39,15 +38,15 @@ struct BuyCryptoHelpView: View {
     var body: some View {
         Form {
             Section {
-                Text(copy.buyProvidersIntro).font(.caption).foregroundStyle(.secondary)
+                Text(AppLocalization.string("settings.buyProvidersIntro")).font(.caption).foregroundStyle(.secondary)
             }
             section(
-                AppLocalization.string("On-ramps"), copy.buyOnrampNote, Self.directory.onramps)
+                AppLocalization.string("On-ramps"), AppLocalization.string("settings.buyOnrampNote"), Self.directory.onramps)
             section(
-                AppLocalization.string("Exchanges"), copy.buyExchangeNote, Self.directory.exchanges)
+                AppLocalization.string("Exchanges"), AppLocalization.string("settings.buyExchangeNote"), Self.directory.exchanges)
             Section(AppLocalization.string("Reminder")) {
-                Text(copy.buyWarning).font(.caption).foregroundStyle(.secondary)
-                Text(copy.buyListingNote).font(.caption).foregroundStyle(.secondary)
+                Text(AppLocalization.string("settings.buyWarning")).font(.caption).foregroundStyle(.secondary)
+                Text(AppLocalization.string("settings.buyListingNote")).font(.caption).foregroundStyle(.secondary)
             }
         }
         .navigationTitle(AppLocalization.string("Where can I buy crypto?"))

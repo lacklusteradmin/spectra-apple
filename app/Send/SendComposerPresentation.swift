@@ -17,8 +17,8 @@ struct SendComposerPresentation {
         sendWallets = store.sendEnabledWallets
         selectedWallet = sendWallets.first(where: { $0.id == store.sendFlow.walletId })
         availableSendCoins = store.availableSendCoins(for: store.sendFlow.walletId)
-        selectedCoin = availableSendCoins.first(where: { $0.holdingKey == store.sendFlow.holdingKey })
-        selectedCoinAmountText = selectedCoin.map { store.amounts.formattedAssetAmount($0.amount, symbol: $0.symbol, deploymentId: $0.holdingKey) }
+        selectedCoin = availableSendCoins.first(where: { $0.id == store.sendFlow.holdingKey })
+        selectedCoinAmountText = selectedCoin.map { store.amounts.formattedAssetAmount($0.amount, symbol: $0.symbol, deploymentId: $0.id) }
         selectedCoinApproximateFiatText = store.amounts.formattedFiatIfAvailable(store.sendQuoteForEnteredAmount?.amountValue)
         addressBookEntries = store.sendAddressBookEntries
     }
@@ -27,7 +27,7 @@ struct SendComposerPresentation {
 /// The small uppercase label over a group inside a send card.
 @MainActor
 func sendComposerSectionLabel(_ title: String) -> some View {
-    Text(AppLocalization.string(title))
+    Text(title)
         .font(.caption.weight(.semibold))
         .foregroundStyle(.secondary)
         .textCase(.uppercase)

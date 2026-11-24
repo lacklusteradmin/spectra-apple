@@ -63,9 +63,9 @@ struct StakingTransactionView: View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             Text(AppLocalization.string("staking.review")).font(.headline)
             if let intent = artifact.staking {
-                SpectraValueRow(label: "staking.action", value: intent.action.localizedTitle)
+                SpectraValueRow(label: AppLocalization.string("staking.action"), value: intent.action.localizedTitle)
                 SpectraValueRow(
-                    label: "Amount",
+                    label: AppLocalization.string("Amount"),
                     value: AmountPresentation.exactAmount(artifact.amount, symbol: artifact.symbol))
                 if intent.amount == nil {
                     Text(AppLocalization.string("staking.full_position_action")).font(.caption)
@@ -73,23 +73,23 @@ struct StakingTransactionView: View {
                 }
                 if let validator = intent.validatorId {
                     if let name = staking.validatorName(validator) {
-                        SpectraValueRow(label: "staking.validator", value: name)
+                        SpectraValueRow(label: AppLocalization.string("staking.validator"), value: name)
                         Text(verbatim: validator).font(.caption.monospaced()).foregroundStyle(.secondary)
                     } else {
-                        SpectraValueRow(label: "staking.validator_identifier", value: validator)
+                        SpectraValueRow(label: AppLocalization.string("staking.validator_identifier"), value: validator)
                     }
                 }
                 if let position = intent.positionId {
-                    SpectraValueRow(label: "staking.position", value: position)
+                    SpectraValueRow(label: AppLocalization.string("staking.position"), value: position)
                 }
                 if let delay = artifact.review.staking?.lockupSeconds {
                     SpectraValueRow(
-                        label: "staking.dissolve_delay",
+                        label: AppLocalization.string("staking.dissolve_delay"),
                         value: AppLocalization.format("staking.seconds", delay))
                 }
             }
             SpectraValueRow(
-                label: "Wallet",
+                label: AppLocalization.string("Wallet"),
                 value: store.wallet(for: artifact.walletId)?.name ?? artifact.walletId)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
                 Text(AppLocalization.string("From")).font(.caption).foregroundStyle(.secondary)
@@ -102,7 +102,7 @@ struct StakingTransactionView: View {
                 }
             }
             if let entry = CoreReferenceTables.stakingEntry(for: artifact.chainId) {
-                SpectraValueRow(label: "Unbonding", value: AppLocalization.string(entry.unbondingPeriod))
+                SpectraValueRow(label: AppLocalization.string("Unbonding"), value: AppLocalization.string(entry.unbondingPeriod))
             }
             if let review = artifact.review.staking {
                 if review.fundingAlreadyCompleted {
@@ -112,7 +112,7 @@ struct StakingTransactionView: View {
                 // fee is shown.
                 if let fee = artifact.review.networkFee {
                     SpectraValueRow(
-                        label: "Network Fee",
+                        label: AppLocalization.string("Network Fee"),
                         value: store.amounts.reviewedNetworkFee(fee, chain: artifact.chainId))
                 }
                 if review.feeIsDeductedFromAmount {
@@ -120,7 +120,7 @@ struct StakingTransactionView: View {
                 }
                 if let deposit = review.refundableDeposit {
                     SpectraValueRow(
-                        label: "staking.refundable_deposit",
+                        label: AppLocalization.string("staking.refundable_deposit"),
                         value:
                             AmountPresentation.exactAmount(deposit, symbol: artifact.chainId.gasTokenSymbol))
                 }

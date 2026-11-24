@@ -8,7 +8,7 @@ struct PortfolioWalletSelectionView: View {
             Section {
                 ForEach(store.wallets) { wallet in
                     Toggle(isOn: binding(for: wallet.id)) {
-                        PortfolioWalletToggleRowView(walletName: wallet.name, chainTitleText: wallet.networkTitle)
+                        PortfolioWalletToggleRowView(walletName: wallet.name, chainTitleText: wallet.chainName)
                             .equatable()
                     }
                 }

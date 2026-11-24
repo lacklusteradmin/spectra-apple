@@ -4,9 +4,9 @@ import SwiftUI
 extension AppState {
     /// The only writer of the two quote notices, called while adopting a
     /// newer, coherent portfolio snapshot.
-    func applyQuoteProjection(_ state: ResidentState) {
-        let prices = state.quotes.pricesError.map(priceRefreshMessage)
-        let rates = state.quotes.fiatError.map(fiatRateRefreshMessage)
+    func applyQuoteProjection(_ quotes: QuoteRefreshState) {
+        let prices = quotes.pricesError.map(priceRefreshMessage)
+        let rates = quotes.fiatError.map(fiatRateRefreshMessage)
         if quoteRefreshError != prices { quoteRefreshError = prices }
         if fiatRatesRefreshError != rates { fiatRatesRefreshError = rates }
     }
@@ -40,10 +40,10 @@ private func fiatRateRefreshMessage(_ failure: QuoteRefreshFailure) -> String {
 
 /// Core's currencies, with the order and name a picker needs.
 /// The code comes from core's formatting rules, which carry it.
-extension FiatCurrency: @retroactive CaseIterable, @retroactive Identifiable {
+extension FiatCurrency: @retroactive Identifiable {
     private static let catalog = fiatCurrencyCatalog()
     private static let rulesByCurrency = Dictionary(uniqueKeysWithValues: catalog.map { ($0.currency, $0) })
-    public static var allCases: [FiatCurrency] { catalog.map(\.currency) }
+    static let allCases: [FiatCurrency] = catalog.map(\.currency)
     var displayRules: FiatAmountRules { Self.rulesByCurrency[self]! }
     public var id: String { code }
     /// The ISO 4217 code.

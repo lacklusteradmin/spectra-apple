@@ -61,11 +61,11 @@ extension WalletSetupPage {
     /// The page alone does not decide what it is called — "seed phrase" reads
     /// as *record* one when creating a wallet and *enter* one when importing —
     /// so the copy resolver takes the mode alongside the page.
-    func copy(_ content: ImportFlowContent, mode: WalletDraftMode) -> WalletSetupPageCopy {
+    func copy(mode: WalletDraftMode) -> WalletSetupPageCopy {
         switch self {
         case .walletName:
             if mode == .edit {
-                return WalletSetupPageCopy(title: content.editWalletTitle, subtitle: content.editWalletSubtitle)
+                return WalletSetupPageCopy(title: AppLocalization.string("import_flow.editWalletTitle"), subtitle: AppLocalization.string("import_flow.editWalletSubtitle"))
             }
             if mode.takesWalletPassword {
                 return WalletSetupPageCopy(
@@ -77,7 +77,7 @@ extension WalletSetupPage {
                 subtitle: AppLocalization.string("import_flow.wallet_name_hint"))
         case .backupVerification:
             return WalletSetupPageCopy(
-                title: content.backupVerificationTitle, subtitle: content.backupVerificationSubtitle)
+                title: AppLocalization.string("import_flow.backupVerificationTitle"), subtitle: AppLocalization.string("import_flow.backupVerificationSubtitle"))
         case .watchAddresses:
             if mode == .setup(.watchAccountXpub) {
                 return WalletSetupPageCopy(
@@ -95,16 +95,16 @@ extension WalletSetupPage {
                     subtitle: AppLocalization.string("Enter the wallet's primary address and its private view key."))
             }
             return WalletSetupPageCopy(
-                title: content.watchAddressesTitle, subtitle: content.watchAddressesSubtitle)
+                title: AppLocalization.string("import_flow.watchAddressesTitle"), subtitle: AppLocalization.string("import_flow.watchAddressesSubtitle"))
         case .seedPhrase:
             if mode == .setup(.importPrivateKey) {
                 return WalletSetupPageCopy(
-                    title: content.enterPrivateKeyTitle, subtitle: content.privateKeySubtitle)
+                    title: AppLocalization.string("import_flow.enterPrivateKeyTitle"), subtitle: AppLocalization.string("import_flow.privateKeySubtitle"))
             }
             let isCreating = mode == .setup(.createPhrase)
             return WalletSetupPageCopy(
-                title: isCreating ? content.recordSeedPhraseTitle : content.enterSeedPhraseTitle,
-                subtitle: isCreating ? content.saveRecoveryPhraseSubtitle : content.enterRecoveryPhraseSubtitle)
+                title: isCreating ? AppLocalization.string("import_flow.recordSeedPhraseTitle") : AppLocalization.string("import_flow.enterSeedPhraseTitle"),
+                subtitle: isCreating ? AppLocalization.string("import_flow.saveRecoveryPhraseSubtitle") : AppLocalization.string("import_flow.enterRecoveryPhraseSubtitle"))
         }
     }
 }

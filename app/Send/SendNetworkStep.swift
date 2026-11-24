@@ -14,7 +14,7 @@ struct SendNetworkStep: View {
     private var quote: OwnedSendPreview? { store.sendQuote }
 
     private func hasNetworkSendSections(for coin: AssetHolding?) -> Bool {
-        coin?.chain.hasSendPreview ?? false
+        coin?.chainId.hasSendPreview ?? false
     }
 
     /// The quoted fee, with its display-currency value when core had one.
@@ -29,7 +29,7 @@ struct SendNetworkStep: View {
     }
 
     private var selectedCoin: AssetHolding? {
-        store.availableSendCoins(for: store.sendFlow.walletId).first(where: { $0.holdingKey == store.sendFlow.holdingKey })
+        store.availableSendCoins(for: store.sendFlow.walletId).first(where: { $0.id == store.sendFlow.holdingKey })
     }
 
     @ViewBuilder
@@ -45,7 +45,7 @@ struct SendNetworkStep: View {
 
     private func noNetworkPreviewCard(selectedCoin: AssetHolding?) -> some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            networkSectionHeader("Network")
+            networkSectionHeader(AppLocalization.string("Network"))
             if let selectedCoin {
                 Text(AppLocalization.format("Spectra will prepare the %@ transfer with the default %@ network policy.", selectedCoin.symbol, selectedCoin.chainName))
                     .font(.subheadline)
@@ -78,7 +78,7 @@ struct SendNetworkStep: View {
     @ViewBuilder
     private func networkCardContent(selectedCoin: AssetHolding?) -> some View {
         if let selectedCoin {
-            let chain = selectedCoin.chain
+            let chain = selectedCoin.chainId
             if chain.isEVM {
                 evmNetworkContent(selectedCoin: selectedCoin)
             } else {
@@ -97,8 +97,8 @@ struct SendNetworkStep: View {
         _ title: String, unit: String?, estimate: String?, text: Binding<String>, keyboard: UIKeyboardType
     ) -> some View {
         HStack(spacing: SpectraLayout.Space.s) {
-            Text(AppLocalization.string(title)).font(.subheadline).foregroundStyle(.secondary)
-            TextField(text: text, prompt: Text(verbatim: estimate ?? "")) { Text(AppLocalization.string(title)) }
+            Text(title).font(.subheadline).foregroundStyle(.secondary)
+            TextField(text: text, prompt: Text(verbatim: estimate ?? "")) { Text(title) }
                 .keyboardType(keyboard).multilineTextAlignment(.trailing).monospacedDigit()
             if let unit { Text(verbatim: unit).font(.subheadline).foregroundStyle(.secondary) }
         }
@@ -115,10 +115,10 @@ struct SendNetworkStep: View {
             Toggle(AppLocalization.string("Use Custom Fees"), isOn: Bindable(store.sendFlow).useCustomEvmFees)
             if store.sendFlow.useCustomEvmFees {
                 labeledField(
-                    "Max Fee", unit: "gwei", estimate: terms.map { AmountPresentation.decimalFieldText($0.maxFeePerGasGwei) },
+                    AppLocalization.string("Max Fee"), unit: "gwei", estimate: terms.map { AmountPresentation.decimalFieldText($0.maxFeePerGasGwei) },
                     text: Bindable(store.sendFlow).customEvmMaxFeeGwei, keyboard: .decimalPad)
                 labeledField(
-                    "Priority Fee", unit: "gwei",
+                    AppLocalization.string("Priority Fee"), unit: "gwei",
                     estimate: terms.map { AmountPresentation.decimalFieldText($0.maxPriorityFeePerGasGwei) },
                     text: Bindable(store.sendFlow).customEvmPriorityFeeGwei, keyboard: .decimalPad)
                 if let customEvmFeeValidationError = store.sendFlow.customEvmFeeValidationError {
@@ -131,26 +131,26 @@ struct SendNetworkStep: View {
             Toggle(AppLocalization.string("Manual Nonce"), isOn: Bindable(store.sendFlow).evmManualNonceEnabled)
             if store.sendFlow.evmManualNonceEnabled {
                 labeledField(
-                    "Nonce", unit: nil, estimate: terms.map { String($0.nonce) },
+                    AppLocalization.string("Nonce"), unit: nil, estimate: terms.map { String($0.nonce) },
                     text: Bindable(store.sendFlow).evmManualNonce, keyboard: .numberPad)
                 if let evmNonceValidationError = store.sendFlow.evmNonceValidationError {
                     Text(evmNonceValidationError).font(.caption).foregroundStyle(.red)
                 }
             }
             if store.sendFlow.isPreparingPreview {
-                SpectraLoadingRow(title: "Loading nonce and fee estimate...")
+                SpectraLoadingRow(title: AppLocalization.string("Loading nonce and fee estimate..."))
             } else if let quote, case .evm(let quoted) = quote.preview.terms {
                 Divider().opacity(SpectraLayout.dividerOpacity)
-                SpectraValueRow(label: "Nonce", value: "\(quoted.nonce)")
-                SpectraValueRow(label: "Gas Limit", value: quoted.gasLimit.formatted(.number.locale(AppLocalization.locale)))
-                SpectraValueRow(label: "Max Fee", value: store.amounts.compactGasPrice(gwei: quoted.maxFeePerGasGwei))
-                SpectraValueRow(label: "Priority Fee", value: store.amounts.compactGasPrice(gwei: quoted.maxPriorityFeePerGasGwei))
+                SpectraValueRow(label: AppLocalization.string("Nonce"), value: "\(quoted.nonce)")
+                SpectraValueRow(label: AppLocalization.string("Gas Limit"), value: quoted.gasLimit.formatted(.number.locale(AppLocalization.locale)))
+                SpectraValueRow(label: AppLocalization.string("Max Fee"), value: store.amounts.compactGasPrice(gwei: quoted.maxFeePerGasGwei))
+                SpectraValueRow(label: AppLocalization.string("Priority Fee"), value: store.amounts.compactGasPrice(gwei: quoted.maxPriorityFeePerGasGwei))
             } else if let error = store.sendFlow.previewError {
                 Label(error, systemImage: "exclamationmark.triangle.fill").font(.caption).foregroundStyle(.red)
             } else {
                 // The amount and recipient are in by this page; a missing
                 // quote is one still on its way.
-                SpectraLoadingRow(title: "Loading nonce and fee estimate...")
+                SpectraLoadingRow(title: AppLocalization.string("Loading nonce and fee estimate..."))
             }
         }
     }
@@ -187,19 +187,19 @@ struct SendNetworkStep: View {
     /// priority fee the rows gave as 0.001 gwei to "0.00".
     @ViewBuilder
     private func sendPreviewDetailsContent(for selectedCoin: AssetHolding) -> some View {
-        let isEVM = selectedCoin.chain.isEVM
+        let isEVM = selectedCoin.chainId.isEVM
         if let preview = store.sendPreview(for: selectedCoin), preview.hasDetailRows(isEVM: isEVM) {
             VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
                 Divider().opacity(SpectraLayout.dividerOpacity).padding(.vertical, SpectraLayout.Space.xs)
                 if let feeRateDescription = preview.feeRateDescription, !isEVM {
-                    SpectraValueRow(label: "Fee Rate", value: feeRateDescription)
+                    SpectraValueRow(label: AppLocalization.string("Fee Rate"), value: feeRateDescription)
                 }
                 if let estimatedTransactionBytes = preview.estimatedTransactionBytes {
-                    SpectraValueRow(label: "Estimated Size", value: AppLocalization.format("%lld bytes", count: Int(estimatedTransactionBytes), estimatedTransactionBytes))
+                    SpectraValueRow(label: AppLocalization.string("Estimated Size"), value: AppLocalization.format("%lld bytes", count: Int(estimatedTransactionBytes), estimatedTransactionBytes))
                 }
                 if case .utxo(_, let selectedInputCount, let usesChangeOutput) = preview.terms {
-                    SpectraValueRow(label: "Selected Inputs", value: "\(selectedInputCount)")
-                    SpectraValueRow(label: "Change Output", value: AppLocalization.string(usesChangeOutput ? "Yes" : "No"))
+                    SpectraValueRow(label: AppLocalization.string("Selected Inputs"), value: "\(selectedInputCount)")
+                    SpectraValueRow(label: AppLocalization.string("Change Output"), value: AppLocalization.string(usesChangeOutput ? "Yes" : "No"))
                 }
             }
         }
@@ -209,7 +209,7 @@ struct SendNetworkStep: View {
 /// Shared by the network card and the no-preview card that replaces it.
 @ViewBuilder
 private func networkSectionHeader(_ title: String) -> some View {
-    Text(AppLocalization.string(title))
+    Text(title)
         .font(.caption.weight(.semibold))
         .foregroundStyle(.secondary)
         .textCase(.uppercase)

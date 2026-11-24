@@ -31,7 +31,7 @@ struct SendView: View {
     private var isSendBusy: Bool { store.sendFlow.session.isBusy || store.sendFlow.isPreparingPreview }
 
     private var selectedNetworkSendCoin: AssetHolding? {
-        store.availableSendCoins(for: store.sendFlow.walletId).first(where: { $0.holdingKey == store.sendFlow.holdingKey })
+        store.availableSendCoins(for: store.sendFlow.walletId).first(where: { $0.id == store.sendFlow.holdingKey })
     }
 
     var body: some View {
@@ -44,7 +44,7 @@ struct SendView: View {
                     LazyVStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                         if store.sendFlow.session.artifact == nil { stepProgress }
                         if store.sendFlow.isPreparingReplacement {
-                            SpectraLoadingRow(title: "Preparing replacement/cancel context...")
+                            SpectraLoadingRow(title: AppLocalization.string("Preparing replacement/cancel context..."))
                         }
 
                         stepContent

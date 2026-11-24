@@ -19,7 +19,7 @@ struct WalletNftsView: View {
         List {
             if let nfts {
                 if nfts.nfts.isEmpty {
-                    WalletToolEmptySection(message: "This wallet holds no NFTs.")
+                    WalletToolEmptySection(message: AppLocalization.string("This wallet holds no NFTs."))
                 }
                 Section {
                     ForEach(nfts.nfts) { row($0) }
@@ -112,8 +112,8 @@ private struct SendNftView: View {
             token
             Section {
                 AddressEntryRow(
-                    title: AppLocalization.string("Destination Address"), text: $recipient, chain: wallet.chain,
-                    contacts: store.addressBook.entries.filter { $0.chainId == wallet.chain })
+                    title: AppLocalization.string("Destination Address"), text: $recipient, chain: wallet.chainId,
+                    contacts: store.addressBook.entries.filter { $0.chainId == wallet.chainId })
                 if nft.standard == .erc1155 {
                     TextField(AppLocalization.string("Quantity"), text: $quantity)
                         .keyboardType(.numberPad).monospacedDigit()

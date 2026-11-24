@@ -32,44 +32,44 @@ struct SettingsView: View {
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: SpectraLayout.sectionSpacing) {
                         securitySection
-                        section("Display") {
-                            settingsToggle("Hide Balances", systemImage: "eye.slash", isOn: preferenceBinding(\.hideBalances))
+                        section(AppLocalization.string("Display")) {
+                            settingsToggle(AppLocalization.string("Hide Balances"), systemImage: "eye.slash", isOn: preferenceBinding(\.hideBalances))
                             settingsToggle(
-                                "Hide Small Balances", systemImage: "line.3.horizontal.decrease",
+                                AppLocalization.string("Hide Small Balances"), systemImage: "line.3.horizontal.decrease",
                                 isOn: preferenceBinding(\.hideSmallBalances))
-                            settingsLink("Appearance", systemImage: "circle.lefthalf.filled", route: .appearance) {
+                            settingsLink(AppLocalization.string("Appearance"), systemImage: "circle.lefthalf.filled", route: .appearance) {
                                 Text(AppLocalization.string(store.preferences.appearanceMode.label)).foregroundStyle(.secondary)
                             }
                         }
-                        section("Notifications") {
-                            settingsLink("Price Alerts", systemImage: "bell.badge", route: .priceAlerts)
+                        section(AppLocalization.string("Notifications")) {
+                            settingsLink(AppLocalization.string("Price Alerts"), systemImage: "bell.badge", route: .priceAlerts)
                             settingsToggle(
-                                "Transaction Status Updates", systemImage: "clock.badge.checkmark",
+                                AppLocalization.string("Transaction Status Updates"), systemImage: "clock.badge.checkmark",
                                 isOn: store.settingBinding(\.useTransactionStatusNotifications) {
                                     .useTransactionStatusNotifications(value: $0)
                                 })
-                            settingsLink("Large Movement Alerts", systemImage: "chart.line.uptrend.xyaxis", route: .largeMovementAlerts)
+                            settingsLink(AppLocalization.string("Large Movement Alerts"), systemImage: "chart.line.uptrend.xyaxis", route: .largeMovementAlerts)
                         }
-                        section("Wallets & Data") {
-                            settingsLink("Address Book", systemImage: "book.closed", route: .addressBook)
-                            settingsLink("Known Tokens", systemImage: "bitcoinsign.bank.building", route: .knownTokens)
+                        section(AppLocalization.string("Wallets & Data")) {
+                            settingsLink(AppLocalization.string("Address Book"), systemImage: "book.closed", route: .addressBook)
+                            settingsLink(AppLocalization.string("Known Tokens"), systemImage: "bitcoinsign.bank.building", route: .knownTokens)
                             currencyRow
-                            settingsLink("Endpoints", systemImage: "network", route: .endpoints)
-                            settingsLink("Explorers", systemImage: "safari", route: .explorers)
+                            settingsLink(AppLocalization.string("Endpoints"), systemImage: "network", route: .endpoints)
+                            settingsLink(AppLocalization.string("Explorers"), systemImage: "safari", route: .explorers)
                         }
-                        section("Help & About") {
-                            settingsLink("Where can I buy crypto?", systemImage: "creditcard", route: .buyCryptoHelp)
-                            settingsLink("Crypto Wiki", systemImage: "books.vertical", route: .cryptoWiki)
+                        section(AppLocalization.string("Help & About")) {
+                            settingsLink(AppLocalization.string("Where can I buy crypto?"), systemImage: "creditcard", route: .buyCryptoHelp)
+                            settingsLink(AppLocalization.string("Crypto Wiki"), systemImage: "books.vertical", route: .cryptoWiki)
                             reportProblemRow
-                            settingsLink("About Spectra", systemImage: "info.circle", route: .about)
-                            settingsLink("Donate", systemImage: "heart", route: .donate)
+                            settingsLink(AppLocalization.string("About Spectra"), systemImage: "info.circle", route: .about)
+                            settingsLink(AppLocalization.string("Donate"), systemImage: "heart", route: .donate)
                         }
-                        section("Developer") {
-                            settingsLink("Diagnostics", systemImage: "waveform.path.ecg.rectangle", route: .diagnostics)
-                            settingsLink("Operational Logs", systemImage: "doc.text.magnifyingglass", route: .operationalLogs)
+                        section(AppLocalization.string("Developer")) {
+                            settingsLink(AppLocalization.string("Diagnostics"), systemImage: "waveform.path.ecg.rectangle", route: .diagnostics)
+                            settingsLink(AppLocalization.string("Operational Logs"), systemImage: "doc.text.magnifyingglass", route: .operationalLogs)
                         }
                         SpectraRowSection(dividerInset: dividerInset) {
-                            settingsLink("Reset Wallet", systemImage: "trash", route: .resetWallet, tint: .red)
+                            settingsLink(AppLocalization.string("Reset Wallet"), systemImage: "trash", route: .resetWallet, tint: .red)
                         }
                     }.spectraScreenPadding()
                 }.scrollBounceBehavior(.always)
@@ -111,18 +111,18 @@ struct SettingsView: View {
             Toggle(isOn: preferenceBinding(\.useDeviceAuthentication)) {
                 rowTitle(AppLocalization.format("Use %@", biometry.name), systemImage: biometry.symbol)
             }.spectraRowPadding()
-            settingsToggle("Auto Lock", systemImage: "lock.rotation", isOn: preferenceBinding(\.useAutoLock))
+            settingsToggle(AppLocalization.string("Auto Lock"), systemImage: "lock.rotation", isOn: preferenceBinding(\.useAutoLock))
                 .disabled(!isProtected)
-            Toggle(isOn: preferenceBinding(\.requireBiometricForSendActions)) {
+            Toggle(isOn: preferenceBinding(\.authenticateSends)) {
                 rowTitle(AppLocalization.format("Confirm Sends with %@", biometry.name), systemImage: "checkmark.shield")
             }.spectraRowPadding().disabled(!isProtected)
             Button {
                 store.isAppLocked = true
             } label: {
-                rowLabel("Lock Now", systemImage: "lock")
+                rowLabel(AppLocalization.string("Lock Now"), systemImage: "lock")
             }
             .buttonStyle(.plain).disabled(!isProtected)
-            settingsLink("Tor Network", systemImage: "network.badge.shield.half.filled", route: .tor) {
+            settingsLink(AppLocalization.string("Tor Network"), systemImage: "network.badge.shield.half.filled", route: .tor) {
                 TorStatusBadge(status: store.tor.status)
             }
         }
@@ -152,28 +152,27 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
 
+    private static let reportProblemURL = URL(string: "https://spectrawallet.org/bug/")!
+
     /// Opens the support page itself; the page in between held only its link.
-    @ViewBuilder
     private var reportProblemRow: some View {
-        if let url = URL(string: AppLinks.current.reportProblem) {
-            Link(destination: url) {
-                HStack(spacing: SpectraLayout.Space.s) {
-                    rowTitle(AppLocalization.string("Report a Problem"), systemImage: "exclamationmark.bubble")
-                    Spacer(minLength: SpectraLayout.Space.s)
-                    Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
-                        .accessibilityHidden(true)
-                }
-                .spectraRowPadding()
+        Link(destination: Self.reportProblemURL) {
+            HStack(spacing: SpectraLayout.Space.s) {
+                rowTitle(AppLocalization.string("Report a Problem"), systemImage: "exclamationmark.bubble")
+                Spacer(minLength: SpectraLayout.Space.s)
+                Image(systemName: "arrow.up.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
+                    .accessibilityHidden(true)
             }
-            .buttonStyle(.plain)
+            .spectraRowPadding()
         }
+        .buttonStyle(.plain)
     }
 
     /// A divider starts under a row's title, past its icon.
     private var dividerInset: CGFloat { SpectraLayout.rowHorizontal + iconWidth + SpectraLayout.Space.m }
 
     private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        SpectraRowSection(title: AppLocalization.string(title), dividerInset: dividerInset, content: content)
+        SpectraRowSection(title: title, dividerInset: dividerInset, content: content)
     }
 
     private func preferenceBinding(_ keyPath: ReferenceWritableKeyPath<AppUserPreferences, Bool>) -> Binding<Bool> {
@@ -193,7 +192,7 @@ struct SettingsView: View {
 
     /// A row that acts in place: no chevron, since it leads nowhere.
     private func rowLabel(_ title: String, systemImage: String) -> some View {
-        rowTitle(AppLocalization.string(title), systemImage: systemImage).spectraRowPadding()
+        rowTitle(title, systemImage: systemImage).spectraRowPadding()
     }
 
     private func settingsLink(_ title: String, systemImage: String, route: Route, tint: Color? = nil) -> some View {
@@ -206,7 +205,7 @@ struct SettingsView: View {
     ) -> some View {
         NavigationLink(value: route) {
             HStack(spacing: SpectraLayout.Space.s) {
-                rowTitle(AppLocalization.string(title), systemImage: systemImage, tint: tint)
+                rowTitle(title, systemImage: systemImage, tint: tint)
                 Spacer(minLength: SpectraLayout.Space.s)
                 trailing()
                 Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
@@ -219,7 +218,7 @@ struct SettingsView: View {
 
     private func settingsToggle(_ title: String, systemImage: String, isOn: Binding<Bool>) -> some View {
         Toggle(isOn: isOn) {
-            rowTitle(AppLocalization.string(title), systemImage: systemImage)
+            rowTitle(title, systemImage: systemImage)
         }.spectraRowPadding()
     }
 }

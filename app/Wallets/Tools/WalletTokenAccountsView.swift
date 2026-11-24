@@ -17,7 +17,7 @@ struct WalletTokenAccountsView: View {
         List {
             if let empty {
                 if empty.accounts.isEmpty {
-                    WalletToolEmptySection(message: "No empty token accounts.")
+                    WalletToolEmptySection(message: AppLocalization.string("No empty token accounts."))
                 } else {
                     Section {
                         ForEach(empty.accounts, id: \.address) { row($0) }
@@ -57,7 +57,7 @@ struct WalletTokenAccountsView: View {
                     Text(verbatim: "Token-2022").font(.caption2).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Text(verbatim: store.amounts.formattedNativeAmount(account.rent, chain: wallet.chain)).font(.subheadline).monospacedDigit()
+                Text(verbatim: store.amounts.formattedNativeAmount(account.rent, chain: wallet.chainId)).font(.subheadline).monospacedDigit()
             }
             Text(verbatim: account.address).font(.caption2.monospaced()).foregroundStyle(.secondary)
                 .lineLimit(1).truncationMode(.middle)
@@ -98,7 +98,7 @@ private struct CloseTokenAccountsView: View {
                     LabeledContent(
                         AppLocalization.string("Accounts"),
                         value: AppLocalization.format("%lld accounts", count: accounts.count, accounts.count))
-                    LabeledContent(AppLocalization.string("Rent Returned"), value: store.amounts.formattedNativeAmount(rent, chain: wallet.chain))
+                    LabeledContent(AppLocalization.string("Rent Returned"), value: store.amounts.formattedNativeAmount(rent, chain: wallet.chainId))
                 } footer: {
                     Text(AppLocalization.string("The accounts are deleted and their rent comes back to this wallet. A token sent here later opens a new account."))
                 }

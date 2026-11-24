@@ -10,9 +10,9 @@ struct SendCostRows: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-            SpectraValueRow(label: "Network Fee", value: fee)
+            SpectraValueRow(label: AppLocalization.string("Network Fee"), value: fee)
             if let total {
-                SpectraValueRow(label: "Total", value: total)
+                SpectraValueRow(label: AppLocalization.string("Total"), value: total)
             }
         }
     }

@@ -41,8 +41,6 @@ extension Chain: @retroactive Identifiable {
     var hasSendPreview: Bool { entry?.hasSendPreview ?? false }
     /// The chain can hold tracked tokens.
     var hostsTokens: Bool { entry?.hostsTokens ?? false }
-    /// The ledger creates an account only once it holds the network's reserve.
-    var requiresAccountReserve: Bool { entry?.requiresAccountReserve ?? false }
     /// The mainnet this chain belongs to, or itself.
     var mainnetCounterpart: Chain { entry?.mainnet ?? self }
     /// A test network's faucet page, where its coins are free.

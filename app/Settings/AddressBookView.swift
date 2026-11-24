@@ -16,8 +16,8 @@ struct AddressBookView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                     spectraPageHeader(
-                        title: "Address Book",
-                        subtitle: "Pick a saved recipient during a send instead of pasting an address.",
+                        title: AppLocalization.string("Address Book"),
+                        subtitle: AppLocalization.string("Pick a saved recipient during a send instead of pasting an address."),
                         systemImage: "person.crop.circle"
                     )
 
@@ -25,10 +25,10 @@ struct AddressBookView: View {
 
                     if addressBook.entries.isEmpty {
                         SpectraEmptyStateCard(
-                            title: "No saved addresses yet",
-                            message: "Save frequent recipients here so future sends are faster.",
+                            title: AppLocalization.string("No saved addresses yet"),
+                            message: AppLocalization.string("Save frequent recipients here so future sends are faster."),
                             systemImage: "person.crop.circle.badge.plus",
-                            actionTitle: "New Contact",
+                            actionTitle: AppLocalization.string("New Contact"),
                             actionSystemImage: "plus",
                             action: {
                                 spectraHaptic(.light)

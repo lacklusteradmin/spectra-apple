@@ -196,7 +196,7 @@ final class AppState {
             if self.settingCommandsInFlight == 0 { self.appSettings = self.committedAppSettings }
             guard case .failure(let error) = result else { return }
             self.reportCommandError(error)
-            if let state = try? await self.bridge.ready().appState() { self.applyCoreState(state) }
+            if let state = try? await self.bridge.ready().committedState() { self.applyCoreState(state) }
         }
     }
 
@@ -226,7 +226,7 @@ final class AppState {
     /// through a `StateCommand` and lands back here. Wallet-derived values come
     /// with the portfolio snapshot, which the caller reads when it needs one.
     @discardableResult
-    func applyCoreState(_ state: ResidentState) -> Bool {
+    func applyCoreState(_ state: CommittedState) -> Bool {
         guard state.revision >= appliedCoreStateRevision else { return false }
         appliedCoreStateRevision = state.revision
         if state.settings != committedAppSettings {

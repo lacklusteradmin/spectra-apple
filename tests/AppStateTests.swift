@@ -101,19 +101,21 @@ struct AppStateTests: IsolatedAppStateSuite {
             name: "BTC Testnet4", chainId: Chain.bitcoinTestnet4,
             address: "tb1qexample"
         )
-        #expect(wallet.networkTitle == "Bitcoin Testnet 4")
+        #expect(wallet.chainName == "Bitcoin Testnet 4")
     }
     /// Every EVM chain gets the EVM address hint. Asserted against the
-    /// generic fallback rather than against the English text so the test
-    /// does not depend on which locale it runs in.
+    /// sentences a chain without a hint gets rather than against the English
+    /// text, so the test does not depend on which locale it runs in.
     @Test func everyEVMChainGetsAFormatSpecificAddressHint() {
-        // Kaspa has no arm of its own, so its message is the fallback.
-        let generic = addressBookAddressValidationMessage(for: "", chain: .kaspa)
         let evmMainnets = Chain.mainnets.filter(\.isEVM)
         #expect(!evmMainnets.isEmpty)
         for chain in evmMainnets {
-            #expect(addressBookAddressValidationMessage(for: "", chain: chain) != generic, "\(chain.displayName) still gets the generic hint")
-            #expect(addressBookAddressValidationMessage(for: "nope", chain: chain) != addressBookAddressValidationMessage(for: "nope", chain: .kaspa), "\(chain.displayName) still gets the generic invalid-address hint")
+            #expect(addressBookAddressValidationMessage(for: "", chain: chain)
+                != AppLocalization.string("Enter an address for the selected chain."),
+                "\(chain.displayName) still gets the generic hint")
+            #expect(addressBookAddressValidationMessage(for: "nope", chain: chain)
+                != AppLocalization.format("Enter a valid %@ address.", chain.displayName),
+                "\(chain.displayName) still gets the generic invalid-address hint")
         }
     }
     @Test func everyCatalogCapabilityHasALocalizedLabel() async throws {
@@ -134,11 +136,11 @@ struct AppStateTests: IsolatedAppStateSuite {
             #expect(!Chain.mainnets.contains(chain), "\(chain.id)")
             #expect(chain.mainnetCounterpart == .ethereum, "\(chain.id)")
         }
-        #expect(AppEndpointDirectory.groupedSettingsEntries(for: Chain.ethereumSepolia).flatMap(\.endpoints) == ["https://ethereum-sepolia-rpc.publicnode.com", "https://1rpc.io/sepolia", "https://eth-sepolia.blockscout.com"])
-        #expect(AppEndpointDirectory.groupedSettingsEntries(for: Chain.ethereumHoodi).flatMap(\.endpoints) == ["https://ethereum-hoodi-rpc.publicnode.com", "https://1rpc.io/hoodi", "https://eth-hoodi.blockscout.com"])
-        let groups = AppEndpointDirectory.groupedSettingsEntries(for: Chain.ethereum)
+        #expect(CoreReferenceTables.endpointGroups(for: Chain.ethereumSepolia).flatMap(\.endpoints) == ["https://ethereum-sepolia-rpc.publicnode.com", "https://1rpc.io/sepolia", "https://eth-sepolia.blockscout.com"])
+        #expect(CoreReferenceTables.endpointGroups(for: Chain.ethereumHoodi).flatMap(\.endpoints) == ["https://ethereum-hoodi-rpc.publicnode.com", "https://1rpc.io/hoodi", "https://eth-hoodi.blockscout.com"])
+        let groups = CoreReferenceTables.endpointGroups(for: Chain.ethereum)
         #expect(groups.contains { $0.chainId == .ethereumSepolia && $0.title == "Ethereum Sepolia" })
-        #expect(AppEndpointDirectory.groupedSettingsEntries(for: Chain.ethereumSepolia).map(\.chainId) == [.ethereumSepolia])
+        #expect(CoreReferenceTables.endpointGroups(for: Chain.ethereumSepolia).map(\.chainId) == [.ethereumSepolia])
     }
     /// A watch-only wallet on any chain survives persistence: "has any
     /// address" is a property of the wallet, not of a list.
@@ -198,7 +200,7 @@ struct AppStateTests: IsolatedAppStateSuite {
         store.updateSetting(.fiatCurrency(value: .eur))
         await store.stateCommands.awaitPending()
 
-        let state = try await bridge.ready().appState()
+        let state = try await bridge.ready().committedState()
         #expect(state.settings.fiatCurrency == .eur)
         #expect(store.selectedFiatCurrency == .eur)
     }
@@ -240,13 +242,13 @@ struct AppStateTests: IsolatedAppStateSuite {
         }
         await store.stateCommands.awaitPending()
         #expect(store.addressBook.entries.count == 3)
-        let stale = try await bridge.ready().appState()
+        let stale = try await bridge.ready().committedState()
 
         for entry in store.addressBook.entries { store.addressBook.remove(id: entry.id) }
         await store.stateCommands.awaitPending()
         store.applyCoreState(stale)
         #expect(store.addressBook.entries.isEmpty, "an earlier read must not resurrect removed contacts")
-        let persisted = try await bridge.ready().appState()
+        let persisted = try await bridge.ready().committedState()
         #expect(persisted.addressBook.isEmpty)
     }
 
@@ -315,7 +317,7 @@ struct AppStateTests: IsolatedAppStateSuite {
 
     @Test func settingsRuntimeUsesCommittedValuesWhileEditsAreQueued() async throws {
         let store = makeState()
-        let state = try await bridge.ready().appState()
+        let state = try await bridge.ready().committedState()
         store.applyCoreState(state)
         let initial = store.committedAppSettings.bitcoinStopGap
         let next: UInt32 = initial == 30 ? 40 : 30
@@ -333,7 +335,7 @@ struct AppStateTests: IsolatedAppStateSuite {
     /// on screen at once, by core's own rule, not after the round trip.
     @Test func settingsGoThroughCoreAndSurviveIntoAFreshAppState() async throws {
         let store = makeState()
-        store.updateSetting(.addCustomEndpoint(capabilities: [.fee, .broadcast, .verification], chainId: Chain.monero, api: "monero-daemon-rpc", endpoint: "  https://wallet.example  "))
+        store.updateSetting(.addCustomEndpoint(capabilities: [.fee, .broadcast, .verification], chainId: Chain.monero, api: .moneroDaemonRpc, endpoint: "  https://wallet.example  "))
         store.updateSetting(.bitcoinStopGap(value: 9_999))
         store.updateSetting(.useLargeMovementNotifications(value: false))
         #expect(store.appSettings.customEndpoints.last?.endpoint == "https://wallet.example", "core's rule trims before the command lands")
@@ -392,7 +394,7 @@ struct AppStateTests: IsolatedAppStateSuite {
     }
 
     @Test func coreVersionWinsRegardlessOfRequestCompletionOrder() async throws {
-        let old = try await bridge.ready().appState()
+        let old = try await bridge.ready().committedState()
         let changed = try await bridge.ready().applyStateCommand(command: .setAppSetting(update: .fiatCurrency(value: .eur)))
         // A failed operation after the successful write must not discard its result.
         await #expect(throws: (any Error).self, "missing transaction must fail") {

@@ -11,7 +11,7 @@ struct SendFromPage: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            FlowPageHeading(title: "Choose an asset to send", subtitle: "Choose an asset from your wallet.")
+            FlowPageHeading(title: AppLocalization.string("Choose an asset to send"), subtitle: AppLocalization.string("Choose an asset from your wallet."))
             // Both cards headed alike: a title over its rows.
             SpectraRowSection(title: AppLocalization.string("Sending wallet")) {
                 walletRow.spectraRowPadding()
@@ -24,7 +24,7 @@ struct SendFromPage: View {
                     title: AppLocalization.string("Available assets"), data: presentation.availableSendCoins,
                     dividerInset: SpectraLayout.rowHorizontal + Self.assetBadgeSize + SpectraLayout.Space.m
                 ) { coin in
-                    assetRow(coin: coin, isSelected: coin.holdingKey == store.sendFlow.holdingKey)
+                    assetRow(coin: coin, isSelected: coin.id == store.sendFlow.holdingKey)
                 }
             }
         }
@@ -44,7 +44,7 @@ struct SendFromPage: View {
                     Text(selectedWallet.name).font(.headline).lineLimit(1)
                     // The network, not the family: a Sepolia wallet read
                     // "Ethereum" and looked like a mainnet one.
-                    Text(selectedWallet.networkTitle).font(.caption).foregroundStyle(.secondary)
+                    Text(selectedWallet.chainName).font(.caption).foregroundStyle(.secondary)
                 }
             }
             Spacer(minLength: 0)
@@ -56,7 +56,7 @@ struct SendFromPage: View {
                         ForEach(presentation.sendWallets) { wallet in
                             VStack {
                                 Text(wallet.name)
-                                Text(wallet.networkTitle)
+                                Text(wallet.chainName)
                             }
                             .tag(wallet.id)
                         }
@@ -75,7 +75,7 @@ struct SendFromPage: View {
     private func assetRow(coin: AssetHolding, isSelected: Bool) -> some View {
         Button {
             guard !isSelected else { return }
-            store.sendFlow.holdingKey = coin.holdingKey
+            store.sendFlow.holdingKey = coin.id
             spectraHaptic(.light)
         } label: {
             HStack(spacing: SpectraLayout.Space.m) {
@@ -88,7 +88,9 @@ struct SendFromPage: View {
                         Text(coin.name).font(.caption).foregroundStyle(.secondary)
                     }
                     if !dynamicTypeSize.isAccessibilitySize { Spacer(minLength: SpectraLayout.Space.s) }
-                    Text(store.amounts.formattedAssetAmount(coin.amount, symbol: coin.symbol, deploymentId: coin.holdingKey))
+                    BalanceText(
+                        text: store.amounts.formattedAssetAmount(coin.amount, symbol: coin.symbol, deploymentId: coin.id),
+                        isHidden: store.preferences.hideBalances)
                         .font(.subheadline.weight(.medium))
                         .spectraNumericTextLayout()
                 }

@@ -14,17 +14,17 @@ struct WalletStakingView: View {
     @State private var confirmsBroadcast = false
 
     init(store: AppState, wallet: WalletState) {
-        chain = wallet.chain
+        chain = wallet.chainId
         walletId = wallet.id
         self.store = store
-        _staking = State(wrappedValue: StakingState(chain: wallet.chain, bridge: store.bridge))
+        _staking = State(wrappedValue: StakingState(chain: wallet.chainId, bridge: store.bridge))
     }
 
     private var wallet: WalletState? { store.wallet(for: staking.walletId) }
     /// The wallet's balance of the network's coin, as its rows show it.
     private var availableToStake: String? {
         guard let coin = store.availableSendCoins(for: staking.walletId).first(where: \.isNativeCoin) else { return nil }
-        return store.amounts.formattedAssetAmount(coin.amount, symbol: coin.symbol, deploymentId: coin.holdingKey)
+        return store.amounts.formattedAssetAmount(coin.amount, symbol: coin.symbol, deploymentId: coin.id)
     }
     private var requiresPassword: Bool { wallet?.signing.requiresPassword ?? true }
 
@@ -45,7 +45,7 @@ struct WalletStakingView: View {
                     } else {
                         StakingPositionsView(
                             staking: staking, canSign: wallet?.signing.isWatchOnly == false,
-                            requiresPassword: requiresPassword)
+                            requiresPassword: requiresPassword, hidesBalances: store.preferences.hideBalances)
                         preparation
                         savedTransactions
                     }
@@ -172,7 +172,10 @@ struct WalletStakingView: View {
                 // its fee and the network's reserve differs by network, and
                 // core does not yet answer it, so the figure is the user's.
                 if staking.action == .stake, let available = availableToStake {
-                    Text(AppLocalization.format("Available: %@", available)).font(.caption).foregroundStyle(.secondary)
+                    BalanceText(text: available, isHidden: store.preferences.hideBalances) {
+                        AppLocalization.format("Available: %@", $0)
+                    }
+                    .font(.caption).foregroundStyle(.secondary)
                 }
                 if !staking.rules.amountRequired {
                     Text(AppLocalization.string("staking.full_withdrawal")).font(.caption).foregroundStyle(

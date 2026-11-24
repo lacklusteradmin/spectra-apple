@@ -79,15 +79,8 @@ func addressBookAddressValidationMessage(for address: String, chain: Chain) -> S
     if !isEmpty, isValidSendAddress(chain: chain, address: trimmed) {
         return AppLocalization.format("Valid %@ address.", chain.displayName)
     }
-
-    // The sentence a chain has of its own, looked up by id. These are
-    // content, so they live in the locale files keyed by chain id; a chain
-    // with none falls back to a template built from the catalog's
-    // `address_prefix_hint`.
-    let key = "addressHint.\(chain.id).\(isEmpty ? "empty" : "invalid")"
-    let localized = AppLocalization.string(key)
-    if localized != key { return localized }
-
+    // What an address on the chain looks like is the catalog's
+    // `address_prefix_hint`; a chain without one gets the plain sentence.
     let hint = chain.addressPrefixHint
     guard !hint.isEmpty else {
         return isEmpty

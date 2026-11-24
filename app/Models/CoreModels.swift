@@ -14,14 +14,11 @@ extension SendPreview {
 /// this app reads carries it.
 extension AssetHolding: @retroactive Identifiable {
     var color: Color { AssetPresentationCatalog.color(deploymentId: id) }
-    var holdingKey: String { id }
-    var chain: Chain { chainId }
     /// For text a person reads; identity is `chainId`.
     var chainName: String { chainId.displayName }
-    var isEVMChain: Bool { chain.isEVM }
     /// The chain's own asset — `ETH` on Arbitrum, not `ARB` — by deployment
     /// identity, which the catalog names for each chain.
-    var isNativeCoin: Bool { chain.entry?.nativeDeploymentId == id }
+    var isNativeCoin: Bool { chainId.entry?.nativeDeploymentId == id }
     /// Whether anything is held. Core stores amounts in canonical spelling,
     /// so zero is always `"0"`.
     var hasBalance: Bool { amount != "0" }
@@ -34,14 +31,14 @@ extension DiagnosticLogInput {
 }
 extension WalletState: @retroactive Identifiable {}
 extension WalletState {
-    /// The network this wallet is on.
-    var chain: Chain { chainId }
+    /// The network's name, for text a person reads; identity is `chainId`.
+    var chainName: String { chainId.displayName }
     /// The mainnet whose family this wallet belongs to.
-    var family: Chain { chain.mainnetCounterpart }
+    var family: Chain { chainId.mainnetCounterpart }
     /// The family's name, for text a person reads.
     var familyName: String { family.displayName }
     /// Whether the user hid `holding` from this wallet's total.
-    func hides(_ holding: AssetHolding) -> Bool { hiddenHoldings.contains(holding.holdingKey) }
+    func hides(_ holding: AssetHolding) -> Bool { hiddenHoldings.contains(holding.id) }
     /// The holdings with a balance the wallet shows and counts.
     var shownHoldings: [AssetHolding] { holdings.filter { $0.hasBalance && !hides($0) } }
 }
@@ -58,8 +55,9 @@ extension DerivationProfile {
         }
     }
 }
-extension TonWalletVersion: @retroactive CaseIterable {
-    public static var allCases: [TonWalletVersion] { [.w5, .v4r2] }
+extension TonWalletVersion {
+    /// Every contract version, in core's order, the default first.
+    static let allCases: [TonWalletVersion] = tonWalletVersions()
     /// The version's name as TON wallets print it.
     var title: String {
         switch self {
@@ -86,8 +84,8 @@ extension TransactionStatus {
     }
 }
 /// Picker order and wording for core's history filter.
-extension HistoryQueryFilter: @retroactive CaseIterable, @retroactive Identifiable {
-    public static var allCases: [HistoryQueryFilter] { [.all, .send, .receive, .pending] }
+extension HistoryQueryFilter: @retroactive Identifiable {
+    static let allCases: [HistoryQueryFilter] = [.all, .send, .receive, .pending]
     public var id: Self { self }
     var localizedTitle: String {
         switch self {
@@ -121,7 +119,7 @@ extension PriceAlertRule: @retroactive Identifiable {}
 
 extension PriceAlertRule {
     var chainName: String { chainId.displayName }
-    var titleText: String { String(format: CommonLocalizationContent.current.assetOnChainFormat, assetDisplayName, chainName) }
+    var titleText: String { AppLocalization.format("common.assetOnChainFormat", assetDisplayName, chainName) }
     var statusText: String {
         if !isEnabled { return AppLocalization.string("Paused") }
         return hasTriggered ? AppLocalization.string("Triggered") : AppLocalization.string("Watching")
@@ -133,26 +131,24 @@ extension AddressBookEntry: @retroactive Identifiable {
     var chainName: String { chainId.displayName }
     var subtitleText: String {
         guard !note.isEmpty else { return chainName }
-        return String(format: CommonLocalizationContent.current.addressBookSubtitleFormat, chainName, note)
+        return AppLocalization.format("common.addressBookSubtitleFormat", chainName, note)
     }
 }
 /// A stored transaction, as core keeps it.
 extension TransactionRecord: @retroactive Identifiable {
     /// History with no deployment identity draws its letter.
     var artworkName: String { AssetPresentationCatalog.artwork(deploymentId: deploymentId) }
-    var chain: Chain { chainId }
     var chainName: String { chainId.displayName }
     /// When it was recorded. Core stores Unix seconds.
     var createdDate: Date { Date(timeIntervalSince1970: createdAtUnix) }
     var titleText: String {
-        let copy = CommonLocalizationContent.current
         switch kind {
-        case .send: return String(format: copy.transactionSentTitleFormat, symbol)
-        case .receive: return String(format: copy.transactionReceivedTitleFormat, symbol)
-        case .stake: return AppLocalization.format("transaction.title.stake", symbol)
-        case .unstake: return AppLocalization.format("transaction.title.unstake", symbol)
-        case .withdraw: return AppLocalization.format("transaction.title.withdraw", symbol)
-        case .claimRewards: return AppLocalization.format("transaction.title.claimRewards", symbol)
+        case .send: return AppLocalization.format("Sent %@", symbol)
+        case .receive: return AppLocalization.format("Received %@", symbol)
+        case .stake: return AppLocalization.format("Stake %@", symbol)
+        case .unstake: return AppLocalization.format("Unstake %@", symbol)
+        case .withdraw: return AppLocalization.format("Withdraw %@", symbol)
+        case .claimRewards: return AppLocalization.format("Claim %@ Rewards", symbol)
         case .revokeApproval: return AppLocalization.format("Revoke %@ Approval", symbol)
         case .deleteAccessKey: return AppLocalization.string("Delete Access Key")
         case .mergeCoins: return AppLocalization.format("Merge %@ Coins", symbol)
@@ -165,11 +161,10 @@ extension TransactionRecord: @retroactive Identifiable {
     }
     /// Name the network and wallet, prefixing the asset name for token transfers.
     var subtitleText: String {
-        let copy = CommonLocalizationContent.current
         let asset =
             assetDisplayName.caseInsensitiveCompare(chainName) == .orderedSame
-            ? assetDisplayName : String(format: copy.assetOnChainFormat, assetDisplayName, chainName)
-        return String(format: copy.transactionSubtitleFormat, asset, walletName)
+            ? assetDisplayName : AppLocalization.format("common.assetOnChainFormat", assetDisplayName, chainName)
+        return AppLocalization.format("common.transactionSubtitleFormat", asset, walletName)
     }
     var badgeColor: Color {
         switch direction {
@@ -254,8 +249,4 @@ extension TransactionRecord: @retroactive Identifiable {
             return message
         }
     }
-}
-
-extension WalletState {
-    var networkTitle: String { chainId.displayName }
 }

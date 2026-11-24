@@ -7,7 +7,6 @@ struct EndpointCatalogSettingsView: View {
     @State private var loadError: String?
     @State private var sourceFilter = "All"
     @State private var editingEntry: EndpointDirectoryEntry?
-    private let copy = EndpointsContentCopy.current
 
     private var endpointSections: [Chain] {
         Chain.mainnets.filter { chain in
@@ -15,7 +14,7 @@ struct EndpointCatalogSettingsView: View {
         }
     }
     private func visibleEntries(for chain: Chain) -> [EndpointDirectoryEntry] {
-        let chains = Set(AppEndpointDirectory.groupedSettingsEntries(for: chain).map(\.chainId) + [chain])
+        let chains = Set(CoreReferenceTables.endpointGroups(for: chain).map(\.chainId) + [chain])
         return entries.filter {
             chains.contains($0.record.chainId)
                 && (sourceFilter == "All" || $0.isBuiltIn == (sourceFilter == "Built-In"))
@@ -75,7 +74,7 @@ struct EndpointCatalogSettingsView: View {
             ForEach(endpointSections) { chain in
                 Section(chain.displayName) {
                     let rows = visibleEntries(for: chain)
-                    let groups = AppEndpointDirectory.groupedSettingsEntries(for: chain)
+                    let groups = CoreReferenceTables.endpointGroups(for: chain)
                     if groups.count > 1 {
                         ForEach(groups, id: \.chainId) { group in
                             let groupRows = rows.filter { $0.record.chainId == group.chainId }
@@ -92,7 +91,7 @@ struct EndpointCatalogSettingsView: View {
                 }
             }
         }
-        .navigationTitle(copy.navigationTitle)
+        .navigationTitle(AppLocalization.string("endpoints.navigationTitle"))
         .navigationDestination(item: $editingEntry) { entry in
             AddCustomEndpointView(store: store, editing: entry)
         }
@@ -101,7 +100,7 @@ struct EndpointCatalogSettingsView: View {
                 NavigationLink {
                     AddCustomEndpointView(store: store)
                 } label: { Image(systemName: "plus") }
-                .accessibilityLabel(copy.addEndpointTitle)
+                .accessibilityLabel(AppLocalization.string("endpoints.addEndpointTitle"))
             }
             ToolbarItem(placement: .barTrailing) {
                 Menu {

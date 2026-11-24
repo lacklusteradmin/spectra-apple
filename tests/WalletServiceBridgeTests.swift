@@ -16,11 +16,11 @@ struct WalletServiceBridgeTests {
         if let error { #expect(!String(describing: error).contains("call open_state first")) }
         try FileManager.default.removeItem(at: directory)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let state = try await bridge.ready().appState()
+        let state = try await bridge.ready().committedState()
         #expect(state.settings.fiatCurrency == .usd)
         _ = try await bridge.ready().applyStateCommand(command: .setAppSetting(update: .fiatCurrency(value: .eur)))
         let reopened = WalletServiceBridge(databasePath: directory.appendingPathComponent("state.db").path, service: try WalletService(endpoints: []))
-        let stored = try await reopened.ready().appState()
+        let stored = try await reopened.ready().committedState()
         #expect(stored.settings.fiatCurrency == .eur)
     }
 

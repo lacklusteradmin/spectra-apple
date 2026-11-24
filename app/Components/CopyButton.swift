@@ -4,7 +4,8 @@ import SwiftUI
 /// and VoiceOver hears "Copied". With a title it is a glass button, drawn as
 /// its `Style` says; without, a tinted glyph with a full-size tap target, for
 /// the end of a row. Given row content, the whole row copies and ends in that
-/// glyph.
+/// glyph: padded as a `SpectraRowGroup`'s rows are, or not, among a detail
+/// card's rows, which the card spaces.
 struct CopyButton<Row: View>: View {
     /// Where a titled button sits.
     enum Style {
@@ -21,6 +22,7 @@ struct CopyButton<Row: View>: View {
     private let title: String?
     private let style: Style
     private let row: Row?
+    private let padded: Bool
     @State private var didCopy = false
 
     var body: some View {
@@ -37,13 +39,16 @@ struct CopyButton<Row: View>: View {
     private var button: some View {
         if let row {
             Button(action: copy) {
-                HStack(spacing: SpectraLayout.Space.m) {
+                let content = HStack(spacing: SpectraLayout.Space.m) {
                     row
                     Spacer(minLength: SpectraLayout.Space.s)
                     glyphImage
                 }
-                .spectraRowPadding()
-                .contentShape(Rectangle())
+                if padded {
+                    content.spectraRowPadding()
+                } else {
+                    content.contentShape(Rectangle())
+                }
             }
             .buttonStyle(.plain)
             .accessibilityHint(spokenState)
@@ -81,7 +86,7 @@ struct CopyButton<Row: View>: View {
     }
 
     private func titledLabel(_ title: String) -> some View {
-        Label(AppLocalization.string(didCopy ? "Copied" : title), systemImage: glyph)
+        Label(didCopy ? AppLocalization.string("Copied") : title, systemImage: glyph)
             .contentTransition(.symbolEffect(.replace))
     }
 
@@ -108,16 +113,19 @@ extension CopyButton where Row == EmptyView {
         self.title = title
         self.style = style
         self.row = nil
+        self.padded = false
     }
 }
 
 extension CopyButton {
-    /// A row of a `SpectraRowGroup` that copies wherever it is tapped and
-    /// ends in the glyph.
-    init(value: String, @ViewBuilder row: () -> Row) {
+    /// A row that copies wherever it is tapped and ends in the glyph: a
+    /// `SpectraRowGroup`'s, padded as its rows are, or with `padded: false`
+    /// a detail card's.
+    init(value: String, padded: Bool = true, @ViewBuilder row: () -> Row) {
         self.value = value
         self.title = nil
         self.style = .compact
         self.row = row()
+        self.padded = padded
     }
 }

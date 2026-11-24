@@ -67,7 +67,7 @@ struct StakingRenderTests: IsolatedAppStateSuite {
         staking.session.progress = progress
         let view = ScrollView {
             if stage == .positions || stage == .queuedRewards {
-                StakingPositionsView(staking: staking, canSign: true, requiresPassword: false)
+                StakingPositionsView(staking: staking, canSign: true, requiresPassword: false, hidesBalances: false)
             } else {
                 StakingTransactionView(
                     store: store, staking: staking, progress: progress,

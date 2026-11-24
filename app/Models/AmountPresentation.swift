@@ -149,12 +149,12 @@ struct AmountPresentation {
     }
     func receiptNetworkFeeText(for transaction: TransactionRecord) -> String? {
         guard let fee = transaction.receiptNetworkFee else { return nil }
-        let chain = transaction.chain
+        let chain = transaction.chainId
         return formattedNativeAmount(fee, chain: chain)
     }
     func confirmedNetworkFeeText(for transaction: TransactionRecord) -> String? {
         guard let fee = transaction.confirmedNetworkFee else { return nil }
-        let chain = transaction.chain
+        let chain = transaction.chainId
         return formattedNativeAmount(fee, chain: chain)
     }
     func storedFeeRateText(for transaction: TransactionRecord) -> String? {

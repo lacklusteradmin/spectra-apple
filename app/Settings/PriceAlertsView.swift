@@ -9,9 +9,9 @@ struct PriceAlertsView: View {
     @State private var isSubmitting = false
     @State private var formMessage: String?
     @State private var removingAlertId: String?
-    private var alertableHoldingKeys: Set<String> { Set(store.portfolio.map(\.holdingKey)) }
+    private var alertableHoldingKeys: Set<String> { Set(store.portfolio.map(\.id)) }
     private var selectedCoin: AssetHolding? {
-        store.portfolio.first(where: { $0.holdingKey == selectedHoldingKey })
+        store.portfolio.first(where: { $0.id == selectedHoldingKey })
     }
     var body: some View {
         Form {
@@ -24,15 +24,15 @@ struct PriceAlertsView: View {
             Section(AppLocalization.string("New Alert")) {
                 if store.portfolio.isEmpty {
                     SpectraEmptyStateContent(
-                        title: "No alertable assets",
-                        message: "Import a wallet with assets first. Alerts are created from assets currently in your portfolio.",
+                        title: AppLocalization.string("No alertable assets"),
+                        message: AppLocalization.string("Import a wallet with assets first. Alerts are created from assets currently in your portfolio."),
                         systemImage: "chart.line.uptrend.xyaxis"
                     )
                 } else {
                     Picker(AppLocalization.string("Asset"), selection: $selectedHoldingKey) {
-                        ForEach(store.portfolio, id: \.holdingKey) { coin in
+                        ForEach(store.portfolio) { coin in
                             Text(AppLocalization.format("%@ on %@", coin.symbol, coin.chainName)).tag(
-                                coin.holdingKey)
+                                coin.id)
                         }
                     }
                     Picker(AppLocalization.string("Condition"), selection: $selectedCondition) {
@@ -57,8 +57,8 @@ struct PriceAlertsView: View {
             Section(AppLocalization.string("Active Alerts")) {
                 if store.priceAlerts.rules.isEmpty {
                     SpectraEmptyStateContent(
-                        title: "No alerts configured yet",
-                        message: "Add a price rule to watch one of your portfolio assets.",
+                        title: AppLocalization.string("No alerts configured yet"),
+                        message: AppLocalization.string("Add a price rule to watch one of your portfolio assets."),
                         systemImage: "bell.slash"
                     )
                 } else {
@@ -124,7 +124,7 @@ struct PriceAlertsView: View {
         defer { isSubmitting = false }
         do {
             try await store.priceAlerts.edit(.addPriceAlert(
-                holdingKey: selectedCoin.holdingKey, targetPrice: target,
+                holdingKey: selectedCoin.id, targetPrice: target,
                 currency: store.selectedFiatCurrency, condition: selectedCondition))
             store.notifications.requestPermission()
             targetPriceText = ""
@@ -133,7 +133,7 @@ struct PriceAlertsView: View {
         } catch { formMessage = userErrorMessage(error) }
     }
     private func syncSelection() {
-        if !alertableHoldingKeys.contains(selectedHoldingKey) { selectedHoldingKey = store.portfolio.first?.holdingKey ?? "" }
+        if !alertableHoldingKeys.contains(selectedHoldingKey) { selectedHoldingKey = store.portfolio.first?.id ?? "" }
     }
     /// "Above $3,000": one sentence per condition, since languages put the
     /// price on either side of the word.

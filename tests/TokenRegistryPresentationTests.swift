@@ -27,7 +27,7 @@ struct TokenRegistryPresentationTests: IsolatedAppStateSuite {
         #expect(current.token.coingeckoId == "demo")
         let reopened = WalletServiceBridge(databasePath: directory.appendingPathComponent("state.sqlite").path,
             service: try WalletService(endpoints: []))
-        let persisted = try await reopened.ready().appState()
+        let persisted = try await reopened.ready().committedState()
         #expect(persisted.tokenPreferences.first { $0.id == entry.id }?.token == current.token)
     }
 
@@ -49,7 +49,7 @@ struct TokenRegistryPresentationTests: IsolatedAppStateSuite {
 
     @Test func tokenManagementScreensRenderInARealWindow() async throws {
         let state = makeState()
-        state.applyCoreState(try await bridge.ready().appState())
+        state.applyCoreState(try await bridge.ready().committedState())
         let entry = try #require(state.tokenPreferences.entries.first { $0.token.symbol == "USDC" })
         let views: [(String, AnyView)] = [
             ("Known tokens", AnyView(NavigationStack { TokenRegistrySettingsView(tokens: state.tokenPreferences) })),

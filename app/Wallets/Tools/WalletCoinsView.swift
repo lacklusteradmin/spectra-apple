@@ -39,12 +39,16 @@ struct WalletCoinsView: View {
         }
         if coins.maturing != "0" {
             Section {
-                Label(
-                    AppLocalization.format(
-                        "%@ %@ in minting rewards is still maturing: counted in the balance, not yet spendable.",
-                        coins.maturing, coins.symbol),
-                    systemImage: "hourglass")
-                    .font(.subheadline)
+                Label {
+                    BalanceText(text: coins.maturing, isHidden: store.preferences.hideBalances) {
+                        AppLocalization.format(
+                            "%@ %@ in minting rewards is still maturing: counted in the balance, not yet spendable.",
+                            $0, coins.symbol)
+                    }
+                } icon: {
+                    Image(systemName: "hourglass")
+                }
+                .font(.subheadline)
             }
         }
         addressSection(AppLocalization.string("Receive Addresses"), coins.addresses.filter { $0.branch == .receive }, coins)
@@ -57,8 +61,10 @@ struct WalletCoinsView: View {
             ForEach(coins.outputs, id: \.outpoint) { output in
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     HStack {
-                        Text(verbatim: AmountPresentation.exactAmount(output.amount, symbol: coins.symbol)).font(.subheadline.weight(.semibold))
-                            .monospacedDigit()
+                        BalanceText(
+                            text: AmountPresentation.exactAmount(output.amount, symbol: coins.symbol),
+                            isHidden: store.preferences.hideBalances)
+                            .font(.subheadline.weight(.semibold)).monospacedDigit()
                         Spacer()
                         Text(output.confirmationsText).font(.caption).foregroundStyle(.secondary)
                     }
@@ -86,7 +92,10 @@ struct WalletCoinsView: View {
                                 Text(verbatim: "#\(index)").font(.caption.monospacedDigit()).foregroundStyle(.secondary)
                             }
                             Spacer()
-                            Text(verbatim: AmountPresentation.exactAmount(row.balance, symbol: coins.symbol)).font(.subheadline).monospacedDigit()
+                            BalanceText(
+                                text: AmountPresentation.exactAmount(row.balance, symbol: coins.symbol),
+                                isHidden: store.preferences.hideBalances)
+                                .font(.subheadline).monospacedDigit()
                         }
                         addressText(row.address)
                         if !row.used {

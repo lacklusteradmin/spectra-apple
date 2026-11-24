@@ -16,7 +16,7 @@ struct AmountPresentationTests {
 
     @Test func partialTotalsShowTheValuedFigureAlone() {
         let display = AmountPresentation(assetPrecision: nil, valuation: nil, selectedFiatCurrency: .eur)
-        let incomplete = QuotedTotal(total: 6000, unpricedCount: 1, fiatTotal: 5400)
+        let incomplete = QuotedTotal(total: 6000, unpricedCount: 1, fiatTotal: 5400, unreadWalletCount: 0, isUnread: false)
         #expect(display.formattedQuotedTotal(incomplete) == display.formattedFiat(5400))
     }
 

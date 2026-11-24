@@ -24,7 +24,7 @@ extension AppState {
         guard snapshot.revision > portfolioSnapshotRevision else { return }
         guard applyCoreState(snapshot.state) else { return }
         portfolioSnapshotRevision = snapshot.revision
-        applyQuoteProjection(snapshot.state)
+        applyQuoteProjection(snapshot.quotes)
         if portfolioValuation != snapshot.valuation { portfolioValuation = snapshot.valuation }
         if assetPrecision != snapshot.assetPrecision { adoptAssetPrecision(snapshot.assetPrecision) }
         let derived = snapshot.derived

@@ -9,7 +9,7 @@ extension AppState {
         guard let wallet = wallets.first(where: { $0.id == walletId }) ?? wallets.first else { return }
         sendFlow.walletId = wallet.id
         let coins = availableSendCoins(for: sendFlow.walletId)
-        sendFlow.holdingKey = coins.first(where: { $0.holdingKey == holdingKey })?.holdingKey ?? coins.first?.holdingKey ?? ""
+        sendFlow.holdingKey = coins.first(where: { $0.id == holdingKey })?.id ?? coins.first?.id ?? ""
         sendFlow.resetComposer()
         syncSendAssetSelection()
         presentSendFlow()
@@ -22,11 +22,11 @@ extension AppState {
         sendFlow.isPresented = true
     }
     func syncSendAssetSelection() {
-        let availableHoldingKeys = availableSendCoins(for: sendFlow.walletId).map(\.holdingKey)
+        let availableHoldingKeys = availableSendCoins(for: sendFlow.walletId).map(\.id)
         if !availableHoldingKeys.contains(sendFlow.holdingKey) { sendFlow.holdingKey = availableHoldingKeys.first ?? "" }
         // Keep EIP-1559 fees and manual nonce when switching within the EVM
         // family; clear them when leaving it.
-        if selectedSendCoin?.isEVMChain != true {
+        if selectedSendCoin?.chainId.isEVM != true {
             sendFlow.clearEvmOverrides()
         }
         sendFlow.invalidateSession()
@@ -35,11 +35,11 @@ extension AppState {
     }
     func cancelSend() { sendFlow.close() }
     var selectedSendCoin: AssetHolding? {
-        availableSendCoins(for: sendFlow.walletId).first(where: { $0.holdingKey == sendFlow.holdingKey })
+        availableSendCoins(for: sendFlow.walletId).first(where: { $0.id == sendFlow.holdingKey })
     }
     var sendAmountDecimals: UInt32? {
         guard let coin = selectedSendCoin else { return nil }
-        return assetPrecision?.byDeploymentId[coin.holdingKey]
+        return assetPrecision?.byDeploymentId[coin.id]
     }
     var sendAmountIsValid: Bool {
         guard let decimals = sendAmountDecimals else { return false }

@@ -25,7 +25,7 @@ struct AssetGroupDetailView: View {
                     AssetWalletBreakdownCard(assetGroup: assetGroup, store: store)
                 } else {
                     SpectraEmptyStateCard(
-                        title: "Asset not listed", message: "This asset is no longer in your portfolio.",
+                        title: AppLocalization.string("Asset not listed"), message: AppLocalization.string("This asset is no longer in your portfolio."),
                         systemImage: "chart.pie")
                 }
             }.spectraScreenPadding()
@@ -52,11 +52,11 @@ struct AssetGroupDetailView: View {
 private struct AssetMoveButtons: View {
     let store: AppState
     let assetGroup: DashboardAssetGroup
-    private var holdingKeys: Set<String> { Set(assetGroup.holdings.map(\.coin.holdingKey)) }
+    private var holdingKeys: Set<String> { Set(assetGroup.holdings.map(\.coin.id)) }
     private var sendTarget: (walletId: String, holdingKey: String)? {
         for wallet in store.sendEnabledWallets {
-            if let coin = store.availableSendCoins(for: wallet.id).first(where: { holdingKeys.contains($0.holdingKey) }) {
-                return (wallet.id, coin.holdingKey)
+            if let coin = store.availableSendCoins(for: wallet.id).first(where: { holdingKeys.contains($0.id) }) {
+                return (wallet.id, coin.id)
             }
         }
         return nil
@@ -106,7 +106,7 @@ private struct AssetDetailHeroCard: View {
                     .spectraNumericTextLayout(minimumScaleFactor: 0.7)
                 BalanceText(
                     text: store.amounts.formattedAssetAmount(
-                        assetGroup.totalAmount, symbol: assetGroup.symbol, deploymentId: assetGroup.identity.holdingKey),
+                        assetGroup.totalAmount, symbol: assetGroup.symbol, deploymentId: assetGroup.identity.id),
                     isHidden: hidden
                 ).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
                     .spectraNumericTextLayout(minimumScaleFactor: 0.7)
@@ -127,14 +127,14 @@ private struct AssetChainBreakdownCard: View {
     let assetGroup: DashboardAssetGroup
     let store: AppState
     var body: some View {
-        AssetBreakdownCard(title: "Chain Breakdown", count: assetGroup.holdings.count) { index in
+        AssetBreakdownCard(title: AppLocalization.string("Chain Breakdown"), count: assetGroup.holdings.count) { index in
             let holding = assetGroup.holdings[index]
-            let badge = AssetHolding.nativeChainBadge(for: holding.coin.chain) ?? (nil, holding.coin.color)
+            let badge = AssetHolding.nativeChainBadge(for: holding.coin.chainId) ?? (nil, holding.coin.color)
             AssetBreakdownRow(
                 badgeArtworkName: badge.artworkName, badgeColor: badge.color, badgeMark: holding.coin.chainName,
                 title: holding.coin.chainName, subtitle: holding.coin.standardLabel,
                 amountText: store.amounts.formattedAssetAmount(
-                    holding.coin.amount, symbol: holding.coin.symbol, deploymentId: holding.coin.holdingKey),
+                    holding.coin.amount, symbol: holding.coin.symbol, deploymentId: holding.coin.id),
                 valueText: store.amounts.formattedFiat(holding.value),
                 hidesBalance: store.preferences.hideBalances)
         }
@@ -151,14 +151,14 @@ private struct AssetWalletBreakdownCard: View {
     }
     var body: some View {
         let shares = shares
-        AssetBreakdownCard(title: "Wallet Breakdown", count: shares.count) { index in
+        AssetBreakdownCard(title: AppLocalization.string("Wallet Breakdown"), count: shares.count) { index in
             let (share, wallet) = shares[index]
             let badge = AssetHolding.nativeChainBadge(for: wallet.family) ?? (nil, .mint)
             AssetBreakdownRow(
                 badgeArtworkName: badge.artworkName, badgeColor: badge.color, badgeMark: wallet.familyName,
-                title: wallet.name, subtitle: wallet.networkTitle,
+                title: wallet.name, subtitle: wallet.chainName,
                 amountText: store.amounts.formattedAssetAmount(
-                    share.amount, symbol: assetGroup.symbol, deploymentId: assetGroup.identity.holdingKey),
+                    share.amount, symbol: assetGroup.symbol, deploymentId: assetGroup.identity.id),
                 valueText: store.amounts.formattedFiat(share.value),
                 hidesBalance: store.preferences.hideBalances)
         }
@@ -171,7 +171,7 @@ private struct AssetBreakdownCard<Row: View>: View {
     @ViewBuilder let row: (Int) -> Row
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            Text(AppLocalization.string(title)).font(.headline).foregroundStyle(Color.primary)
+            Text(title).font(.headline).foregroundStyle(Color.primary)
             ForEach(0..<count, id: \.self) { index in
                 row(index)
                 if index < count - 1 { Divider().opacity(SpectraLayout.dividerOpacity) }

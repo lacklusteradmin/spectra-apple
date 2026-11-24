@@ -25,11 +25,11 @@ struct WalletMultisigView: View {
                 MultisigPolicySections(store: store, account: account)
                 Section {
                     AddressEntryRow(
-                        title: AppLocalization.string("Recipient"), text: $recipient, chain: wallet.chain,
-                        contacts: store.addressBook.entries.filter { $0.chainId == wallet.chain })
-                    TextField(AppLocalization.format("Amount (%@)", wallet.chain.gasTokenSymbol), text: $amount)
+                        title: AppLocalization.string("Recipient"), text: $recipient, chain: wallet.chainId,
+                        contacts: store.addressBook.entries.filter { $0.chainId == wallet.chainId })
+                    TextField(AppLocalization.format("Amount (%@)", wallet.chainId.gasTokenSymbol), text: $amount)
                         .keyboardType(.decimalPad)
-                    if case let kinds = paymentMemoKinds(chain: wallet.chain), !kinds.isEmpty {
+                    if case let kinds = paymentMemoKinds(chain: wallet.chainId), !kinds.isEmpty {
                         SendPaymentMemoField(kinds: kinds, kind: $memoKind, text: $memo)
                     }
                     Button(AppLocalization.string("Build Transaction")) { Task { await create() } }

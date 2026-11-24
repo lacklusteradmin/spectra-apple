@@ -16,12 +16,9 @@ struct TransactionDetailView: View {
     /// Which ends to show and whether each is the wallet's own: core's
     /// answer, cached for the body. View state: losing it costs a redraw.
     @State private var endpoints: TransactionEndpoints?
-    /// Folded by default: gas, paths and payload are for the reader who asks.
-    @State private var isShowingTechnicalDetails = false
     /// A Monero send's payment proof, from core; `nil` for anything else.
     @State private var paymentProof: MoneroPaymentProof?
     @State private var isShowingPaymentProof = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     init(store: AppState, transaction: TransactionRecord) {
         self.store = store
         self.transaction = transaction
@@ -96,27 +93,27 @@ struct TransactionDetailView: View {
         if canRecheck || canRebroadcast || replaceable != nil {
             spectraDetailCard(title: AppLocalization.string("Pending Transaction")) {
                 if store.sendFlow.isPreparingReplacement || isRunningAction {
-                    SpectraLoadingRow(title: "Working…")
+                    SpectraLoadingRow(title: AppLocalization.string("Working…"))
                 } else {
                     GlassEffectContainer(spacing: SpectraLayout.Space.s) {
                         VStack(spacing: SpectraLayout.Space.s) {
                             if let replaceable, replaceable.canSpeedUp {
-                                actionButton("Speed Up This Transaction", systemImage: "hare", prominent: true) {
+                                actionButton(AppLocalization.string("Speed Up This Transaction"), systemImage: "hare", prominent: true) {
                                     await store.openReplacementComposer(for: tx.id, cancel: false)
                                 }
                             }
                             if canRecheck {
-                                actionButton("Recheck", systemImage: "arrow.clockwise") {
+                                actionButton(AppLocalization.string("Recheck"), systemImage: "arrow.clockwise") {
                                     await store.retryUTXOTransactionStatus(for: tx.id)
                                 }
                             }
                             if canRebroadcast {
-                                actionButton("Rebroadcast", systemImage: "dot.radiowaves.up.forward") {
+                                actionButton(AppLocalization.string("Rebroadcast"), systemImage: "dot.radiowaves.up.forward") {
                                     await store.rebroadcastSignedTransaction(for: tx.id)
                                 }
                             }
                             if replaceable != nil {
-                                actionButton("Cancel This Transaction", systemImage: "xmark.circle", destructive: true) {
+                                actionButton(AppLocalization.string("Cancel This Transaction"), systemImage: "xmark.circle", destructive: true) {
                                     await store.openReplacementComposer(for: tx.id, cancel: true)
                                 }
                             }
@@ -151,7 +148,7 @@ struct TransactionDetailView: View {
                 isRunningAction = false
             }
         } label: {
-            Label(AppLocalization.string(title), systemImage: systemImage).font(.headline)
+            Label(title, systemImage: systemImage).font(.headline)
                 .frame(maxWidth: .infinity).padding(.vertical, SpectraLayout.Space.s)
         }
         if prominent {
@@ -165,10 +162,10 @@ struct TransactionDetailView: View {
         let from = endpoints?.from
         let to = endpoints?.to
         if from != nil || to != nil {
-            spectraDetailCard(title: "Addresses") {
-                if let from { TransactionAddressRow(label: "From", endpoint: from, chain: displayedTransaction.chain) }
+            spectraDetailCard(title: AppLocalization.string("Addresses")) {
+                if let from { TransactionAddressRow(label: AppLocalization.string("From"), endpoint: from, chain: displayedTransaction.chainId) }
                 if from != nil, to != nil { Divider().opacity(SpectraLayout.dividerOpacity) }
-                if let to { TransactionAddressRow(label: "To", endpoint: to, chain: displayedTransaction.chain) }
+                if let to { TransactionAddressRow(label: AppLocalization.string("To"), endpoint: to, chain: displayedTransaction.chainId) }
             }
         }
     }
@@ -177,16 +174,16 @@ struct TransactionDetailView: View {
     /// timeline's; wallet, asset and amount are the hero's.
     private var detailsCard: some View {
         let tx = displayedTransaction
-        return spectraDetailCard(title: "Details") {
-            SpectraValueRow(systemImage: "network", label: "Network", value: tx.chainName)
+        return spectraDetailCard(title: AppLocalization.string("Details")) {
+            SpectraValueRow(systemImage: "network", label: AppLocalization.string("Network"), value: tx.chainName)
             if let networkFeeText {
                 Divider().opacity(SpectraLayout.dividerOpacity)
-                SpectraValueRow(systemImage: "fuelpump.fill", label: "Network Fee", value: networkFeeText)
+                SpectraValueRow(systemImage: "fuelpump.fill", label: AppLocalization.string("Network Fee"), value: networkFeeText)
             }
             if let hash = nonEmptyAddress(tx.transactionHash) {
                 Divider().opacity(SpectraLayout.dividerOpacity)
-                CopyableValueRow(value: hash) {
-                    SpectraValueRow(systemImage: "number", label: "Transaction Hash", value: hash, style: .identifier)
+                CopyButton(value: hash, padded: false) {
+                    SpectraValueRow(systemImage: "number", label: AppLocalization.string("Transaction Hash"), value: hash, style: .identifier)
                 }
             }
             if paymentProof != nil {
@@ -233,56 +230,47 @@ struct TransactionDetailView: View {
             guard let value, !value.isEmpty else { return }
             rows.append(TechnicalRow(label: label, value: value, isIdentifier: isIdentifier))
         }
-        add("History Source", amounts.historySourceText(for: tx))
-        add("Gas Used", tx.receiptGasUsed)
-        add("Effective Gas Price", amounts.receiptEffectiveGasPriceText(for: tx))
+        add(AppLocalization.string("History Source"), amounts.historySourceText(for: tx))
+        add(AppLocalization.string("Gas Used"), tx.receiptGasUsed)
+        add(AppLocalization.string("Effective Gas Price"), amounts.receiptEffectiveGasPriceText(for: tx))
         if amounts.receiptNetworkFeeText(for: tx) != nil {
-            add("Confirmed Fee", amounts.confirmedNetworkFeeText(for: tx))
+            add(AppLocalization.string("Confirmed Fee"), amounts.confirmedNetworkFeeText(for: tx))
         }
-        add("Fee Rate", amounts.storedFeeRateText(for: tx))
-        add("Used Change Output", tx.storedUsedChangeOutputText)
-        add("Source Path", tx.sourceDerivationPath)
-        add("Change Path", tx.changeDerivationPath)
+        add(AppLocalization.string("Fee Rate"), amounts.storedFeeRateText(for: tx))
+        add(AppLocalization.string("Used Change Output"), tx.storedUsedChangeOutputText)
+        add(AppLocalization.string("Source Path"), tx.sourceDerivationPath)
+        add(AppLocalization.string("Change Path"), tx.changeDerivationPath)
         // On an account chain the source is the From address above.
         if tx.sourceAddress != endpoints?.from?.address {
-            add("Source Address", tx.sourceAddress, isIdentifier: true)
+            add(AppLocalization.string("Source Address"), tx.sourceAddress, isIdentifier: true)
         }
-        add("Change Address", tx.changeAddress, isIdentifier: true)
+        add(AppLocalization.string("Change Address"), tx.changeAddress, isIdentifier: true)
         return rows
     }
+    /// Folded by default: gas, paths and payload are for the reader who asks.
     @ViewBuilder
     private var technicalDetailsCard: some View {
         let rows = technicalRows
         if !rows.isEmpty {
-            VStack(alignment: .leading, spacing: 0) {
-                Button {
-                    withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) { isShowingTechnicalDetails.toggle() }
-                } label: {
-                    HStack(spacing: SpectraLayout.Space.s) {
-                        Text(AppLocalization.string("Technical Details")).font(.headline).foregroundStyle(.primary)
-                        Spacer(minLength: SpectraLayout.Space.m)
-                        Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(.tertiary)
-                            .rotationEffect(.degrees(isShowingTechnicalDetails ? 90 : 0))
-                    }.frame(minHeight: 44).contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityValue(AppLocalization.string(isShowingTechnicalDetails ? "Expanded" : "Collapsed"))
-                if isShowingTechnicalDetails {
-                    VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-                        ForEach(rows) { row in
-                            Divider().opacity(SpectraLayout.dividerOpacity)
-                            if row.isIdentifier {
-                                CopyableValueRow(value: row.value) {
-                                    SpectraValueRow(label: row.label, value: row.value, style: .identifier)
-                                }
-                            } else {
-                                SpectraValueRow(label: row.label, value: row.value)
+            DisclosureGroup {
+                VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
+                    ForEach(rows) { row in
+                        Divider().opacity(SpectraLayout.dividerOpacity)
+                        if row.isIdentifier {
+                            CopyButton(value: row.value, padded: false) {
+                                SpectraValueRow(label: row.label, value: row.value, style: .identifier)
                             }
+                        } else {
+                            SpectraValueRow(label: row.label, value: row.value)
                         }
-                    }.padding(.top, SpectraLayout.Space.xs)
+                    }
                 }
+            } label: {
+                Text(AppLocalization.string("Technical Details")).font(.headline).foregroundStyle(.primary)
             }
-            .padding(.horizontal, SpectraLayout.cardPadding).padding(.vertical, SpectraLayout.cardHeaderVertical).frame(maxWidth: .infinity, alignment: .leading)
+            .disclosureGroupStyle(.spectra)
+            .padding(.horizontal, SpectraLayout.cardPadding).padding(.vertical, SpectraLayout.cardHeaderVertical)
+            .frame(maxWidth: .infinity, alignment: .leading)
             .spectraCardFill()
         }
     }
@@ -299,7 +287,7 @@ struct TransactionDetailView: View {
         let wallets: UInt64
     }
     private var transactionTimelineCard: some View {
-        spectraDetailCard(title: "Timeline") {
+        spectraDetailCard(title: AppLocalization.string("Timeline")) {
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(transactionTimelineItems.enumerated()), id: \.element.id) { index, item in
                     timelineRow(item, isLast: index == transactionTimelineItems.count - 1)
@@ -311,7 +299,7 @@ struct TransactionDetailView: View {
         var items: [TransactionTimelineItem] = [
             TransactionTimelineItem(
                 id: "recorded",
-                title: displayedTransaction.submitted ? "Created" : "Recorded",
+                title: AppLocalization.string(displayedTransaction.submitted ? "Created" : "Recorded"),
                 detail: displayedTransaction.fullTimestampText,
                 systemImage: displayedTransaction.submitted ? "paperplane.fill" : "arrow.down.circle.fill",
                 tint: .accentColor,
@@ -324,10 +312,10 @@ struct TransactionDetailView: View {
             items.append(
                 TransactionTimelineItem(
                     id: "network-hash",
-                    title: displayedTransaction.submitted ? "Broadcast" : "Detected",
+                    title: AppLocalization.string(displayedTransaction.submitted ? "Broadcast" : "Detected"),
                     // The hash is the Details card's; here, only that the network has it.
-                    detail: displayedTransaction.submitted
-                        ? "The network accepted the transaction." : "Spectra found this transaction on the network.",
+                    detail: AppLocalization.string(displayedTransaction.submitted
+                        ? "The network accepted the transaction." : "Spectra found this transaction on the network."),
                     systemImage: "link",
                     tint: .accentColor,
                     isComplete: true,
@@ -338,8 +326,8 @@ struct TransactionDetailView: View {
             items.append(
                 TransactionTimelineItem(
                     id: "network-hash",
-                    title: "Awaiting Network Hash",
-                    detail: "Spectra has not attached a network transaction hash yet.",
+                    title: AppLocalization.string("Awaiting Network Hash"),
+                    detail: AppLocalization.string("Spectra has not attached a network transaction hash yet."),
                     systemImage: "hourglass",
                     tint: .spectraWarning,
                     isComplete: false,
@@ -353,8 +341,8 @@ struct TransactionDetailView: View {
             items.append(
                 TransactionTimelineItem(
                     id: "pending",
-                    title: "Pending Confirmation",
-                    detail: "Spectra will keep refreshing this transaction.",
+                    title: AppLocalization.string("Pending Confirmation"),
+                    detail: AppLocalization.string("Spectra will keep refreshing this transaction."),
                     systemImage: "clock.arrow.circlepath",
                     tint: .spectraWarning,
                     isComplete: false,
@@ -365,7 +353,7 @@ struct TransactionDetailView: View {
             items.append(
                 TransactionTimelineItem(
                     id: "confirmed",
-                    title: "Confirmed",
+                    title: AppLocalization.string("Confirmed"),
                     detail: confirmedTimelineDetail,
                     systemImage: "checkmark.seal.fill",
                     tint: .green,
@@ -377,7 +365,7 @@ struct TransactionDetailView: View {
             items.append(
                 TransactionTimelineItem(
                     id: "failed",
-                    title: "Failed",
+                    title: AppLocalization.string("Failed"),
                     detail: displayedTransaction.localizedFailureReason
                         ?? AppLocalization.string("Network or local validation failed."),
                     systemImage: "xmark.octagon.fill",
@@ -421,7 +409,7 @@ struct TransactionDetailView: View {
             }
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                 HStack(spacing: SpectraLayout.Space.s) {
-                    Text(AppLocalization.string(item.title))
+                    Text(item.title)
                         .font(.subheadline.weight(.semibold))
                     if item.isCurrent {
                         Text(AppLocalization.string("Current"))
@@ -432,7 +420,7 @@ struct TransactionDetailView: View {
                             .background(item.tint.opacity(0.14), in: Capsule())
                     }
                 }
-                Text(AppLocalization.string(item.detail))
+                Text(item.detail)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)
@@ -483,19 +471,19 @@ func loadTransactionDetailProjection(
 }
 
 /// One end of the transfer: its label, who holds it — a wallet of the
-/// user's or a saved contact, as core names it — and the address on one line
-/// with its ends in full, the ends being what a reader compares against. The
-/// row copies the whole address.
+/// user's or a saved contact, as core names it — and the address in groups
+/// of four on one line, cut in the middle so its ends, what a reader
+/// compares against, show in full. The row copies the whole address.
 private struct TransactionAddressRow: View {
     let label: String
     let endpoint: TransactionEndpoint
     let chain: Chain
 
     var body: some View {
-        CopyableValueRow(value: displayAddress(chain: chain, address: endpoint.address)) {
+        CopyButton(value: displayAddress(chain: chain, address: endpoint.address), padded: false) {
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
                 HStack(spacing: SpectraLayout.Space.s) {
-                    Text(AppLocalization.string(label)).font(.subheadline).foregroundStyle(.secondary)
+                    Text(label).font(.subheadline).foregroundStyle(.secondary)
                     if let holder = endpoint.holder {
                         EndpointHolderLabel(holder: holder)
                     } else if endpoint.isMine {
@@ -504,41 +492,9 @@ private struct TransactionAddressRow: View {
                             .spectraInsetFill()
                     }
                 }
-                Text(emphasizedEnds(displayAddress(chain: chain, address: endpoint.address))).font(.body.monospaced())
+                Text(readableAddress(endpoint.address, chain: chain)).font(.body.monospaced())
                     .lineLimit(1).truncationMode(.middle)
             }
-        }
-    }
-}
-
-/// A row that copies `value` when tapped. Its trailing glyph turns into a
-/// checkmark for a moment; `.task(id:)` clears it and is cancelled with the
-/// view.
-private struct CopyableValueRow<Content: View>: View {
-    let value: String
-    @ViewBuilder let content: Content
-    @State private var didCopy = false
-
-    var body: some View {
-        Button {
-            copyToPasteboard(value)
-            didCopy = true
-            spectraHaptic(.light)
-        } label: {
-            HStack(spacing: SpectraLayout.Space.m) {
-                content.frame(maxWidth: .infinity, alignment: .leading)
-                Image(systemName: didCopy ? "checkmark" : "doc.on.doc")
-                    .font(.subheadline.weight(.semibold)).foregroundStyle(.tint)
-                    .contentTransition(.symbolEffect(.replace))
-            }.contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityHint(AppLocalization.string(didCopy ? "Copied" : "Copy"))
-        .task(id: didCopy) {
-            guard didCopy else { return }
-            try? await Task.sleep(for: .seconds(1.5))
-            guard !Task.isCancelled else { return }
-            didCopy = false
         }
     }
 }

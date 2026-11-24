@@ -8,7 +8,6 @@ import SwiftUI
 struct SetupView: View {
     private let store: AppState
     @Bindable var draft: WalletImportDraft
-    private let copy = ImportFlowContent.current
     /// The page this screen shows. Each page is its own pushed screen, so the
     /// system back button and the swipe step back one page at a time.
     private let setupPage: WalletSetupPage
@@ -23,7 +22,7 @@ struct SetupView: View {
         setupPage = page ?? draft.setupFlow.pages.first ?? .walletName
     }
     private var isEditingWallet: Bool { draft.isEditingWallet }
-    private var pageCopy: WalletSetupPageCopy { setupPage.copy(copy, mode: draft.mode) }
+    private var pageCopy: WalletSetupPageCopy { setupPage.copy(mode: draft.mode) }
     private var nextPageInFlow: WalletSetupPage? { draft.setupFlow.next(after: setupPage) }
     /// Whether this page's part of the form is complete enough to leave it.
     /// Pages before it were complete when they were left.

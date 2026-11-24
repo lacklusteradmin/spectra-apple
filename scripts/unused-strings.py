@@ -9,10 +9,9 @@ behind.
 A key is reachable when its text, with `%@`/`%lld`/… treated as a wildcard,
 appears anywhere that can produce it: Swift, Rust (core's error templates),
 another resource file, or the chain catalog. Test fixtures do not count. A
-dotted key is reachable when a screen copy struct spells it out or its
-namespace is interpolated with an id (`"addressHint.\\(chain.id).empty"`).
-The reverse holds too: a dotted key Swift spells out must be in the source
-table.
+dotted key is reachable when Swift spells it out or interpolates its
+namespace with an id (`"endpointCapability.\\(id)"`). The reverse holds
+too: a dotted key Swift spells out must be in the source table.
 
 Locales are checked against each other as well: a key set that drifts means
 one language silently falls back to another.
@@ -59,8 +58,8 @@ def reachable(key, haystack):
 
 
 def dotted_reachable(key, haystack):
-    namespace = re.split(r'[._]', key, maxsplit=1)[0]
-    return key in haystack or f'{namespace}.\\(' in haystack or f'{namespace}_\\(' in haystack
+    namespace = key.split('.', 1)[0]
+    return key in haystack or f'{namespace}.\\(' in haystack
 
 
 def locales(base):

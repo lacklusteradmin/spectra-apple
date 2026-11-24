@@ -13,7 +13,7 @@ struct SendRecipientPage: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             SendAssetContextView(store: store)
-            FlowPageHeading(title: "Who are you sending to?", subtitle: "Enter an address or choose a saved contact.")
+            FlowPageHeading(title: AppLocalization.string("Who are you sending to?"), subtitle: AppLocalization.string("Enter an address or choose a saved contact."))
             VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                 toCard
                 Label(AppLocalization.string("Check the full address. A valid address does not verify the recipient's identity."), systemImage: "info.circle")
@@ -29,12 +29,12 @@ struct SendRecipientPage: View {
             SendRecipientIdentityView(
                 store: store, chain: presentation.selectedCoin?.chainId,
                 address: flow.currentRecipient?.address ?? flow.address)
-            sendComposerSectionLabel("Recipient address")
+            sendComposerSectionLabel(AppLocalization.string("Recipient address"))
 
             if let coin = presentation.selectedCoin {
                 AddressEntryRow(
                     title: AppLocalization.string("Recipient address"), text: Bindable(flow).address,
-                    chain: coin.chain, contacts: presentation.addressBookEntries,
+                    chain: coin.chainId, contacts: presentation.addressBookEntries,
                     readScan: flow.applyScannedPayment)
                     .padding(.horizontal, SpectraLayout.Space.m)
                     .padding(.vertical, SpectraLayout.Space.m)
@@ -52,7 +52,7 @@ struct SendRecipientPage: View {
             // One row while anything about the recipient is being asked:
             // the address check and the preview's look at its history.
             if flow.isResolvingRecipient || flow.isCheckingDestination {
-                SpectraLoadingRow(title: "Checking recipient...")
+                SpectraLoadingRow(title: AppLocalization.string("Checking recipient..."))
             } else if let problem = flow.recipientProblem {
                 HStack(spacing: SpectraLayout.Space.s) {
                     Label(problem.message, systemImage: "exclamationmark.triangle.fill")

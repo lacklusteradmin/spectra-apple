@@ -16,16 +16,18 @@ struct SpectraValueRow: View {
         /// Words or a figure, its digits of equal width so a column of
         /// amounts lines up.
         case text
-        /// A hash, an address or another id: monospaced, on one line, its
-        /// ends primary.
+        /// A hash, an address or another id: monospaced, on one line, in
+        /// groups of four with the first and last primary.
         case identifier
     }
 
     var systemImage: String? = nil
-    /// A string-table key.
     let label: String
     let value: String
     var style: Style = .text
+    /// A balance the person has hidden: the value is masked as `BalanceText`
+    /// masks one.
+    var isHidden = false
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     var body: some View {
@@ -39,7 +41,7 @@ struct SpectraValueRow: View {
             HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.m) {
                 labelView.layoutPriority(1)
                 Spacer(minLength: SpectraLayout.Space.m)
-                Text(emphasizedEnds(value)).font(.subheadline.monospaced())
+                Text(groupedAddress(value)).font(.subheadline.monospaced())
                     .lineLimit(1).truncationMode(.middle)
             }
         case .text where dynamicTypeSize.isAccessibilitySize:
@@ -62,12 +64,13 @@ struct SpectraValueRow: View {
                 Image(systemName: systemImage).font(.subheadline.weight(.semibold)).foregroundStyle(.tint)
                     .frame(width: Self.symbolWidth)
             }
-            Text(AppLocalization.string(label)).font(.subheadline).foregroundStyle(.secondary)
+            Text(label).font(.subheadline).foregroundStyle(.secondary)
         }
     }
 
     private var valueText: some View {
-        Text(value).font(.subheadline.weight(.semibold)).monospacedDigit().foregroundStyle(.primary)
+        BalanceText(text: value, isHidden: isHidden)
+            .font(.subheadline.weight(.semibold)).monospacedDigit().foregroundStyle(.primary)
     }
 
     /// The value under the label, lined up with the label's text rather than
@@ -81,23 +84,4 @@ struct SpectraValueRow: View {
     }
 
     private static let symbolWidth: CGFloat = 22
-}
-
-/// `identifier` with its first and last characters primary and the middle
-/// secondary. Middle truncation eats the secondary part first, so the ends
-/// survive at any width.
-func emphasizedEnds(_ identifier: String) -> AttributedString {
-    var text = AttributedString(identifier)
-    let head = identifier.hasPrefix("0x") ? 6 : 4
-    let tail = 4
-    guard identifier.count > head + tail else {
-        text.swiftUI.foregroundColor = .primary
-        return text
-    }
-    text.swiftUI.foregroundColor = .secondary
-    let headEnd = text.index(text.startIndex, offsetByCharacters: head)
-    let tailStart = text.index(text.endIndex, offsetByCharacters: -tail)
-    text[text.startIndex..<headEnd].swiftUI.foregroundColor = .primary
-    text[tailStart..<text.endIndex].swiftUI.foregroundColor = .primary
-    return text
 }

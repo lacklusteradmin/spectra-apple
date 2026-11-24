@@ -114,6 +114,17 @@ same Xcode project, give yours its own directory with
 `make test-ios IOS_TEST_DERIVED_DATA=<dir>`. Core's targets run in its
 checkout: `make -C <spectra> lint`, and so on.
 
+Use one simulator only, the iPhone Air (`E5D313D6-6F5D-4538-9215-8ABBC5EA3DC1`,
+iOS 27.2), for `make test-ios`, builds, driving and screenshots:
+`make test-ios IOS_TEST_SIM=E5D313D6-6F5D-4538-9215-8ABBC5EA3DC1`, and
+`-destination "id=E5D313D6-6F5D-4538-9215-8ABBC5EA3DC1"` for builds. Do not
+boot other simulators or leave several running (I once found several left open
+after a session). If that UDID is missing from
+`xcrun simctl list devices available`, use the device named "iPhone Air" and
+update this paragraph; if there is none, ask. Ask before using a second device,
+even a throwaway one. The simulator may hold my test wallet, so back up its
+store before an experiment that touches it.
+
 No test is expected to fail. Treat a failure as real even when it looks
 unrelated to the change, and report it; do not write it off as flaky or
 pre-existing without evidence.

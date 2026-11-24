@@ -57,9 +57,8 @@ enum MainAppTab: Hashable {
 
 /// What a reset clears. Core's scope, with this app's words for it.
 extension ResetScope {
-    static let allCases: [ResetScope] = [
-        .walletsAndSecrets, .historyAndCache, .alertsAndContacts, .settingsAndEndpoints, .dashboardCustomization,
-    ]
+    /// Every scope, in core's order.
+    static let allCases: [ResetScope] = resetScopes()
     @MainActor
     var title: String {
         switch self {

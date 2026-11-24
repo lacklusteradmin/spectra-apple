@@ -82,15 +82,15 @@ struct WalletShieldedFundsView: View {
     }
 
     private func balanceSection(_ status: ZcashShieldedStatus) -> some View {
-        let symbol = wallet.chain.gasTokenSymbol
+        let symbol = wallet.chainId.gasTokenSymbol
         return Section {
-            LabeledContent(AppLocalization.string("Spendable"), value: AmountPresentation.exactAmount(status.spendable, symbol: symbol))
+            LabeledContent(AppLocalization.string("Spendable"), balance: AmountPresentation.exactAmount(status.spendable, symbol: symbol), isHidden: store.preferences.hideBalances)
             if status.pending != "0" {
-                LabeledContent(AppLocalization.string("Pending"), value: AmountPresentation.exactAmount(status.pending, symbol: symbol))
+                LabeledContent(AppLocalization.string("Pending"), balance: AmountPresentation.exactAmount(status.pending, symbol: symbol), isHidden: store.preferences.hideBalances)
             }
             if status.shieldable != "0" {
                 LabeledContent(AppLocalization.string("Transparent, to Shield"),
-                               value: AmountPresentation.exactAmount(status.shieldable, symbol: symbol))
+                               balance: AmountPresentation.exactAmount(status.shieldable, symbol: symbol), isHidden: store.preferences.hideBalances)
                 Button(AppLocalization.string("Shield Transparent Funds")) { flow = .moveIn }
                     .disabled(scan.isRunning)
             }
@@ -189,8 +189,8 @@ private struct ShieldedTransactionView: View {
         ) {
             Section {
                 AddressEntryRow(
-                    title: AppLocalization.string("Destination Address"), text: $recipient, chain: wallet.chain,
-                    contacts: store.addressBook.entries.filter { $0.chainId == wallet.chain })
+                    title: AppLocalization.string("Destination Address"), text: $recipient, chain: wallet.chainId,
+                    contacts: store.addressBook.entries.filter { $0.chainId == wallet.chainId })
                 TextField(AppLocalization.string("Amount"), text: $amount)
                     .keyboardType(.decimalPad).monospacedDigit()
                 TextField(AppLocalization.string("Memo (Optional)"), text: $memo, axis: .vertical)
@@ -206,7 +206,7 @@ private struct ShieldedTransactionView: View {
                 Section {
                     LabeledContent(
                         AppLocalization.string("Shielded"),
-                        value: store.amounts.formattedNativeAmount(amount, chain: wallet.chain))
+                        value: store.amounts.formattedNativeAmount(amount, chain: wallet.chainId))
                 } footer: {
                     Text(AppLocalization.string(
                         "Every transparent output of this wallet moves into its own shielded pool. The transaction shows the transparent address it came from."
@@ -252,7 +252,7 @@ struct PrivatePaymentSummary: View {
             }
             LabeledContent(
                 AppLocalization.string("Amount"),
-                value: store.amounts.formattedNativeAmount(artifact.amount, chain: wallet.chain))
+                value: store.amounts.formattedNativeAmount(artifact.amount, chain: wallet.chainId))
             if let memo {
                 LabeledContent(AppLocalization.string("Memo")) { Text(verbatim: memo).lineLimit(4) }
             }

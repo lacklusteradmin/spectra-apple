@@ -14,8 +14,14 @@ struct PlatformNotifications {
     let bridge: WalletServiceBridge
     let diagnostics: WalletDiagnosticsState // Where a failed delivery is logged.
 
+    /// Asks once; after the first answer the system replies without asking.
+    /// Nothing waits on the answer: whether a notification shows is the
+    /// notification center's to decide.
     func requestPermission() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in }
+        Task { [diagnostics] in
+            do { _ = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) }
+            catch { diagnostics.appendOperationalLog(category: "Notifications", message: error.localizedDescription) }
+        }
     }
     /// A send asks only when an alert that needs the permission is on.
     func requestPermissionAfterSend(settings: AppSettings) {

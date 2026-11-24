@@ -106,10 +106,10 @@ struct SendStagesView: View {
         let signed = artifact.stage != .prepared
         let submitted = !artifact.attempts.isEmpty
         return HStack(alignment: .top, spacing: SpectraLayout.Space.s) {
-            progressLabel("Built", state: .done)
-            progressLabel(signed ? "Signed" : "Awaiting signing", state: signed ? .done : .current)
+            progressLabel(AppLocalization.string("Built"), state: .done)
+            progressLabel(AppLocalization.string(signed ? "Signed" : "Awaiting signing"), state: signed ? .done : .current)
             progressLabel(
-                submitted ? "Submitted" : "Awaiting submission",
+                AppLocalization.string(submitted ? "Submitted" : "Awaiting submission"),
                 state: submitted ? .done : (signed ? .current : .waiting))
         }
         .padding(.vertical, SpectraLayout.Space.s)
@@ -121,7 +121,7 @@ struct SendStagesView: View {
             Image(systemName: state == .done ? "checkmark.circle.fill" : (state == .current ? "circle.inset.filled" : "circle"))
                 .font(.subheadline.weight(.semibold))
                 .accessibilityHidden(true)
-            Text(AppLocalization.string(title))
+            Text(title)
                 .font(.caption.weight(state == .current ? .semibold : .regular))
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -222,9 +222,9 @@ struct SendStagesView: View {
             DisclosureGroup(AppLocalization.string("Transaction details")) {
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                     preparedFieldRows
-                    technicalValue("Review digest", value: artifact.reviewDigest)
+                    technicalValue(AppLocalization.string("Review digest"), value: artifact.reviewDigest)
                     if !artifact.signingPayloadHex.isEmpty {
-                        technicalValue("Signing payload", value: artifact.signingPayloadHex)
+                        technicalValue(AppLocalization.string("Signing payload"), value: artifact.signingPayloadHex)
                     }
                     if !artifact.attempts.isEmpty, !warnings.isEmpty {
                         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
@@ -290,7 +290,7 @@ struct SendStagesView: View {
 
     private func technicalValue(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
-            Text(AppLocalization.string(title)).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+            Text(title).font(.caption.weight(.semibold)).foregroundStyle(.secondary)
             technicalText(value)
         }
     }

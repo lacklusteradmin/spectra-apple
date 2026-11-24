@@ -9,7 +9,6 @@ struct WalletSecretStep: View {
     /// `true` renders the backup-verification page instead of the secret page.
     let showsBackupVerification: Bool
 
-    private let copy = ImportFlowContent.current
     @State private var isShowingDerivationOptions = false
     @State private var isFindingUsedAccounts = false
     @State private var isEditingPrivateKey = false
@@ -50,7 +49,7 @@ struct WalletSecretStep: View {
     /// user asks to see them. Length, account and path are under Advanced.
     @ViewBuilder
     private var createWalletSeedPhraseSection: some View {
-        Label(copy.createSeedPhraseWarning, systemImage: "exclamationmark.triangle.fill")
+        Label(AppLocalization.string("import_flow.createSeedPhraseWarning"), systemImage: "exclamationmark.triangle.fill")
             .font(.subheadline).foregroundStyle(.spectraWarning)
             .fixedSize(horizontal: false, vertical: true)
         SeedPhraseWordGrid(words: draft.seedPhraseWords)
@@ -75,7 +74,7 @@ struct WalletSecretStep: View {
     private var privateKeyImportFields: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             HStack(spacing: SpectraLayout.Space.s) {
-                Text(copy.privateKeyTitle).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
+                Text(AppLocalization.string("import_flow.privateKeyTitle")).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
                 Spacer()
                 PasteButton(payloadType: String.self) { pasted in
                     guard let text = pasted.first?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else { return }
@@ -86,7 +85,7 @@ struct WalletSecretStep: View {
                 .controlSize(.small)
                 .tint(.accentColor)
             }
-            Text(copy.privateKeyPrompt).font(.footnote).foregroundStyle(.secondary)
+            Text(AppLocalization.string("import_flow.privateKeyPrompt")).font(.footnote).foregroundStyle(.secondary)
             privateKeyEditor
             privateKeyMetadataRow
             if let validation = privateKeyValidationFeedback {
@@ -102,7 +101,7 @@ struct WalletSecretStep: View {
         let borderColor: Color? =
             isInvalidShape
             ? Color.red.opacity(0.85) : (isLikelyValid ? Color.green.opacity(0.55) : nil)
-        AddressInput(text: $draft.privateKeyInput, isFocused: $isEditingPrivateKey, prompt: copy.privateKeyPlaceholder)
+        AddressInput(text: $draft.privateKeyInput, isFocused: $isEditingPrivateKey, prompt: AppLocalization.string("import_flow.privateKeyPlaceholder"))
             .frame(minHeight: 96, alignment: .topLeading)
             .padding(SpectraLayout.Space.m).spectraInputFieldStyle(borderColor: borderColor)
             .privacySensitive()
@@ -234,7 +233,7 @@ struct WalletSecretStep: View {
                 Text(draft.backupVerificationPromptLabel).font(.subheadline).foregroundStyle(.secondary)
             }
             if draft.backupVerificationWordIndices.isEmpty {
-                Button(copy.backupVerificationButtonTitle) {
+                Button(AppLocalization.string("import_flow.backupVerificationButtonTitle")) {
                     draft.prepareBackupVerificationChallenge()
                 }.buttonStyle(.glass)
             } else {
@@ -242,9 +241,9 @@ struct WalletSecretStep: View {
                     verificationRow(offset: offset, wordIndex: wordIndex)
                 }
                 if draft.isBackupVerificationComplete {
-                    Label(copy.backupVerifiedMessage, systemImage: "checkmark.circle.fill").font(.footnote).foregroundStyle(.green)
+                    Label(AppLocalization.string("import_flow.backupVerifiedMessage"), systemImage: "checkmark.circle.fill").font(.footnote).foregroundStyle(.green)
                 } else {
-                    Text(copy.backupVerificationHint).font(.footnote).foregroundStyle(.secondary)
+                    Text(AppLocalization.string("import_flow.backupVerificationHint")).font(.footnote).foregroundStyle(.secondary)
                 }
             }
         }
@@ -324,7 +323,7 @@ struct WalletSecretStep: View {
                 Image(systemName: "slider.horizontal.3").font(.body.weight(.semibold))
                     .foregroundStyle(summary == nil ? AnyShapeStyle(.tint) : AnyShapeStyle(Color.spectraWarning))
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
-                    Text(copy.advancedTitle).font(.body.weight(.semibold)).foregroundStyle(Color.primary)
+                    Text(AppLocalization.string("import_flow.advancedTitle")).font(.body.weight(.semibold)).foregroundStyle(Color.primary)
                     Text(summary ?? inEffect).font(.caption)
                         .foregroundStyle(summary == nil ? Color.secondary : .spectraWarning)
                 }
@@ -346,8 +345,8 @@ struct WalletSecretStep: View {
                 Image(systemName: "slider.horizontal.3").font(.footnote.weight(.semibold))
                     .foregroundStyle(summary == nil ? Color.secondary : .spectraWarning)
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
-                    Text(copy.advancedTitle).font(.footnote.weight(.semibold)).foregroundStyle(Color.primary)
-                    Text(summary ?? copy.advancedSubtitle).font(.caption2)
+                    Text(AppLocalization.string("import_flow.advancedTitle")).font(.footnote.weight(.semibold)).foregroundStyle(Color.primary)
+                    Text(summary ?? AppLocalization.string("import_flow.advancedSubtitle")).font(.caption2)
                         .foregroundStyle(summary == nil ? Color.secondary : .spectraWarning)
                 }
                 Spacer()

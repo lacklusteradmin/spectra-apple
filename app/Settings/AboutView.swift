@@ -2,14 +2,13 @@ import Foundation
 import SwiftUI
 struct AboutView: View {
     @State private var isAnimatingHero = false
-    private let copy = SettingsContentCopy.current
     var body: some View {
         ZStack {
             SpectraBackdrop().ignoresSafeArea()
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: SpectraLayout.Space.l) {
                     aboutHero
-                    aboutCard(title: copy.aboutEthosTitle, lines: copy.aboutEthosLines)
+                    aboutCard(title: AppLocalization.string("settings.aboutEthosTitle"), lines: AppLocalization.string("settings.aboutEthosLines").components(separatedBy: "\n"))
                     aboutNarrativeCard
                 }.spectraScreenPadding()
             }
@@ -38,15 +37,15 @@ struct AboutView: View {
                 SpectraLogo(size: 96)
             }
             VStack(spacing: SpectraLayout.Space.s) {
-                Text(copy.aboutTitle).font(.largeTitle.weight(.bold)).foregroundStyle(Color.primary)
-                Text(copy.aboutSubtitle).font(.subheadline).multilineTextAlignment(.center).foregroundStyle(.secondary)
+                Text(AppLocalization.string("settings.aboutTitle")).font(.largeTitle.weight(.bold)).foregroundStyle(Color.primary)
+                Text(AppLocalization.string("settings.aboutSubtitle")).font(.subheadline).multilineTextAlignment(.center).foregroundStyle(.secondary)
             }.frame(maxWidth: .infinity)
         }.padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill()
     }
     private var aboutNarrativeCard: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            Text(copy.aboutNarrativeTitle).font(.headline).foregroundStyle(Color.primary)
-            ForEach(copy.aboutNarrativeParagraphs, id: \.self) { paragraph in
+            Text(AppLocalization.string("settings.aboutNarrativeTitle")).font(.headline).foregroundStyle(Color.primary)
+            ForEach(AppLocalization.string("settings.aboutNarrativeParagraphs").components(separatedBy: "\n\n"), id: \.self) { paragraph in
                 Text(paragraph).font(.subheadline).foregroundStyle(.secondary)
             }
         }.padding(SpectraLayout.Space.l).frame(maxWidth: .infinity, alignment: .leading).spectraBubbleFill().spectraCardFill()

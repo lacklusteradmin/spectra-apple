@@ -9,7 +9,6 @@ import SwiftUI
 struct WalletDerivationOptionsView: View {
     @Bindable var draft: WalletImportDraft
     @Environment(\.dismiss) private var dismiss
-    private let copy = ImportFlowContent.current
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
@@ -32,7 +31,7 @@ struct WalletDerivationOptionsView: View {
                         // custom, and Reset returns to the profile.
                         if let profilePath = draft.profileDerivationPath {
                             SeedPathSlotEditor(
-                                title: "Custom Path",
+                                title: AppLocalization.string("Custom Path"),
                                 path: Binding(
                                     get: { draft.derivationPath ?? profilePath },
                                     set: { draft.customDerivationPath = $0 == profilePath ? "" : $0 }
@@ -43,7 +42,7 @@ struct WalletDerivationOptionsView: View {
                     }
                 }.padding(SpectraLayout.Space.l).spectraBubbleFill().spectraCardFill().padding(SpectraLayout.Space.l)
             }
-            .navigationTitle(copy.advancedTitle).inlineNavigationTitle()
+            .navigationTitle(AppLocalization.string("import_flow.advancedTitle")).inlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .barTrailing) {
                     Button(AppLocalization.string("Done")) { dismiss() }
@@ -282,7 +281,7 @@ struct SeedPathSlotEditor: View {
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
             HStack {
-                Text(AppLocalization.string(title)).font(.subheadline.weight(.semibold)).foregroundStyle(Color.primary)
+                Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Color.primary)
                 Spacer()
                 Button(AppLocalization.string("Reset")) {
                     path = defaultPath

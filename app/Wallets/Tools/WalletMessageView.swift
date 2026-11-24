@@ -129,7 +129,7 @@ struct WalletMessageView: View {
                 .font(.footnote.monospaced()).textInputAutocapitalization(.never).autocorrectionDisabled()
             Button(AppLocalization.string("Verify")) {
                 verdict = verifyMessage(
-                    chain: wallet.chain, address: address, message: message, signature: signatureInput)
+                    chain: wallet.chainId, address: address, message: message, signature: signatureInput)
                 spectraNotificationHaptic(verdict == true ? .success : .error)
             }.disabled(signatureInput.isEmpty)
         }

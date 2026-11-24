@@ -33,8 +33,8 @@ struct NewAddressBookContactView: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                     spectraPageHeader(
-                        title: "New Contact",
-                        subtitle: "Name a recipient and save an address you send to often.",
+                        title: AppLocalization.string("New Contact"),
+                        subtitle: AppLocalization.string("Name a recipient and save an address you send to often."),
                         systemImage: "person.crop.circle.badge.plus"
                     )
                     contactCard
@@ -102,7 +102,7 @@ struct NewAddressBookContactView: View {
     }
 
     private var contactCard: some View {
-        spectraDetailCard(title: "Contact") {
+        spectraDetailCard(title: AppLocalization.string("Contact")) {
             TextField(AppLocalization.string("Name"), text: $name)
                 .textInputAutocapitalization(.words)
                 .autocorrectionDisabled()
@@ -119,7 +119,7 @@ struct NewAddressBookContactView: View {
     }
 
     private var destinationCard: some View {
-        spectraDetailCard(title: "Saved Address") {
+        spectraDetailCard(title: AppLocalization.string("Saved Address")) {
             chainRow
 
             // The placeholder is the chain's own format hint; the address
@@ -275,7 +275,7 @@ struct AddressBookContactView: View {
                 .multilineTextAlignment(.center)
                 .textSelection(.enabled)
 
-            CopyButton(value: contact.address, title: "Copy", style: .wide)
+            CopyButton(value: contact.address, title: AppLocalization.string("Copy"), style: .wide)
         }
         .frame(maxWidth: .infinity)
         .padding(SpectraLayout.Space.l)
@@ -284,7 +284,7 @@ struct AddressBookContactView: View {
 
     /// A wallet that can pay this contact: one on its network that signs.
     private var payingWallet: WalletState? {
-        store.sendEnabledWallets.first { $0.chain == contact.chainId }
+        store.sendEnabledWallets.first { $0.chainId == contact.chainId }
     }
 
     /// Opens the composer from that wallet with this address filled in.
@@ -312,7 +312,7 @@ struct AddressBookContactView: View {
     }
 
     private var labelCard: some View {
-        spectraDetailCard(title: "Label") {
+        spectraDetailCard(title: AppLocalization.string("Label")) {
             Text(
                 AppLocalization.string(
                     "You can update the label for this saved address. The chain, address, and note stay fixed.")

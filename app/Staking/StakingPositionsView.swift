@@ -5,6 +5,8 @@ struct StakingPositionsView: View {
     @Bindable var staking: StakingState
     let canSign: Bool
     let requiresPassword: Bool
+    /// Hide Balances is on: the position's amounts are masked.
+    let hidesBalances: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
@@ -46,20 +48,20 @@ struct StakingPositionsView: View {
             Text(position.status.localizedTitle).font(.subheadline.weight(.semibold))
             Text(verbatim: position.id).font(.caption.monospaced()).foregroundStyle(.secondary)
                 .textSelection(.enabled)
-            SpectraValueRow(label: "staking.staked_balance", value: amount(position.stakedAmountSmallestUnit))
-            SpectraValueRow(label: "staking.unbonding_balance", value: amount(position.unbondingAmountSmallestUnit))
-            SpectraValueRow(label: "staking.withdrawable_balance", value: amount(position.withdrawableAmountSmallestUnit))
+            SpectraValueRow(label: AppLocalization.string("staking.staked_balance"), value: amount(position.stakedAmountSmallestUnit), isHidden: hidesBalances)
+            SpectraValueRow(label: AppLocalization.string("staking.unbonding_balance"), value: amount(position.unbondingAmountSmallestUnit), isHidden: hidesBalances)
+            SpectraValueRow(label: AppLocalization.string("staking.withdrawable_balance"), value: amount(position.withdrawableAmountSmallestUnit), isHidden: hidesBalances)
             if let rewards = position.claimableRewardsSmallestUnit {
-                SpectraValueRow(label: "staking.rewards", value: amount(rewards))
+                SpectraValueRow(label: AppLocalization.string("staking.rewards"), value: amount(rewards), isHidden: hidesBalances)
             }
             if let pending = position.pendingRewardsSmallestUnit {
-                SpectraValueRow(label: "staking.pending_rewards", value: amount(pending))
+                SpectraValueRow(label: AppLocalization.string("staking.pending_rewards"), value: amount(pending), isHidden: hidesBalances)
             }
             if let payoutTime = position.rewardsUnlockTimeUnix {
-                SpectraValueRow(label: "staking.rewards_unlock_time", value: time(payoutTime))
+                SpectraValueRow(label: AppLocalization.string("staking.rewards_unlock_time"), value: time(payoutTime))
             }
             if let unlock = position.unlockTimeUnix {
-                SpectraValueRow(label: "staking.unlock_time", value: time(unlock))
+                SpectraValueRow(label: AppLocalization.string("staking.unlock_time"), value: time(unlock))
             }
             if let epoch = position.unlockEpoch {
                 Text(AppLocalization.format("staking.unlock_epoch", epoch)).font(.caption).foregroundStyle(

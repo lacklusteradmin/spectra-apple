@@ -58,7 +58,16 @@ failure keeps the activity for the next try, a missing record ends it.
 storage; its native formatter cache is presentation-only.
 `AssetPresentationCatalog` indexes core's immutable artwork and colours by
 deployment id; balances and display labels do not identify assets. Neither can
-authorize a domain mutation.
+authorize a domain mutation. `CoreReferenceTables` holds the process-lifetime
+copies of core's compile-time tables — the wikis, the staking entries, the
+input bounds, the endpoint catalog and the donation addresses — read once.
+
+Every word on screen comes from `AppLocalization`, keyed by its English
+sentence or, for long copy, a dotted name such as `settings.aboutTitle`. A
+sentence with values is `AppLocalization.format`, never `String(format:)`, so
+its numbers follow the reader's locale. A view or component takes finished
+text and its caller localizes: nothing is looked up twice, and a node's own
+message is never read as a key.
 
 ## Keeping the shell thin
 

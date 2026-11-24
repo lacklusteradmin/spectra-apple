@@ -27,6 +27,6 @@ struct WalletToolLoadingSection: View {
 struct WalletToolEmptySection: View {
     let message: String
     var body: some View {
-        Section { Text(AppLocalization.string(message)).foregroundStyle(.secondary) }
+        Section { Text(message).foregroundStyle(.secondary) }
     }
 }

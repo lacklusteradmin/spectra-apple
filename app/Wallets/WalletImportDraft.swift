@@ -275,6 +275,40 @@ final class WalletImportDraft {
         derivationProfile = derivationProfiles.first
         if method == .createPhrase { regenerateSeedPhrase() }
     }
+    /// The single import of an account a funds scan found: on its network,
+    /// with the phrase and the passphrase it was scanned with, exactly as
+    /// typed, deriving as it was found.
+    func configure(foundAccount candidate: FundsFinderCandidate, words: [String], passphrase: String) {
+        configure(chain: candidate.chainId, method: .importPhrase)
+        seedEntry.load(words, wordCount: words.count)
+        overridePassphrase = passphrase
+        derive(as: candidate)
+    }
+    /// Derive as `candidate` was found: at its wallet version on TON, and at
+    /// its profile and account in place of a typed path. `false`, changing
+    /// nothing, for a network that derives one account.
+    @discardableResult
+    func derive(as candidate: FundsFinderCandidate) -> Bool {
+        guard candidate.tonWalletVersion != nil || candidate.profile != nil else { return false }
+        if let version = candidate.tonWalletVersion { tonWalletVersion = version }
+        if let profile = candidate.profile {
+            derivationProfile = profile
+            derivationAccount = candidate.account
+            customDerivationPath = ""
+        }
+        return true
+    }
+    /// What Funds Finder's Import All commits for a found account: the
+    /// single import's draft, sealed with `password`. No name: core names it.
+    static func importCommit(
+        foundAccount candidate: FundsFinderCandidate, words: [String], passphrase: String, password: String
+    ) -> WalletImportCommit? {
+        let draft = WalletImportDraft()
+        draft.configure(foundAccount: candidate, words: words, passphrase: passphrase)
+        draft.walletPassword = password
+        draft.walletPasswordConfirmation = password
+        return draft.importCommit(name: "")
+    }
     /// The lengths a phrase created on the network can have — BIP-39's five,
     /// Monero's 25, TON's 24 — shortest first.
     var createdLengths: [SeedPhraseLength] {

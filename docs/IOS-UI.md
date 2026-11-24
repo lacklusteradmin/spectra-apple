@@ -69,8 +69,12 @@ Official references:
   typed in a `SecretWordField`, which turns off every keyboard aid that reads
   or learns what is typed.
 - **Balances:** every amount and value a person can hide goes through
-  `BalanceText`, which masks it and tells VoiceOver it is hidden. Prices are
-  not balances and are never masked.
+  `BalanceText`, which masks it and tells VoiceOver it is hidden — inside a
+  sentence too, in a system list's row as
+  `LabeledContent(_:balance:isHidden:)`, and in a detail card's row as
+  `SpectraValueRow(…, isHidden:)`. Prices are not balances and are
+  never masked, nor are a network's own figures (a reserve, a deposit), an
+  amount being typed, or one a review asks a person to sign.
 - **Addresses:** a recipient field is an `AddressEntryRow` — typed, pasted,
   scanned (read by core against the network) or picked from the contacts —
   on every page that asks for one. A tool sheet that sends closes with
@@ -250,9 +254,10 @@ A label and its value — a detail card's facts, a review, a fee summary — is 
 semibold primary value, side by side while both fit on one line and the value
 under the label otherwise, always stacked at accessibility sizes. An
 identifier (a hash, an address) is monospaced on one line beside its label,
-cut in the middle with its ends primary, and the row holding it copies it in
-full. Rows sit `Space.m` apart with dividers between them. Group adjacent
-glass actions with `GlassEffectContainer(spacing: SpectraLayout.Space.s)`.
+in groups of four, cut in the middle with its first and last groups primary,
+and the row holding it is a `CopyButton` that copies it in full. Rows sit
+`Space.m` apart with dividers between them. Group adjacent glass actions with
+`GlassEffectContainer(spacing: SpectraLayout.Space.s)`.
 
 ## Additional constraints
 

@@ -411,20 +411,20 @@ struct HistoryListView: View {
     private var historyEmptyStateCard: some View {
         if store.wallets.isEmpty {
             SpectraEmptyStateCard(
-                title: "No activity yet", message: "Add a wallet to see its activity here.",
-                systemImage: "clock.arrow.circlepath", actionTitle: "Add Wallet", actionSystemImage: "plus"
+                title: AppLocalization.string("No activity yet"), message: AppLocalization.string("Add a wallet to see its activity here."),
+                systemImage: "clock.arrow.circlepath", actionTitle: AppLocalization.string("Add Wallet"), actionSystemImage: "plus"
             ) {
                 store.selectedMainTab = .home
                 store.isShowingAddWalletEntry = true
             }
         } else if filtersAreActive || !searchText.isEmpty {
             SpectraEmptyStateCard(
-                title: "No matches found", message: "Try a different filter or search term.",
-                systemImage: "magnifyingglass", actionTitle: "Clear Filters", actionSystemImage: "xmark.circle",
+                title: AppLocalization.string("No matches found"), message: AppLocalization.string("Try a different filter or search term."),
+                systemImage: "magnifyingglass", actionTitle: AppLocalization.string("Clear Filters"), actionSystemImage: "xmark.circle",
                 action: clearFilters)
         } else {
             SpectraEmptyStateCard(
-                title: "No activity yet", message: "Send funds or receive funds to build a persistent transaction log.",
+                title: AppLocalization.string("No activity yet"), message: AppLocalization.string("Send funds or receive funds to build a persistent transaction log."),
                 systemImage: "clock.arrow.circlepath")
         }
     }

@@ -3,10 +3,11 @@ import SwiftUI
 
 /// One account the scan found used: funded, or with history.
 struct FundsFinderHit: Identifiable {
-    let id = UUID()
-    let candidate: FundsFinderCandidate
+    let read: FundsScanRead
+    var id: FundsFinderCandidate { read.candidate }
+    var candidate: FundsFinderCandidate { read.candidate }
     /// The balance, or `nil` for an account used and since emptied.
-    let balanceDisplay: String?
+    var balanceDisplay: String? { read.funded ? read.balance?.amountDisplay : nil }
 }
 
 /// Scan a seed's derivation paths for funded addresses.
@@ -23,20 +24,11 @@ struct FundsFinderView: View {
     @State private var passphrase: String = ""
     @State private var showPassphrase: Bool = false
     @State private var hasStarted: Bool = false
-    @State private var isScanning = false
-    @State private var progress: Double = 0
-    @State private var hits: [FundsFinderHit] = []
-    @State private var checkedCount = 0
-    @State private var totalCount = 0
-    /// Why the scan itself stopped.
-    @State private var scanError: String?
-    /// Why a chain's addresses could not be read: the first failure on each
-    /// chain, worded like any other failed call.
-    @State private var unreadChains: [Chain: String] = [:]
-    @State private var scanTask: Task<Void, Never>?
+    @State private var run = FundsScanRun()
     @State private var isImportingAll = false
 
-    private var canStart: Bool { seedEntry.verdict.isValid && !isScanning }
+    private var canStart: Bool { seedEntry.verdict.isValid && !run.isRunning }
+    private var hits: [FundsFinderHit] { run.used.map(FundsFinderHit.init) }
 
     var body: some View {
         ZStack {
@@ -50,15 +42,15 @@ struct FundsFinderView: View {
                         if !hits.isEmpty {
                             hitsSection
                         }
-                        ForEach(Chain.all.filter { unreadChains[$0] != nil }) { chain in
+                        ForEach(run.unreadChains, id: \.chain) { unread in
                             errorBanner(AppLocalization.format(
-                                "%@ addresses could not be checked: %@", chain.displayName, unreadChains[chain] ?? ""))
+                                "%@ addresses could not be checked: %@", unread.chain.displayName, unread.reason))
                         }
-                        if let error = scanError {
+                        if let error = run.error {
                             errorBanner(error)
                         }
                         // Unread addresses are not empty ones.
-                        if !isScanning && hits.isEmpty && scanError == nil && unreadChains.isEmpty {
+                        if !run.isRunning && hits.isEmpty && run.error == nil && run.unreadChains.isEmpty {
                             emptyResultsSection
                         }
                     }
@@ -69,12 +61,12 @@ struct FundsFinderView: View {
         .navigationTitle(AppLocalization.string("Funds Finder"))
         .inlineNavigationTitle()
         .toolbar {
-            if hasStarted && !isScanning {
+            if hasStarted && !run.isRunning {
                 ToolbarItem(placement: .barTrailing) {
                     // Back to the phrase as it was: the next scan is most often
                     // the same phrase with a passphrase, or one word fixed.
                     Button(AppLocalization.string("New Scan")) {
-                        resetScan()
+                        run.cancel()
                         hasStarted = false
                     }
                 }
@@ -83,7 +75,7 @@ struct FundsFinderView: View {
         .onDisappear {
             // Covered by the import it opened, not closed.
             guard !store.walletImport.isPresented else { return }
-            resetScan()
+            run.cancel()
         }
         .navigationDestination(
             isPresented: Binding(
@@ -101,68 +93,8 @@ struct FundsFinderView: View {
     /// the phrase, passphrase, profile and account it was found at.
     private func importHit(_ hit: FundsFinderHit) {
         let words = seedEntry.verdict.words
-        let phrasePassphrase = passphrase
-        store.beginWalletSetup(chain: hit.candidate.chainId, method: .importPhrase)
-        let draft = store.walletImport.draft
-        draft.seedEntry.load(words, wordCount: words.count)
-        draft.overridePassphrase = phrasePassphrase
-        if let profile = hit.candidate.profile {
-            draft.derivationProfile = profile
-            draft.derivationAccount = hit.candidate.account
-        }
-    }
-
-    // MARK: - Scan
-
-    private func startScan(seedPhrase: String, passphrase: String?) {
-        guard !isScanning else { return }
-        resetScan()
-        isScanning = true
-        scanTask = Task { @MainActor in
-            do {
-                let service = try store.bridge.service()
-                let request = FundsFinderRequest(seedPhrase: seedPhrase, passphrase: passphrase)
-                // Deriving every candidate address from the seed is synchronous
-                // work; keep it off the main actor.
-                let scan = try await Task.detached {
-                    try service.beginFundsScan(request: request, chainId: nil)
-                }.value
-                guard !Task.isCancelled else { return }
-                repeat {
-                    let batch = await scan.nextBatch()
-                    guard !Task.isCancelled else { return }
-                    totalCount = Int(batch.total)
-                    checkedCount = Int(batch.checked)
-                    progress = batch.total == 0 ? 1 : Double(batch.checked) / Double(batch.total)
-                    for read in batch.reads {
-                        if let error = read.error, unreadChains[read.candidate.chainId] == nil {
-                            unreadChains[read.candidate.chainId] = userErrorMessage(error)
-                        }
-                        if read.used {
-                            hits.append(FundsFinderHit(
-                                candidate: read.candidate,
-                                balanceDisplay: read.funded ? read.balance?.amountDisplay : nil))
-                        }
-                    }
-                    if batch.complete { break }
-                } while !Task.isCancelled
-            } catch {
-                if !Task.isCancelled { scanError = userErrorMessage(error) }
-            }
-            isScanning = false
-        }
-    }
-
-    private func resetScan() {
-        scanTask?.cancel()
-        scanTask = nil
-        isScanning = false
-        progress = 0
-        hits = []
-        checkedCount = 0
-        totalCount = 0
-        scanError = nil
-        unreadChains = [:]
+        let passphrase = passphrase
+        store.walletImport.begin { $0.configure(foundAccount: hit.candidate, words: words, passphrase: passphrase) }
     }
 
     // MARK: - Input section
@@ -267,10 +199,9 @@ struct FundsFinderView: View {
         Button {
             guard canStart else { return }
             hasStarted = true
-            startScan(
-                seedPhrase: seedEntry.phrase,
-                passphrase: passphrase.isEmpty ? nil : passphrase
-            )
+            run.start(
+                FundsFinderRequest(seedPhrase: seedEntry.phrase, passphrase: passphrase.isEmpty ? nil : passphrase),
+                chain: nil, bridge: store.bridge)
         } label: {
             Label(AppLocalization.string("Start Scan"), systemImage: "magnifyingglass")
                 .font(.headline)
@@ -286,7 +217,7 @@ struct FundsFinderView: View {
     private var scanProgressSection: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             HStack {
-                if isScanning {
+                if run.isRunning {
                     SpectraLoadingGlyph(size: 26, tint: .accentColor)
                     Text(AppLocalization.string("Scanning…"))
                         .font(.headline)
@@ -297,28 +228,27 @@ struct FundsFinderView: View {
                         .font(.headline)
                 }
                 Spacer()
-                if totalCount > 0 {
-                    Text(AppLocalization.format("%lld / %lld",
-                        checkedCount, totalCount))
+                if run.total > 0 {
+                    Text(AppLocalization.format("%lld / %lld", run.checked, run.total))
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.secondary)
                 }
             }
-            if totalCount > 0 {
-                ProgressView(value: progress)
+            if run.total > 0 {
+                ProgressView(value: run.progress)
                     .progressViewStyle(.linear)
             }
-            if isScanning {
+            if run.isRunning {
                 Text(AppLocalization.string("Checking addresses across all derivation paths…"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            } else if hits.isEmpty, unreadChains.isEmpty {
-                Text(AppLocalization.format("Checked %lld paths — no funds found", count: checkedCount, checkedCount))
+            } else if hits.isEmpty, run.unreadChains.isEmpty {
+                Text(AppLocalization.format("Checked %lld paths — no funds found", count: run.checked, run.checked))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else if !hits.isEmpty {
                 Text(AppLocalization.format("Found %lld paths with funds across %lld checked",
-                    count: hits.count, hits.count, checkedCount))
+                    count: hits.count, hits.count, run.checked))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -337,7 +267,7 @@ struct FundsFinderView: View {
             footer: {
                 // Every found account at once, each its own wallet — the
                 // scan's usual end is more than one.
-                if hits.count > 1, !isScanning {
+                if hits.count > 1, !run.isRunning {
                     Divider().opacity(SpectraLayout.dividerOpacity)
                     Button {
                         isImportingAll = true
@@ -354,34 +284,19 @@ struct FundsFinderView: View {
             FundsFinderHitRow(hit: hit) { importHit(hit) }
         }
         .pageSheet(isPresented: $isImportingAll) {
+            let words = seedEntry.verdict.words
+            let passphrase = passphrase
             ImportAllFoundSheet(store: store, hits: hits) { hit, password in
-                importCommit(for: hit, password: password)
+                WalletImportDraft.importCommit(
+                    foundAccount: hit.candidate, words: words, passphrase: passphrase, password: password)
             }
         }
     }
 
-    /// The commit the single import would make for `hit`, from a draft set
-    /// up as `importHit` sets one up: the phrase, the passphrase, the
-    /// profile and the account it was found at. No name: core names it.
-    private func importCommit(for hit: FundsFinderHit, password: String) -> WalletImportCommit? {
-        let draft = WalletImportDraft()
-        draft.configure(chain: hit.candidate.chainId, method: .importPhrase)
-        let words = seedEntry.verdict.words
-        draft.seedEntry.load(words, wordCount: words.count)
-        draft.overridePassphrase = passphrase
-        if let profile = hit.candidate.profile {
-            draft.derivationProfile = profile
-            draft.derivationAccount = hit.candidate.account
-        }
-        draft.walletPassword = password
-        draft.walletPasswordConfirmation = password
-        return draft.importCommit(name: "")
-    }
-
     private var emptyResultsSection: some View {
         SpectraEmptyStateCard(
-            title: "No funds found",
-            message: "No balance was detected at any of the scanned derivation paths. Double-check your seed phrase and try with a BIP-39 passphrase if you set one.",
+            title: AppLocalization.string("No funds found"),
+            message: AppLocalization.string("No balance was detected at any of the scanned derivation paths. Double-check your seed phrase and try with a BIP-39 passphrase if you set one."),
             systemImage: "tray")
     }
 
@@ -451,7 +366,7 @@ private struct ImportAllFoundSheet: View {
     @State private var confirmation = ""
     @State private var importingIndex: Int?
     /// Each account's answer, by its hit, once its import has run.
-    @State private var results: [UUID: String?] = [:]
+    @State private var results: [FundsFinderCandidate: String?] = [:]
     @State private var isFinished = false
 
     private var passwordProblem: String? {

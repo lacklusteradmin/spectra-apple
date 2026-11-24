@@ -11,26 +11,26 @@ struct UsedAccountsSheet: View {
     let store: AppState
     @Bindable var draft: WalletImportDraft
     @Environment(\.dismiss) private var dismiss
-    @State private var scan: FundsScan?
-    @State private var endpoints: [FundsScanEndpoint] = []
+    /// Where the scan would send its addresses, named before it runs; `nil`
+    /// until core has derived them.
+    @State private var endpoints: [FundsScanEndpoint]?
     @State private var candidateCount = 0
-    @State private var reads: [FundsScanRead] = []
-    @State private var isScanning = false
-    @State private var hasScanned = false
-    @State private var errorMessage: String?
+    /// Why the candidates could not be derived.
+    @State private var preparationError: String?
+    @State private var run = FundsScanRun()
 
     var body: some View {
         NavigationStack {
             List {
-                if let errorMessage {
-                    Section { Text(errorMessage).foregroundStyle(.red) }
+                if let error = preparationError ?? run.error {
+                    Section { Text(error).foregroundStyle(.red) }
                 }
-                if scan != nil {
-                    endpointsSection
+                if let endpoints {
+                    endpointsSection(endpoints)
                 }
-                if !reads.isEmpty {
+                if !run.reads.isEmpty {
                     Section(AppLocalization.string("Accounts")) {
-                        ForEach(reads, id: \.candidate.address) { read in
+                        ForEach(run.reads, id: \.candidate.address) { read in
                             readRow(read)
                         }
                     }
@@ -39,18 +39,18 @@ struct UsedAccountsSheet: View {
             .navigationTitle(AppLocalization.string("Find Used Accounts"))
             .inlineNavigationTitle()
             .toolbar {
-                // Done, where Done goes: the sheet reads and lists, and
-                // leaving it cancels nothing.
+                // Done, where Done goes: choosing an account has already
+                // set it on the import.
                 ToolbarItem(placement: .confirmationAction) {
                     Button(AppLocalization.string("Done")) { dismiss() }
                 }
             }
             .task { await prepare() }
+            .onDisappear { run.cancel() }
         }
     }
 
-    @ViewBuilder
-    private var endpointsSection: some View {
+    private func endpointsSection(_ endpoints: [FundsScanEndpoint]) -> some View {
         Section {
             ForEach(endpoints, id: \.endpoint) { endpoint in
                 Text(endpoint.endpoint).font(.caption.monospaced()).textSelection(.enabled)
@@ -59,10 +59,8 @@ struct UsedAccountsSheet: View {
                 Text(AppLocalization.string("No endpoint is configured for this network.")).font(.caption)
                     .foregroundStyle(.secondary)
             }
-            Button {
-                Task { await runScan() }
-            } label: {
-                if isScanning {
+            Button(action: scan) {
+                if run.isRunning {
                     HStack(spacing: SpectraLayout.Space.s) {
                         SpectraLoadingGlyph(size: 18, tint: .accentColor)
                         Text(AppLocalization.string("Scanning…"))
@@ -70,7 +68,7 @@ struct UsedAccountsSheet: View {
                 } else {
                     Text(AppLocalization.string("Scan Accounts"))
                 }
-            }.disabled(isScanning || endpoints.isEmpty)
+            }.disabled(run.isRunning || endpoints.isEmpty)
         } header: {
             Text(AppLocalization.format("Spectra will send %lld addresses to:", count: candidateCount, candidateCount))
         } footer: {
@@ -80,16 +78,7 @@ struct UsedAccountsSheet: View {
 
     private func readRow(_ read: FundsScanRead) -> some View {
         Button {
-            guard read.used else { return }
-            if let version = read.candidate.tonWalletVersion {
-                draft.tonWalletVersion = version
-            } else if let profile = read.candidate.profile {
-                draft.derivationProfile = profile
-                draft.derivationAccount = read.candidate.account
-                draft.customDerivationPath = ""
-            } else {
-                return
-            }
+            guard read.used, draft.derive(as: read.candidate) else { return }
             dismiss()
         } label: {
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
@@ -116,41 +105,28 @@ struct UsedAccountsSheet: View {
         return AppLocalization.string(read.used ? "Used" : "Unused")
     }
 
-    /// Derive the candidates and name the endpoints; nothing is sent.
-    private func prepare() async {
-        guard scan == nil, let chain = draft.chain else { return }
-        let request = FundsFinderRequest(
+    /// The scan the sheet runs: the import's phrase and passphrase, on its
+    /// network.
+    private var request: FundsFinderRequest {
+        FundsFinderRequest(
             seedPhrase: draft.seedPhrase,
             passphrase: draft.overridePassphrase.isEmpty ? nil : draft.overridePassphrase)
+    }
+
+    /// Derive the candidates and name the endpoints; nothing is sent.
+    private func prepare() async {
+        guard endpoints == nil, let chain = draft.chain else { return }
         do {
-            let service = try store.bridge.service()
-            // Deriving every candidate is synchronous work; keep it off the
-            // main actor.
-            let begun = try await Task.detached { try service.beginFundsScan(request: request, chainId: chain) }.value
+            let begun = try await FundsScanRun.begin(request, chain: chain, service: store.bridge.service())
             candidateCount = begun.candidates().count
             endpoints = await begun.endpoints()
-            scan = begun
         } catch {
-            errorMessage = userErrorMessage(error)
+            preparationError = userErrorMessage(error)
         }
     }
 
-    private func runScan() async {
-        guard let chain = draft.chain, !isScanning else { return }
-        // A scan session is consumed as it runs, so each scan is a new one.
-        if hasScanned {
-            scan = nil
-            await prepare()
-        }
-        guard let scan, draft.chain == chain else { return }
-        isScanning = true
-        reads = []
-        repeat {
-            let batch = await scan.nextBatch()
-            reads.append(contentsOf: batch.reads)
-            if batch.complete { break }
-        } while !Task.isCancelled
-        hasScanned = true
-        isScanning = false
+    private func scan() {
+        guard let chain = draft.chain else { return }
+        run.start(request, chain: chain, bridge: store.bridge)
     }
 }

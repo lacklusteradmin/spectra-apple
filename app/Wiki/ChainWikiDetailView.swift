@@ -52,11 +52,11 @@ struct ChainWikiDetailView: View {
 
     private var wikiIdentityCard: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
-            SpectraValueRow(systemImage: "link.circle.fill", label: "Family", value: chain.family)
+            SpectraValueRow(systemImage: "link.circle.fill", label: AppLocalization.string("Family"), value: chain.family)
             Divider().opacity(SpectraLayout.dividerOpacity)
-            SpectraValueRow(systemImage: "checkmark.shield.fill", label: "Consensus", value: chain.consensus)
+            SpectraValueRow(systemImage: "checkmark.shield.fill", label: AppLocalization.string("Consensus"), value: chain.consensus)
             Divider().opacity(SpectraLayout.dividerOpacity)
-            SpectraValueRow(systemImage: "cylinder.split.1x2.fill", label: "State Model", value: chain.stateModel)
+            SpectraValueRow(systemImage: "cylinder.split.1x2.fill", label: AppLocalization.string("State Model"), value: chain.stateModel)
         }
         .padding(SpectraLayout.Space.l).frame(maxWidth: .infinity, alignment: .leading)
         .spectraCardFill()

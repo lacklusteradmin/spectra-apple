@@ -253,7 +253,7 @@ final class SendFlowState {
                 "The scanned QR code does not contain a valid address for the selected asset."))
         }
         do {
-            let payment = try readScannedPayment(chain: coin.chain, tokenContract: coin.contractAddress, payload: payload)
+            let payment = try readScannedPayment(chain: coin.chainId, tokenContract: coin.contractAddress, payload: payload)
             address = payment.address
             if let amount = payment.amount { self.amount = AmountPresentation.decimalFieldText(amount) }
             if let memo = payment.memo {
@@ -272,7 +272,7 @@ final class SendFlowState {
         recipientTask?.cancel()
         clearRecipientResolution()
         let key = recipientKey
-        guard isPresented, let chain = selectedHolding()?.chain,
+        guard isPresented, let chain = selectedHolding()?.chainId,
               !address.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         recipientTask = Task { [weak self] in
             // Typing is not checking: the answer comes once typing pauses,

@@ -67,7 +67,7 @@ struct WalletAccessKeysView: View {
                 ).font(.caption)
                 LabeledContent(
                     AppLocalization.string("Allowance"),
-                    value: key.allowance.map { store.amounts.formattedNativeAmount($0, chain: wallet.chain) } ?? AppLocalization.string("Unlimited")
+                    value: key.allowance.map { store.amounts.formattedNativeAmount($0, chain: wallet.chainId) } ?? AppLocalization.string("Unlimited")
                 ).font(.caption)
                 if !wallet.signing.isWatchOnly {
                     Button(role: .destructive) { deleting = key } label: {

@@ -29,7 +29,7 @@ extension AppState {
     /// shows the reason in its own flow — an unlock failure is not a send error.
     func authenticate(_ action: DeviceAuthenticationAction, reason: String) async -> String? {
         guard action.requiresAuthentication(useDeviceAuthentication: preferences.useDeviceAuthentication,
-            authenticateSends: preferences.requireBiometricForSendActions) else { return nil }
+            authenticateSends: preferences.authenticateSends) else { return nil }
         let context = LAContext()
         var authError: NSError?
         guard context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authError) else {

@@ -17,7 +17,7 @@ struct WalletApprovalsView: View {
         List {
             if let approvals {
                 if approvals.approvals.isEmpty {
-                    WalletToolEmptySection(message: "This wallet has no standing token approvals.")
+                    WalletToolEmptySection(message: AppLocalization.string("This wallet has no standing token approvals."))
                 }
                 Section {
                     ForEach(approvals.approvals, id: \.id) { approval in

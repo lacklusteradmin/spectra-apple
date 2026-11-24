@@ -7,7 +7,6 @@ struct DiagnosticsHubView: View {
     @State private var diagnosticsNotice: String?
     @State private var lastExportedDiagnosticsURL: URL?
     @State private var searchText: String = ""
-    private let copy = DiagnosticsContentCopy.current
     private struct DiagnosticsDestination: Identifiable {
         let id: String
         let title: String
@@ -45,7 +44,7 @@ struct DiagnosticsHubView: View {
     }
     var body: some View {
         Form {
-            Section(copy.actionsSectionTitle) {
+            Section(AppLocalization.string("diagnostics.actionsSectionTitle")) {
                 Button(AppLocalization.string(isCheckingAllEndpoints ? "Running Diagnostics..." : "Run All Endpoint Checks")) {
                     isCheckingAllEndpoints = true
                     Task {
@@ -55,7 +54,7 @@ struct DiagnosticsHubView: View {
                     }
                 }.disabled(isCheckingAllEndpoints)
             }
-            destinationSection(copy.chainsSectionTitle, destinations: chainDestinations)
+            destinationSection(AppLocalization.string("diagnostics.chainsSectionTitle"), destinations: chainDestinations)
             Section(AppLocalization.string("Diagnostics Bundle")) {
                 Button(AppLocalization.string("Export Diagnostics Bundle")) {
                     Task {
@@ -79,14 +78,13 @@ struct DiagnosticsHubView: View {
                     Text(diagnosticsNotice).font(.caption).foregroundStyle(.secondary)
                 }
             }
-        }.navigationTitle(copy.navigationTitle).inlineNavigationTitle().searchable(
-            text: $searchText, prompt: copy.searchPrompt)
+        }.navigationTitle(AppLocalization.string("diagnostics.navigationTitle")).inlineNavigationTitle().searchable(
+            text: $searchText, prompt: AppLocalization.string("diagnostics.searchPrompt"))
     }
 }
 struct StandardChainDiagnosticsView: View {
     @Bindable var store: AppState
     let chain: Chain
-    private let copy = DiagnosticsContentCopy.current
     @State private var isRefreshing = false
     @State private var refreshNotice: String?
     @State private var copiedDiagnosticsNotice: SpectraTransientNotice?
@@ -103,7 +101,7 @@ struct StandardChainDiagnosticsView: View {
 
     var body: some View {
         Form {
-            Section(copy.actionsSectionTitle) {
+            Section(AppLocalization.string("diagnostics.actionsSectionTitle")) {
                 Button(AppLocalization.string(isRefreshing ? "Refreshing..." : "Refresh Balances and History")) {
                     isRefreshing = true
                     refreshNotice = nil
@@ -152,34 +150,34 @@ struct StandardChainDiagnosticsView: View {
                     Text(copiedDiagnosticsNotice.text).font(.caption).foregroundStyle(.secondary)
                 }
             }
-            Section(copy.statusSectionTitle) {
+            Section(AppLocalization.string("diagnostics.statusSectionTitle")) {
                 if let recordedError {
                     Text(recordedError).font(.caption).foregroundStyle(.red)
                 }
                 if let ranAt = recorded?.historyRunAtUnix {
-                    Text(formatCopy(copy.lastHistoryRunFormat, formattedTime(ranAt))).font(.caption)
+                    Text(AppLocalization.format("diagnostics.lastHistoryRunFormat", formattedTime(ranAt))).font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text(copy.historyNotRunYet).font(.caption).foregroundStyle(.secondary)
+                    Text(AppLocalization.string("diagnostics.historyNotRunYet")).font(.caption).foregroundStyle(.secondary)
                 }
-                Text(formatCopy(copy.walletDiagnosticsCoveredFormat, String(recorded?.walletCount ?? 0))).font(.caption)
+                Text(AppLocalization.format("diagnostics.walletDiagnosticsCoveredFormat", String(recorded?.walletCount ?? 0))).font(.caption)
                     .foregroundStyle(.secondary)
                 if let primarySource = historySources.first {
-                    Text(formatCopy(copy.mostUsedHistorySourceFormat, primarySource.source, String(primarySource.walletCount)))
+                    Text(AppLocalization.format("diagnostics.mostUsedHistorySourceFormat", primarySource.source, String(primarySource.walletCount)))
                         .font(.caption).foregroundStyle(.secondary)
                 }
                 if let checkedAt = recorded?.endpointsCheckedAtUnix {
-                    Text(formatCopy(copy.lastEndpointCheckFormat, formattedTime(checkedAt))).font(.caption).foregroundStyle(.secondary)
+                    Text(AppLocalization.format("diagnostics.lastEndpointCheckFormat", formattedTime(checkedAt))).font(.caption).foregroundStyle(.secondary)
                 }
                 if !endpoints.isEmpty {
                     let reachableCount = endpoints.filter { $0.checked && $0.reachable }.count
-                    Text(formatCopy(copy.endpointHealthFormat, String(reachableCount), String(endpoints.count))).font(.caption)
+                    Text(AppLocalization.format("diagnostics.endpointHealthFormat", String(reachableCount), String(endpoints.count))).font(.caption)
                         .foregroundStyle(.secondary)
                 }
             }
-            Section(formatCopy(copy.historySourcesSectionTitleFormat, diagnosticsLabel)) {
+            Section(AppLocalization.format("diagnostics.historySourcesSectionTitleFormat", diagnosticsLabel)) {
                 if historySources.isEmpty {
-                    Text(copy.noHistoryTelemetryYet).font(.caption).foregroundStyle(.secondary)
+                    Text(AppLocalization.string("diagnostics.noHistoryTelemetryYet")).font(.caption).foregroundStyle(.secondary)
                 } else {
                     ForEach(historySources, id: \.source) { item in
                         HStack {
@@ -191,9 +189,9 @@ struct StandardChainDiagnosticsView: View {
                     }
                 }
             }
-            Section(formatCopy(copy.endpointReachabilitySectionTitleFormat, diagnosticsLabel)) {
+            Section(AppLocalization.format("diagnostics.endpointReachabilitySectionTitleFormat", diagnosticsLabel)) {
                 if endpoints.isEmpty {
-                    Text(copy.noEndpointChecksYet).font(.caption).foregroundStyle(.secondary)
+                    Text(AppLocalization.string("diagnostics.noEndpointChecksYet")).font(.caption).foregroundStyle(.secondary)
                 } else {
                     ForEach(Array(endpoints.enumerated()), id: \.offset) { _, result in
                         VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
@@ -256,7 +254,7 @@ struct StandardChainDiagnosticsView: View {
     private var chainSpecificSections: some View {
         Section {
             NavigationLink { EndpointCatalogSettingsView(store: store) } label: {
-                Text(EndpointsContentCopy.current.navigationTitle)
+                Text(AppLocalization.string("endpoints.navigationTitle"))
             }
         }
         Section(AppLocalization.string("Operational Events")) {
@@ -303,9 +301,6 @@ struct StandardChainDiagnosticsView: View {
             }
         }
     }
-}
-private func formatCopy(_ format: String, _ arguments: CVarArg...) -> String {
-    String(format: format, locale: AppLocalization.locale, arguments: arguments)
 }
 
 func refreshOutcomeMessage(succeeded: Bool) -> String {

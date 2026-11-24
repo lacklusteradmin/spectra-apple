@@ -1,8 +1,8 @@
 import SpectraCore
 import SwiftUI
 
-/// `address` in groups of four, a `0x` prefix riding on the first, with the
-/// first and last groups primary and the rest secondary.
+/// An address or a hash in groups of four, a `0x` prefix riding on the
+/// first, with the first and last groups primary and the rest secondary.
 func groupedAddress(_ address: String) -> AttributedString {
     let hasHexPrefix = address.hasPrefix("0x")
     let body = Array(hasHexPrefix ? address.dropFirst(2) : Substring(address))

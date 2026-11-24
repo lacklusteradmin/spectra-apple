@@ -13,7 +13,7 @@ struct SendAssetContextView: View {
             HStack(spacing: SpectraLayout.Space.s) {
                 CoinBadge(artworkName: coin.artworkName, fallbackText: coin.symbol, color: coin.color, size: 24)
                 Text(coin.symbol).font(.subheadline.weight(.semibold))
-                Text(presentation.selectedWallet?.networkTitle ?? coin.chainName)
+                Text(presentation.selectedWallet?.chainName ?? coin.chainName)
                     .font(.caption).foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 0)

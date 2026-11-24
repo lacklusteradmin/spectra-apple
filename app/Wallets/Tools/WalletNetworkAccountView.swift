@@ -13,6 +13,7 @@ struct WalletNetworkAccountView: View {
     @State private var error: String?
     @State private var isLoading = false
     @State private var isClosing = false
+    private var hidesBalances: Bool { store.preferences.hideBalances }
 
     var body: some View {
         List {
@@ -76,13 +77,13 @@ struct WalletNetworkAccountView: View {
                         "Not on the network yet: a payment of at least %@ %@ creates the account.", baseReserve, symbol))
             }
             Section {
-                LabeledContent(AppLocalization.string("Balance"), value: AmountPresentation.exactAmount(balance, symbol: symbol))
+                LabeledContent(AppLocalization.string("Balance"), balance: AmountPresentation.exactAmount(balance, symbol: symbol), isHidden: hidesBalances)
                 LabeledContent(AppLocalization.string("Base Reserve"), value: AmountPresentation.exactAmount(baseReserve, symbol: symbol))
                 LabeledContent(
                     AppLocalization.format("Owned Objects (%lld)", Int(ownedObjects)),
                     value: AmountPresentation.exactAmount(objectReserve, symbol: symbol))
                 LabeledContent(AppLocalization.string("Total Reserve"), value: AmountPresentation.exactAmount(totalReserve, symbol: symbol))
-                LabeledContent(AppLocalization.string("Spendable"), value: AmountPresentation.exactAmount(spendable, symbol: symbol))
+                LabeledContent(AppLocalization.string("Spendable"), balance: AmountPresentation.exactAmount(spendable, symbol: symbol), isHidden: hidesBalances)
             } footer: {
                 Text(AppLocalization.string("The network locks the reserve in the account; a send moves only what is above it. Each trust line, offer or other object the account owns locks more, and removing it frees that again."))
             }
@@ -97,11 +98,11 @@ struct WalletNetworkAccountView: View {
             }
         case let .substrate(free, reserved, frozen, existentialDeposit, transferable):
             Section {
-                LabeledContent(AppLocalization.string("Free"), value: AmountPresentation.exactAmount(free, symbol: symbol))
-                LabeledContent(AppLocalization.string("Reserved"), value: AmountPresentation.exactAmount(reserved, symbol: symbol))
-                LabeledContent(AppLocalization.string("Frozen"), value: AmountPresentation.exactAmount(frozen, symbol: symbol))
+                LabeledContent(AppLocalization.string("Free"), balance: AmountPresentation.exactAmount(free, symbol: symbol), isHidden: hidesBalances)
+                LabeledContent(AppLocalization.string("Reserved"), balance: AmountPresentation.exactAmount(reserved, symbol: symbol), isHidden: hidesBalances)
+                LabeledContent(AppLocalization.string("Frozen"), balance: AmountPresentation.exactAmount(frozen, symbol: symbol), isHidden: hidesBalances)
                 LabeledContent(AppLocalization.string("Existential Deposit"), value: AmountPresentation.exactAmount(existentialDeposit, symbol: symbol))
-                LabeledContent(AppLocalization.string("Transferable"), value: AmountPresentation.exactAmount(transferable, symbol: symbol))
+                LabeledContent(AppLocalization.string("Transferable"), balance: AmountPresentation.exactAmount(transferable, symbol: symbol), isHidden: hidesBalances)
             } footer: {
                 Text(AppLocalization.string("Reserved is held by the network for deposits and is not in the free balance. Frozen is free balance that staking or another lock keeps from moving. An account that falls below the existential deposit is removed, and what is left in it is lost."))
             }
@@ -111,7 +112,7 @@ struct WalletNetworkAccountView: View {
                     AppLocalization.string("Storage Used"),
                     value: AppLocalization.format("%lld bytes", count: Int(storageBytes), Int(storageBytes)))
                 LabeledContent(AppLocalization.string("Price per Byte"), value: AmountPresentation.exactAmount(storagePrice, symbol: symbol))
-                LabeledContent(AppLocalization.string("Locked Stake"), value: AmountPresentation.exactAmount(locked, symbol: symbol))
+                LabeledContent(AppLocalization.string("Locked Stake"), balance: AmountPresentation.exactAmount(locked, symbol: symbol), isHidden: hidesBalances)
                 LabeledContent(AppLocalization.string("Kept for Storage"), value: AmountPresentation.exactAmount(storageReserve, symbol: symbol))
             } footer: {
                 Text(AppLocalization.string("Every byte an account stores must be covered by NEAR it holds, except for a small account within the network's free allowance. Locked stake counts toward it; the rest is kept back from the balance, and a send cannot move it."))
@@ -127,7 +128,7 @@ struct WalletNetworkAccountView: View {
                     Text(verbatim: stakeAddress).font(.caption.monospaced()).foregroundStyle(.secondary)
                         .textSelection(.enabled)
                 }
-                LabeledContent(AppLocalization.string("Rewards"), value: AmountPresentation.exactAmount(rewards, symbol: symbol))
+                LabeledContent(AppLocalization.string("Rewards"), balance: AmountPresentation.exactAmount(rewards, symbol: symbol), isHidden: hidesBalances)
                 LabeledContent(AppLocalization.string("Pool")) {
                     Text(verbatim: delegatedPool ?? AppLocalization.string("None")).font(.caption.monospaced())
                         .lineLimit(1).truncationMode(.middle)
@@ -219,8 +220,8 @@ private struct CloseAccountView: View {
         ) {
             Section {
                 AddressEntryRow(
-                    title: AppLocalization.string("Destination Address"), text: $destination, chain: wallet.chain,
-                    contacts: store.addressBook.entries.filter { $0.chainId == wallet.chain })
+                    title: AppLocalization.string("Destination Address"), text: $destination, chain: wallet.chainId,
+                    contacts: store.addressBook.entries.filter { $0.chainId == wallet.chainId })
                 if !memoKinds.isEmpty {
                     SendPaymentMemoField(kinds: memoKinds, kind: $memoKind, text: $memoText)
                 }
@@ -237,10 +238,10 @@ private struct CloseAccountView: View {
                     if let memo = artifact.memo { PaymentMemoRow(memo: memo) }
                     LabeledContent(
                         AppLocalization.string("Amount"),
-                        value: store.amounts.formattedNativeAmount(artifact.amount, chain: wallet.chain))
+                        value: store.amounts.formattedNativeAmount(artifact.amount, chain: wallet.chainId))
                     LabeledContent(
                         AppLocalization.string("Reserve Recovered"),
-                        value: store.amounts.formattedNativeAmount(reserve, chain: wallet.chain))
+                        value: store.amounts.formattedNativeAmount(reserve, chain: wallet.chainId))
                     if removedObjects > 0 {
                         LabeledContent(AppLocalization.string("Objects Deleted"), value: "\(removedObjects)")
                     }

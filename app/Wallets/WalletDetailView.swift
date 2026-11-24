@@ -58,7 +58,7 @@ struct WalletDetailView: View {
         let presentation = { (holding: AssetHolding) in
             HoldingPresentation(
                 coin: holding,
-                amountText: store.amounts.formattedAssetAmount(holding.amount, symbol: holding.symbol, deploymentId: holding.holdingKey),
+                amountText: store.amounts.formattedAssetAmount(holding.amount, symbol: holding.symbol, deploymentId: holding.id),
                 valueText: store.amounts.formattedFiat(store.amounts.holdingValue(walletId: wallet.id, coin: holding))
             )
         }
@@ -116,7 +116,7 @@ struct WalletDetailView: View {
             // Waits for the read to finish, as Home's does, so the spinner
             // means something; this wallet's network is what it reads.
             .pageRefreshable {
-                _ = await store.performUserInitiatedRefresh(forChain: displayedWallet.chain)
+                _ = await store.performUserInitiatedRefresh(forChain: displayedWallet.chainId)
             }.navigationTitle(AppLocalization.string("Wallet Details")).inlineNavigationTitle()
             .clearNavigationBar()
             .toolbar {
@@ -153,7 +153,7 @@ struct WalletDetailView: View {
         Task {
             do {
                 _ = try await store.stateCommands.apply(
-                    .setHoldingHidden(walletId: wallet.id, deploymentId: holding.holdingKey, hidden: hidden))
+                    .setHoldingHidden(walletId: wallet.id, deploymentId: holding.id, hidden: hidden))
             } catch {
                 store.reportCommandError(error)
             }
@@ -177,12 +177,12 @@ struct WalletDetailView: View {
         case .receive: store.beginReceive(walletId: wallet.id)
         case .openInExplorer:
             if let address = detailPresentation.walletAddress,
-               let link = addressExplorerLink(chainId: displayedWallet.chain, address: address),
+               let link = addressExplorerLink(chainId: displayedWallet.chainId, address: address),
                let url = URL(string: link.url) {
                 openURL(url)
             }
         case .getTestCoins:
-            if let url = displayedWallet.chain.faucetURL {
+            if let url = displayedWallet.chainId.faucetURL {
                 openURL(url)
             }
         case .addToNetwork, .rename, .revealPhrase, .exportKeys, .delete: isShowingManagePage = true
@@ -201,7 +201,7 @@ struct WalletDetailView: View {
             WalletMultisigView(store: store, wallet: displayedWallet)
         case .addKeys:
             WalletSetupMethodsView(
-                store: store, chain: displayedWallet.chain,
+                store: store, chain: displayedWallet.chainId,
                 upgrading: (displayedWallet, actions?.actions.first { $0.action == .addKeys }?.note ?? ""))
         case .stake:
             WalletStakingView(store: store, wallet: displayedWallet)
@@ -252,7 +252,7 @@ struct WalletDetailView: View {
                     Spacer(minLength: 0)
                     if isWatchOnly { watchOnlyBadge }
                 }
-                Text(presentation.wallet.networkTitle).font(.subheadline.weight(.medium))
+                Text(presentation.wallet.chainName).font(.subheadline.weight(.medium))
                     .foregroundStyle(presentation.walletBadge.color)
                 if let ensName {
                     Text(verbatim: ensName).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
@@ -293,8 +293,8 @@ struct WalletDetailView: View {
     private func holdingsFooter(shown: [HoldingPresentation], hidden: [HoldingPresentation]) -> some View {
         if shown.isEmpty && hidden.isEmpty {
             SpectraEmptyStateContent(
-                title: "No assets loaded",
-                message: "No assets loaded for this wallet yet.",
+                title: AppLocalization.string("No assets loaded"),
+                message: AppLocalization.string("No assets loaded for this wallet yet."),
                 systemImage: "tray"
             )
             .padding(.horizontal, SpectraLayout.rowHorizontal).padding(.vertical, SpectraLayout.Space.m)
@@ -329,12 +329,12 @@ struct WalletDetailView: View {
     }
     @ViewBuilder
     private func walletAddressCard(walletAddress: String) -> some View {
-        let chain = displayedWallet.chain
+        let chain = displayedWallet.chainId
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             HStack(spacing: SpectraLayout.Space.s) {
                 Text(AppLocalization.string("Wallet Address")).font(.headline).foregroundStyle(Color.primary)
                 Spacer()
-                CopyButton(value: displayAddress(chain: chain, address: walletAddress), title: "Copy")
+                CopyButton(value: displayAddress(chain: chain, address: walletAddress), title: AppLocalization.string("Copy"))
             }
             // Grouped and in its checksummed case, so it is compared a group
             // at a time; never hyphenated where it wraps.

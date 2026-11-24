@@ -22,7 +22,7 @@ extension AppState {
     /// this reads what core holds rather than opening it again.
     func loadCoreOwnedState() async {
         do {
-            let state = try await self.bridge.ready().appState()
+            let state = try await self.bridge.ready().committedState()
             applyCoreState(state)
         } catch SpectraBridgeError.StoreUnreadable(let message) {
             storeStatus = .unreadable

@@ -7,7 +7,7 @@ struct SendConfirmationStep: View {
     private var quoteIsCurrent: Bool { store.sendFlow.quoteIsCurrent }
     private var recipientAddress: String { store.sendFlow.currentRecipient?.address ?? store.sendFlow.address }
     private var selectedCoin: AssetHolding? {
-        store.availableSendCoins(for: store.sendFlow.walletId).first(where: { $0.holdingKey == store.sendFlow.holdingKey })
+        store.availableSendCoins(for: store.sendFlow.walletId).first(where: { $0.id == store.sendFlow.holdingKey })
     }
 
     var body: some View {
@@ -20,7 +20,7 @@ struct SendConfirmationStep: View {
             if let selectedCoin {
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
                     SendTransferPartiesView(
-                        store: store, walletId: store.sendFlow.walletId, chain: selectedCoin.chain,
+                        store: store, walletId: store.sendFlow.walletId, chain: selectedCoin.chainId,
                         sender: store.selectedWalletForSend()?.address,
                         recipient: recipientAddress)
                     Divider().opacity(SpectraLayout.dividerOpacity)
@@ -62,8 +62,8 @@ struct SendConfirmationStep: View {
 
             if store.sendFlow.session.isBusy {
                 SpectraLoadingRow(
-                    title: "Preparing transaction...",
-                    subtitle: "Keep this screen open while Spectra prepares the transfer."
+                    title: AppLocalization.string("Preparing transaction..."),
+                    subtitle: AppLocalization.string("Keep this screen open while Spectra prepares the transfer.")
                 )
             }
         }
@@ -74,7 +74,7 @@ struct SendConfirmationStep: View {
         if let selectedCoin {
             SendAmountSummaryView(
                 artworkName: selectedCoin.artworkName, symbol: selectedCoin.symbol,
-                chain: selectedCoin.chain, amount: store.sendFlow.amountInput,
+                chain: selectedCoin.chainId, amount: store.sendFlow.amountInput,
                 fiatText: store.amounts.formattedFiatIfAvailable(confirmedQuote?.amountValue).map { "≈ \($0)" })
         }
     }
@@ -105,7 +105,7 @@ struct SendConfirmationStep: View {
         guard let coin = selectedCoin, coin.isNativeCoin else { return nil }
         guard let total = confirmedQuote?.total, !store.sendFlow.isPreparingPreview,
               store.sendFlow.previewError == nil, quoteIsCurrent else { return networkFeeText }
-        return "≈ " + store.amounts.formattedAssetAmount(total, symbol: coin.symbol, deploymentId: coin.holdingKey)
+        return "≈ " + store.amounts.formattedAssetAmount(total, symbol: coin.symbol, deploymentId: coin.id)
     }
 }
 

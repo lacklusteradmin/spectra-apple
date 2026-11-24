@@ -60,7 +60,7 @@ extension WalletCardView.Presentation {
         let badge = AssetHolding.nativeChainBadge(for: wallet.family) ?? (nil, .mint)
         let assetCount = wallet.shownHoldings.count
         self.init(
-            walletName: wallet.name, chainTitleText: wallet.networkTitle,
+            walletName: wallet.name, chainTitleText: wallet.chainName,
             totalValueText: store.amounts.formattedWalletTotal(walletId: wallet.id),
             hidesBalance: store.preferences.hideBalances,
             isReadingBalances: wallet.balancesReadAt == nil,

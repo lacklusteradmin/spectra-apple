@@ -6,12 +6,25 @@ import SwiftUI
 struct BalanceText: View {
     let text: String
     let isHidden: Bool
+    /// The sentence the balance sits in, made from the balance or from the
+    /// mask; the balance alone when `nil`.
+    var sentence: ((String) -> String)? = nil
 
     var body: some View {
         if isHidden {
-            Text(verbatim: "••••••").accessibilityLabel(AppLocalization.string("Hidden"))
+            Text(verbatim: phrase("••••••")).accessibilityLabel(phrase(AppLocalization.string("Hidden")))
         } else {
-            Text(verbatim: text)
+            Text(verbatim: phrase(text))
         }
+    }
+
+    private func phrase(_ value: String) -> String { sentence?(value) ?? value }
+}
+
+extension LabeledContent where Label == Text, Content == BalanceText {
+    /// A row of a system list whose value is a balance.
+    @MainActor
+    init(_ title: String, balance: String, isHidden: Bool) {
+        self.init { BalanceText(text: balance, isHidden: isHidden) } label: { Text(title) }
     }
 }

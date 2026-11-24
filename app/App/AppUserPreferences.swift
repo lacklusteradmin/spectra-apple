@@ -29,7 +29,7 @@ private enum PlatformDefaults {
     static let appearanceMode = "settings.appearanceMode"
     static let useDeviceAuthentication = "settings.platform.useDeviceAuthentication"
     static let useAutoLock = "settings.platform.useAutoLock"
-    static let requireBiometricForSendActions = "settings.platform.requireBiometricForSendActions"
+    static let authenticateSends = "settings.platform.authenticateSends"
 
     static func bool(_ key: String, default value: Bool) -> Bool {
         UserDefaults.standard.object(forKey: key) as? Bool ?? value
@@ -75,13 +75,10 @@ final class AppUserPreferences {
     var useAutoLock: Bool = PlatformDefaults.bool(PlatformDefaults.useAutoLock, default: false) {
         didSet { if useAutoLock != oldValue { PlatformDefaults.set(useAutoLock, PlatformDefaults.useAutoLock) } }
     }
-    var requireBiometricForSendActions: Bool = PlatformDefaults.bool(
-        PlatformDefaults.requireBiometricForSendActions, default: true)
-    {
-        didSet {
-            guard requireBiometricForSendActions != oldValue else { return }
-            PlatformDefaults.set(requireBiometricForSendActions, PlatformDefaults.requireBiometricForSendActions)
-        }
+    /// Ask the device owner — Face ID, Touch ID, Optic ID or the passcode —
+    /// before a send is signed, while device authentication is on.
+    var authenticateSends: Bool = PlatformDefaults.bool(PlatformDefaults.authenticateSends, default: true) {
+        didSet { if authenticateSends != oldValue { PlatformDefaults.set(authenticateSends, PlatformDefaults.authenticateSends) } }
     }
 
     /// Wired by `AppState` in its init. Kept out of `@Observable` tracking so
@@ -96,6 +93,6 @@ final class AppUserPreferences {
         appearanceMode = .system
         useDeviceAuthentication = true
         useAutoLock = false
-        requireBiometricForSendActions = true
+        authenticateSends = true
     }
 }

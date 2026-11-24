@@ -20,7 +20,7 @@ struct SendAmountPage: View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             SendAssetContextView(store: store)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                FlowPageHeading(title: "How much are you sending?")
+                FlowPageHeading(title: AppLocalization.string("How much are you sending?"))
                 SendRecipientIdentityView(
                     store: store, chain: presentation.selectedCoin?.chainId,
                     address: store.sendFlow.address, compact: true)
@@ -34,13 +34,15 @@ struct SendAmountPage: View {
 
                 VStack(spacing: SpectraLayout.Space.xs) {
                     Text(AppLocalization.string("Available to send")).font(.caption).foregroundStyle(.secondary)
-                    Text(maximumText).font(.headline).spectraNumericTextLayout()
+                    maximumText.font(.headline).spectraNumericTextLayout()
                     // Why the maximum is not the balance: a coin pays its own
                     // fee. A token's maximum is its balance.
                     if let coin = presentation.selectedCoin, coin.isNativeCoin,
                        let balance = presentation.selectedCoinAmountText {
-                        Text(AppLocalization.format("Wallet balance %@, less the network fee", balance))
-                            .font(.caption).foregroundStyle(.secondary)
+                        BalanceText(text: balance, isHidden: store.preferences.hideBalances) {
+                            AppLocalization.format("Wallet balance %@, less the network fee", $0)
+                        }
+                        .font(.caption).foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -170,13 +172,20 @@ struct SendAmountPage: View {
         }
     }
 
-    /// The fee-adjusted maximum at the asset's display precision; the exact
-    /// figure is what MAX fills in.
-    private var maximumText: String {
-        if store.sendFlow.isPreparingPreview { return AppLocalization.string("Estimating…") }
-        guard quoteIsCurrent, let maximum = store.sendShortcutAmount(percentage: 100),
-              let coin = presentation.selectedCoin else { return "—" }
-        return store.amounts.formattedAssetAmount(maximum, symbol: coin.symbol, deploymentId: coin.holdingKey)
+    /// The fee-adjusted maximum at the asset's display precision, a balance
+    /// like any other; the exact figure is what MAX fills in.
+    @ViewBuilder
+    private var maximumText: some View {
+        if store.sendFlow.isPreparingPreview {
+            Text(AppLocalization.string("Estimating…"))
+        } else if quoteIsCurrent, let maximum = store.sendShortcutAmount(percentage: 100),
+                  let coin = presentation.selectedCoin {
+            BalanceText(
+                text: store.amounts.formattedAssetAmount(maximum, symbol: coin.symbol, deploymentId: coin.id),
+                isHidden: store.preferences.hideBalances)
+        } else {
+            Text(verbatim: "—")
+        }
     }
 
     private func percentButton(percentage: UInt32) -> some View {

@@ -19,7 +19,7 @@ struct TokenRegistryDetailView: View {
                         if let error = tokens.error {
                             TokenPreferenceErrorNotice(message: error) { tokens.error = nil }
                         }
-                        spectraDetailCard(title: "Price Sources") {
+                        spectraDetailCard(title: AppLocalization.string("Price Sources")) {
                             providerRow("CoinGecko", id: entry.token.coingeckoId)
                             Divider().opacity(SpectraLayout.dividerOpacity)
                             providerRow("CoinPaprika", id: entry.token.coinpaprikaId)
@@ -83,7 +83,7 @@ struct TokenRegistryDetailView: View {
     }
 
     private var networksCard: some View {
-        spectraDetailCard(title: "Networks") {
+        spectraDetailCard(title: AppLocalization.string("Networks")) {
             ForEach(Array(groupEntries.enumerated()), id: \.element.id) { index, entry in
                 TokenRegistryNetworkRow(entry: entry)
                 if index < groupEntries.count - 1 { Divider().opacity(SpectraLayout.dividerOpacity) }

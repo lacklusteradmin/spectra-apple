@@ -1,5 +1,150 @@
 # Changelog
 
+## Beta Commit 255
+
+- **Builds, tests and screenshots use the iPhone Air simulator alone**
+  (`AGENTS.md` "Verification"): its UDID, what to do when it is missing, and
+  asking before a second device or an experiment on its stored wallet.
+- **An address hint is built from core's `addressPrefixHint` on every chain**
+  (`app/Settings/AddressBookState.swift` `addressBookAddressValidationMessage`)
+  - The hint for an empty or invalid address has no per-chain sentence (before:
+    11 chains read `addressHint.<chain id>.empty` or `.invalid` first); the 22
+    keys are removed in all three languages.
+  - `scripts/unused-strings.py` counts a dotted key reached only through
+    `"<namespace>.\(…)"` (before: `"<namespace>_\(…)"` too).
+- **The transaction page draws its rows with the shared components**
+  (`app/History/TransactionDetailView.swift`)
+  - The hash, a technical identifier and the From and To addresses copy
+    through `CopyButton(value:padded:row:)`, whose `padded: false` suits a
+    detail card's rows (before: a private `CopyableValueRow` repeating its
+    glyph, reset, haptic and hint).
+  - Technical Details is a `DisclosureGroup` in the `.spectra` style, its
+    chevron in the accent colour (before: a toggle of its own with a tertiary
+    chevron).
+  - An identifier in a `SpectraValueRow`, and the page's From and To
+    addresses, are in groups of four with the first and last primary, as
+    `groupedAddress` draws them (before: `emphasizedEnds`, ungrouped with its
+    first four or six and last four characters primary; deleted).
+- **Both funds scans are one `FundsScanRun`** (`app/Wallets/FundsScanRun.swift`
+  new, `FundsFinderView.swift`, `UsedAccountsSheet.swift`)
+  - Funds Finder and Find Used Accounts begin the scan off the main actor,
+    read its batches, cancel and word a failed scan through the run (before:
+    a loop in each screen, and eight `@State` scan fields in Funds Finder).
+  - Closing Find Used Accounts stops its scan (before: it read on to the
+    end).
+  - A found account's import is set up by
+    `WalletImportDraft.configure(foundAccount:words:passphrase:)` and Import
+    All's commit by `WalletImportDraft.importCommit(foundAccount:words:passphrase:password:)`;
+    choosing an account in Find Used Accounts calls the `derive(as:)` both
+    use (before: three copies, in `importHit`, `importCommit` and
+    `readRow`).
+  - Funds Finder's import of a TON account found at a wallet version takes
+    that version, and Find Used Accounts sets a TON account's profile and
+    account when it has them (before: Funds Finder set only the profile and
+    account, and Find Used Accounts only the version).
+- **Words are read through `AppLocalization` alone**
+  (`app/Models/StaticContentCatalog.swift`, `CoreModels.swift`)
+  - Screens read their dotted keys directly (before: through
+    `SettingsContentCopy`, `DiagnosticsContentCopy`, `ImportFlowContent`,
+    `CommonLocalizationContent`, `DonationsContentCopy` and
+    `EndpointsContentCopy`, deleted).
+  - A transaction's title is keyed by its English sentence for every kind:
+    `Sent %@`, `Received %@`, `Stake %@`, `Unstake %@`, `Withdraw %@` and
+    `Claim %@ Rewards`, renamed in all three languages (before:
+    `common.transactionSentTitleFormat`,
+    `common.transactionReceivedTitleFormat` and `transaction.title.*`).
+  - Seven sentences with values are formatted in `AppLocalization.locale`
+    through `AppLocalization.format` (before: `String(format:)` with no
+    locale, six in `CoreModels.swift` and one in
+    `WalletDiagnosticsState.swift`); `DiagnosticsViews.swift`'s `formatCopy`
+    is replaced by it.
+  - A component takes finished text and its caller localizes it:
+    `SpectraValueRow`, `spectraDetailCard`, `SpectraLoadingRow`,
+    `SpectraEmptyStateCard`, `SpectraEmptyStateContent`, `spectraPageHeader`,
+    `FlowPageHeading`, `CopyButton`'s title, `WalletToolEmptySection` and the
+    pages' own row and header helpers (before: each looked its text up as a
+    key, so text already localized was looked up again, among it a node's
+    own failure message on the transaction timeline).
+- **Hide Balances masks the balances the send, staking and wallet tool pages
+  showed** (`BalanceText`, `LabeledContent(_:balance:isHidden:)`)
+  - Masked: each asset's balance on Send's asset page; Available to Send and
+    the wallet balance under it; Available on the staking page; the MWEB
+    page's Spendable and Pending, and the shielded page's with Transparent,
+    to Shield; the network account's Balance, Spendable, Free, Reserved,
+    Frozen, Transferable, Locked Stake and Rewards; and the coins page's
+    maturing amount, coins and address balances (before: shown while Hide
+    Balances was on).
+  - `BalanceText` takes the sentence a balance sits in and masks the balance
+    alone; VoiceOver hears "Hidden" in its place.
+- **One model per fact on core's records** (`app/Models/CoreModels.swift`)
+  - `AssetHolding.holdingKey` and the `chain` aliases of `AssetHolding`,
+    `WalletState` and `TransactionRecord` are removed: callers read `id` and
+    `chainId`.
+  - `WalletState.networkTitle` is `chainName`, as on the other records, and
+    `AssetHolding.isEVMChain` is removed.
+  - The receive page starts on the asset `isNativeCoin` names (before: the
+    first without a contract address).
+  - `HistoryQueryFilter` and `FiatCurrency` list their cases in a `static let
+    allCases`, as `PriceAlertCondition`, `DiagnosticLogLevel` and
+    `ResetScope` do (before: a retroactive `CaseIterable`).
+  - The endpoint catalog by chain and the donation addresses are
+    `CoreReferenceTables.endpointGroups(for:)` and `.donationDestinations`,
+    read once (before: `AppEndpointDirectory`, and `donationDestinations()`
+    called on every read).
+  - The Report a Problem address is a constant in `SettingsView` (before:
+    `resources/AppLinks.json`, read through `AppLinks`, which stopped the app
+    if the file was missing; both deleted).
+- **Notification permission is asked with the async API**
+  (`PlatformNotifications.requestPermission`): a failure is logged under
+  Notifications (before: a completion handler that dropped it).
+- **The Tor indicator has no stopped state** (`DashboardView`
+  `TorToolbarIndicator`): the toolbar holds it only while Tor runs, connects
+  or fails, so its stopped colour, with a macOS branch, and the "Tor off"
+  string in all three languages are removed.
+- **`SendSessionTests` runs on `.isolatedAppState`**: its `AppState` test has
+  the test secret store, and its directory goes after the queued writes
+  finish (before: its own service, bridge and directory).
+- **The send-authentication preference is `authenticateSends`**
+  (`AppUserPreferences`; before: `requireBiometricForSendActions`, a name
+  without Touch ID, Optic ID or the passcode): it is stored under
+  `settings.platform.authenticateSends`, so a value stored under the old key
+  is not read and the preference starts on.
+- **The app adopts core's narrower state and its new answers**.
+  - A command, the store opening, a reset and each portfolio snapshot give
+    the app a `CommittedState`, read with `committedState()` (before: the
+    whole `ResidentState`, through `appState()`); the quote notices come from
+    the snapshot's `quotes`.
+  - The dashboard reads whether its total is still being read, or has no
+    figure yet, from `QuotedTotal.unreadWalletCount` and `isUnread`
+    (before: `portfolioWalletsReadingBalances` and `portfolioTotalIsUnknown`,
+    which the app derived from each wallet; both deleted).
+  - The receive screen asks `walletAccountReserve(walletId:)` and shows what
+    it answers (before: it checked the chain and the native balance itself,
+    through `Chain.requiresAccountReserve`, now deleted).
+  - The refresh observer's `onBalanceRefreshed` re-reads the portfolio only
+    after a balance landed (before: `onBalanceUpdated`, with a `WalletState`
+    it ignored).
+  - The custom-endpoint form sends the chosen API as `EndpointApi`, and the
+    reset and TON version lists are core's `resetScopes()` and
+    `tonWalletVersions()` (before: written out in Swift).
+- **A staking position's amounts follow Hide Balances**
+  (`StakingPositionsView`; `SpectraValueRow` gains `isHidden`): the staked,
+  unbonding, withdrawable and reward amounts are masked as `BalanceText`
+  masks a balance (before: shown while balances were hidden).
+- Tests: 5 new
+  - Found-account import 5: a scanned account imported with a changed phrase,
+    passphrase or password, or deriving elsewhere than it was found; choosing
+    a used account disturbing the rest of the form.
+- Docs: `IOS-UI.md` "Design baseline" (balances) and the label/value row
+  (identifiers); `ARCHITECTURE.md` "Presentation" (`CoreReferenceTables`,
+  localization and finished text); `AGENTS.md` "Verification".
+- Total: 95 .swift files changed (2 new, 1 deleted), +930 −992 lines; data
+  and config files: `resources/strings/RuntimeStrings.en.json`,
+  `resources/strings/RuntimeStrings.zh-Hans.json`,
+  `resources/strings/RuntimeStrings.zh-Hant.json`, `resources/AppLinks.json`
+  (deleted), `scripts/unused-strings.py`; dependencies unchanged; test
+  functions 148 → 153.
+
 ## Beta Commit 254
 
 - **A diagnostics bundle is shared, not kept or imported**

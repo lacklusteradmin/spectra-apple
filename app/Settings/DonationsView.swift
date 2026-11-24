@@ -2,7 +2,6 @@ import Foundation
 import SpectraCore
 import SwiftUI
 struct DonationsView: View {
-    private var copy: DonationsContentCopy { DonationsContentCopy.current }
     var body: some View {
         ScrollView(showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
@@ -10,14 +9,14 @@ struct DonationsView: View {
                 addressesCard
             }.spectraScreenPadding()
         }.background(SpectraBackdrop().ignoresSafeArea())
-            .navigationTitle(copy.navigationTitle).inlineNavigationTitle()
+            .navigationTitle(AppLocalization.string("donations.navigationTitle")).inlineNavigationTitle()
             .clearNavigationBar()
     }
     private var heroCard: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
             Image(systemName: "heart.fill").font(.largeTitle.weight(.bold)).foregroundStyle(.tint)
-            Text(copy.navigationTitle).font(.title.weight(.bold)).foregroundStyle(Color.primary)
-            Text(copy.heroSubtitle).font(.subheadline).foregroundStyle(.secondary)
+            Text(AppLocalization.string("donations.navigationTitle")).font(.title.weight(.bold)).foregroundStyle(Color.primary)
+            Text(AppLocalization.string("donations.heroSubtitle")).font(.subheadline).foregroundStyle(.secondary)
         }.padding(SpectraLayout.Space.l).frame(maxWidth: .infinity, alignment: .leading)
             .spectraElevatedFill()
     }
@@ -25,7 +24,7 @@ struct DonationsView: View {
     /// says a tap does — and says so for a moment.
     private var addressesCard: some View {
         SpectraRowGroup(
-            title: AppLocalization.string("Addresses"), data: copy.destinations.map(DonationRow.init),
+            title: AppLocalization.string("Addresses"), data: CoreReferenceTables.donationDestinations.map(DonationRow.init),
             footer: {
                 Text(AppLocalization.string("Tap an address to copy it.")).font(.caption).foregroundStyle(.secondary)
                     .padding(.horizontal, SpectraLayout.rowHorizontal).padding(.bottom, SpectraLayout.Space.m)

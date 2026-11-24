@@ -9,9 +9,9 @@ struct FlowPageHeading: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-            Text(AppLocalization.string(title)).font(.title.weight(.bold))
+            Text(title).font(.title.weight(.bold))
             if let subtitle {
-                Text(AppLocalization.string(subtitle)).font(.subheadline).foregroundStyle(.secondary)
+                Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
             }
         }
         .padding(.vertical, SpectraLayout.Space.s)

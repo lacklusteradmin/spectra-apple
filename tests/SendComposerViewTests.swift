@@ -115,7 +115,7 @@ struct SendComposerViewTests: IsolatedAppStateSuite {
         #expect(state.sendEnabledWallets.contains { $0.id == wallet.id })
         #expect(coin.amount == "1.5")
         state.sendFlow.walletId = wallet.id
-        state.sendFlow.holdingKey = coin.holdingKey
+        state.sendFlow.holdingKey = coin.id
         state.sendFlow.address = recipient
         state.sendFlow.amount = "0.25"
         return state

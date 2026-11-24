@@ -26,12 +26,12 @@ struct ReceiveView: View {
     private var walletList: some View {
         ReceiveScreen {
             FlowPageHeading(
-                title: "Choose a wallet to receive into",
-                subtitle: "Each wallet has its own address on its network.")
+                title: AppLocalization.string("Choose a wallet to receive into"),
+                subtitle: AppLocalization.string("Each wallet has its own address on its network."))
             if store.receiveEnabledWallets.isEmpty {
                 SpectraEmptyStateCard(
-                    title: "No receive wallets",
-                    message: "Import a wallet to generate receive addresses.",
+                    title: AppLocalization.string("No receive wallets"),
+                    message: AppLocalization.string("Import a wallet to generate receive addresses."),
                     systemImage: "wallet.bifold"
                 )
             } else {
@@ -83,7 +83,7 @@ private struct ReceiveAddressView: View {
     /// form, an EVM address in its checksummed case.
     private var address: String? {
         let resolved = store.receiveFlow.resolvedAddress.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !resolved.isEmpty, !store.receiveFlow.isResolving, let chain = selectedCoin?.chain ?? selectedWallet?.chain
+        guard !resolved.isEmpty, !store.receiveFlow.isResolving, let chain = selectedCoin?.chainId ?? selectedWallet?.chainId
         else { return nil }
         return displayAddress(chain: chain, address: resolved)
     }
@@ -91,7 +91,7 @@ private struct ReceiveAddressView: View {
     /// Core's payment code for the amount asked, or why it cannot be one.
     /// `nil` while nothing is asked: the code is then the address.
     private var paymentRequest: Result<String, Error>? {
-        guard isRequestingAmount, let address, let chain = selectedCoin?.chain else { return nil }
+        guard isRequestingAmount, let address, let chain = selectedCoin?.chainId else { return nil }
         let amount = AmountPresentation.canonicalDecimalInput(requestedAmount)
         let memoText = requestMemo.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !amount.isEmpty || !memoText.isEmpty else { return nil }
@@ -113,7 +113,7 @@ private struct ReceiveAddressView: View {
         ReceiveScreen {
             if selectedWallet?.signing.isWatchOnly == true { watchOnlyNotice }
             receiveAddressHero(address: address, qrImage: qrImage, isRequest: request != nil)
-            if let chain = selectedCoin?.chain, selectedCoin?.isNativeCoin == true, paymentRequestsSupported(chain: chain) {
+            if let chain = selectedCoin?.chainId, selectedCoin?.isNativeCoin == true, paymentRequestsSupported(chain: chain) {
                 requestAmountCard(chain: chain)
             }
             receiveActionCard(address: address)
@@ -133,10 +133,8 @@ private struct ReceiveAddressView: View {
         }
         .task(id: store.receiveFlow.walletId) {
             reserve = nil
-            guard let wallet = selectedWallet, wallet.chainId.requiresAccountReserve,
-                !wallet.holdings.contains(where: { $0.isNativeCoin && $0.hasBalance })
-            else { return }
-            reserve = try? await store.bridge.ready().accountReserve(chain: wallet.chainId)
+            guard let wallet = selectedWallet else { return }
+            reserve = (try? await store.bridge.ready().walletAccountReserve(walletId: wallet.id)) ?? nil
         }
     }
 
@@ -220,7 +218,7 @@ private struct ReceiveAddressView: View {
             // chain and draws its mark, not the gas token's.
             HStack(spacing: SpectraLayout.Space.m) {
                 if let coin {
-                    let badge = AssetHolding.nativeChainBadge(for: coin.chain) ?? (nil, coin.color)
+                    let badge = AssetHolding.nativeChainBadge(for: coin.chainId) ?? (nil, coin.color)
                     CoinBadge(
                         artworkName: badge.artworkName,
                         fallbackText: coin.chainName,
@@ -278,7 +276,7 @@ private struct ReceiveAddressView: View {
     private func receiveActionCard(address: String?) -> some View {
         GlassEffectContainer(spacing: SpectraLayout.Space.s) {
             HStack(spacing: SpectraLayout.Space.s) {
-                CopyButton(value: address ?? "", title: "Copy Address", style: .prominent)
+                CopyButton(value: address ?? "", title: AppLocalization.string("Copy Address"), style: .prominent)
                     .disabled(address == nil)
 
                 Button {
