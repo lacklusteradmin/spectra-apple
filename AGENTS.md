@@ -70,15 +70,19 @@ How to write it:
   states the result, with where in parentheses (views, files, types). Under
   it, one sub-item per change, in one or two sentences. A change is one thing
   `git diff` shows: a behaviour, a screen or control, a number or default, a
-  file that moved, whether stored data still loads. A change with only one
-  such thing is the headline alone, with no sub-items.
+  file that moved, whether stored data still loads. Many changes, many
+  sub-items; a change with only one such thing is the headline alone, with no
+  sub-items.
 - **No padding.** Leave out unchanged parts, unless a reader would think they
   changed; per-item visual detail, which `IOS-UI.md` and the code hold; lists
   of functions and call sites; mechanical edits such as an added property, a
   rename or a rebuilt `SpectraCore/`; anything that repeats the headline. A
-  refactor that keeps behaviour is one line naming what moved where.
+  refactor that keeps behaviour is one line naming what moved where; how that
+  was shown goes under `Measured:`.
 - **Names as they were.** A section names files and symbols as they were at
   that commit, even after they move or go.
+- **Measurements.** The conclusion only, with its source (a test, a run on a
+  named device or simulator).
 - **Each section ends with these, in order, when they apply:**
   - `Measured:` one line per run: date, device or simulator, result, key
     numbers only, before → after.
@@ -87,9 +91,10 @@ How to write it:
     unless what it guards changed.
   - `Docs:` which doc, and which sections.
   - `Total:` always, last: N .swift files changed (M new), +X −Y lines; data,
-    resource and config files by name or grouped by folder, or none; tests
-    passing in `make test-ios` before → after. "No code changed" when the
-    change is docs alone.
+    resource and config files by name or grouped by folder, or none; a
+    dependency added or removed, when one was; tests passing in
+    `make test-ios` before → after. "No code changed" when the change is docs
+    alone.
 
 ## Verification
 
