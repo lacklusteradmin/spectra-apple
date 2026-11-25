@@ -1,5 +1,18 @@
 # Changelog
 
+## Beta Commit 259
+
+- **Thirty-seven icons** (`Assets.xcassets/crypto/`: `1inch`, `apecoin`,
+  `asi`, `axieinfinity`, `bat`, `cbeth`, `cetus`, `compound`, `crvusd`,
+  `decentraland`, `deepbook`, `eigen`, `floki`, `gala`, `gmx`, `gnosis`,
+  `helium`, `immutable`, `jito`, `just`, `nexo`, `notcoin`, `quant`, `render`,
+  `safe`, `sandbox`, `snek`, `spx6900`, `sun`, `synthetix`, `thegraph`,
+  `trustwallet`, `virtuals`, `walrus`, `wbeth`, `weeth`, `wormhole`), exported
+  from core's library: 37 of the 44 tokens core's catalog adds (the other
+  seven name no artwork).
+- Total: no .swift files changed; resource files: `Assets.xcassets/crypto/`
+  (37 new); tests not run (`make check-ui` passing).
+
 ## Beta Commit 258
 
 - **The app target's asset catalog, `Info.plist` and macOS entitlements are in
