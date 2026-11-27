@@ -115,7 +115,8 @@ struct AppStateTests: IsolatedAppStateSuite {
         }
     }
     @Test func everyCatalogCapabilityHasALocalizedLabel() async throws {
-        let capabilities = Set(try await service.endpointDirectory().flatMap(\.record.capabilities))
+        let catalog = try WalletService.newCatalog()
+        let capabilities = Set(try await catalog.endpointDirectory().flatMap(\.record.capabilities))
         #expect(!capabilities.isEmpty)
         for capability in capabilities {
             let key = "endpointCapability.\(endpointCapabilityId(capability: capability))"

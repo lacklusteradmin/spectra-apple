@@ -1,5 +1,22 @@
 # Changelog
 
+## Beta Commit 262
+
+- **Core's endpoint messages are translated as core now words them**
+  (`resources/strings/RuntimeStrings.*.json`)
+  - "Endpoint is not one of this network's" (before: "Endpoint is not this
+    network's indexer").
+  - "no check for this API and its declared capabilities" (before: "no health
+    check for the declared capabilities").
+  - "no explorer serves this chain's transaction history" is deleted; core no
+    longer gives it.
+- **The capability-label test reads a catalog service's endpoint directory**
+  (`tests/AppStateTests.swift`; before: the test's service built with no
+  endpoints, whose directory core now leaves empty).
+- Total: 1 .swift file changed, +2 −1 lines; resource files:
+  `resources/strings/RuntimeStrings.en.json`, `.zh-Hans.json`,
+  `.zh-Hant.json`; tests passing in `make test-ios` 153 → 153.
+
 ## Beta Commit 261
 
 - Docs: `AGENTS.md` "CHANGELOG" (many changes, many sub-items; how a
