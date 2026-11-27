@@ -32,7 +32,7 @@ Read the one that covers what you are changing:
 | [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md) | The core package the app links, and its Swift bindings |
 | [OPEN-ITEMS.md](docs/OPEN-ITEMS.md) | Remaining app work |
 | [CHANGELOG.md](docs/CHANGELOG.md) | What each commit changed, and why |
-| [scripts/README.md](scripts/README.md) | Source-scan and icon-export tools |
+| [scripts/README.md](scripts/README.md) | Source-scan, icon-export and string-sync tools |
 | spectra's `docs/` | Core's architecture, chain support, FFI boundary and open items |
 
 Keep them true:
@@ -208,6 +208,22 @@ as `RuntimeStrings.en.json`. Two rules follow:
   the bundle. Put the locale in the name (`RuntimeStrings.zh-Hans.json`):
   per-locale subdirectories with one shared name would silently overwrite each
   other.
+
+## Strings
+
+Every word on screen comes from `AppLocalization`. Its tables,
+`resources/strings/RuntimeStrings.*.json`, are the ones both apps read, kept
+in spectra's `strings/` with their rules in spectra's `AGENTS.md`: never edit
+the copy here. Add or change a sentence there, in all three locales, then
+sync:
+
+```sh
+SPECTRA=<spectra checkout> scripts/export-swift-strings.sh
+```
+
+`make lint` then holds the tables to what this app and core show. A key it
+reports unused is deleted in spectra, unless spectra-android still shows it:
+then it moves to that app's own tables.
 
 ## Icons
 

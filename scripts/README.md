@@ -1,7 +1,7 @@
 # Scripts
 
-This directory contains the app's source-check and icon-export tools. Use the
-Makefile for routine work:
+This directory contains the app's source-check, icon-export and string-sync
+tools. Use the Makefile for routine work:
 
 ```sh
 make lint SPECTRA=<spectra>  # The source scans, which read core
@@ -41,3 +41,9 @@ Exporting app icons needs ImageMagick (`brew install imagemagick`).
 | File | Purpose |
 |---|---|
 | `export-swift-icons.sh` | Converts and synchronizes `icons/appicon/` and core's `icons/crypto/`, in the checkout `SPECTRA` names (it refuses without one), into the Xcode asset catalog, rendering app icons as PNGs: each source at 1024 points for iOS, and the light one again in the Mac's shape and sizes. |
+
+## Strings
+
+| File | Purpose |
+|---|---|
+| `export-swift-strings.sh` | Syncs the string tables from spectra's `strings/`, in the checkout `SPECTRA` names, into `resources/strings/`: copies a new or changed table, removes one whose source is gone, and refuses a checkout with no tables. |

@@ -2224,5 +2224,10 @@
   "word %lld": "单词 %lld",
   "~14-day lockup cycle": "约 14 天锁定周期",
   "~1–1.5 days (4 epochs)": "约 1–1.5 天（4 个 epoch）",
-  "“%@” does not hold this key as a full-access key.": "“%@”没有将此密钥作为完全访问密钥。"
+  "“%@” does not hold this key as a full-access key.": "“%@”没有将此密钥作为完全访问密钥。",
+  "Sort and Filter": "排序与筛选",
+  "Approve": "批准",
+  "Rebroadcast outcome unknown; check network status before retrying.": "重新广播结果未知；重试前请检查网络状态。",
+  "Submission outcome unknown; check network status before sending again.": "提交结果未知；再次发送前请检查网络状态。",
+  "This wallet has no password.": "此钱包没有密码。"
 }

@@ -2224,5 +2224,10 @@
   "word %lld": "word %lld",
   "~14-day lockup cycle": "~14-day lockup cycle",
   "~1–1.5 days (4 epochs)": "~1–1.5 days (4 epochs)",
-  "“%@” does not hold this key as a full-access key.": "“%@” does not hold this key as a full-access key."
+  "“%@” does not hold this key as a full-access key.": "“%@” does not hold this key as a full-access key.",
+  "Sort and Filter": "Sort and Filter",
+  "Approve": "Approve",
+  "Rebroadcast outcome unknown; check network status before retrying.": "Rebroadcast outcome unknown; check network status before retrying.",
+  "Submission outcome unknown; check network status before sending again.": "Submission outcome unknown; check network status before sending again.",
+  "This wallet has no password.": "This wallet has no password."
 }

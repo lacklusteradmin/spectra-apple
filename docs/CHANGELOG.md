@@ -1,5 +1,23 @@
 # Changelog
 
+## Beta Commit 263
+
+- **The string tables are spectra's, synced by a script**
+  (`scripts/export-swift-strings.sh`, `resources/strings/`)
+  - `scripts/export-swift-strings.sh` copies spectra's `strings/` tables, in
+    the checkout `SPECTRA` names, into `resources/strings/`, and removes a
+    table spectra no longer has (before: the tables were edited here, and
+    spectra-android copied them by hand).
+  - "Approve", "Sort and Filter", "This wallet has no password." and the
+    unknown-outcome sentences for a submission and a rebroadcast are
+    translated (before: shown in English in Chinese).
+- Docs: `AGENTS.md` (Docs table, a new Strings section), `scripts/README.md`
+  (introduction, a new Strings section).
+- Total: no .swift files changed; resource files:
+  `resources/strings/RuntimeStrings.en.json`, `.zh-Hans.json`,
+  `.zh-Hant.json`; script `scripts/export-swift-strings.sh` (new); `make lint`
+  passing; `make test-ios` not run.
+
 ## Beta Commit 262
 
 - **Core's endpoint messages are translated as core now words them**
