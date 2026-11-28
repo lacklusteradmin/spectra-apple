@@ -5,6 +5,9 @@ import SwiftUI
 struct AddCustomTokenView: View {
     let tokens: TokenPreferencesState
     var editing: TokenDeploymentEntry? = nil
+    /// A token a wallet holds that the list lacks; only its name, symbol and
+    /// price sources are the user's to give.
+    var held: HeldTokenDraft? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var selectedChain: Chain? = Chain.tokenHostingChains.first
     /// The protocol the token is added under. Chosen, not guessed, where the
@@ -43,6 +46,10 @@ struct AddCustomTokenView: View {
                     LabeledContent(AppLocalization.string("Network"), value: editing.chainId.displayName)
                     LabeledContent(AppLocalization.string("Standard"), value: editing.tokenStandard?.name ?? "")
                     Text(editing.contract).font(.caption.monospaced()).textSelection(.enabled)
+                } else if let held {
+                    LabeledContent(AppLocalization.string("Network"), value: held.chain.displayName)
+                    LabeledContent(AppLocalization.string("Standard"), value: held.token.standard?.name ?? "")
+                    Text(held.token.contract).font(.caption.monospaced()).textSelection(.enabled)
                 } else {
                     Picker(AppLocalization.string("Network"), selection: $selectedChain) {
                         Text(AppLocalization.string("Select a chain")).tag(nil as Chain?)
@@ -64,7 +71,7 @@ struct AddCustomTokenView: View {
             } header: {
                 Text(AppLocalization.string("Network"))
             } footer: {
-                if editing == nil, standards.count > 1 {
+                if editing == nil, held == nil, standards.count > 1 {
                     Text(AppLocalization.string("This network has more than one token standard. Choose the one the token was issued under."))
                 }
             }
@@ -112,11 +119,17 @@ struct AddCustomTokenView: View {
         }
         // Another network's protocols are not this one's.
         .onChange(of: selectedChain) { _, _ in
-            if editing == nil { selectedStandard = nil }
+            if editing == nil, held == nil { selectedStandard = nil }
         }
         .onAppear {
             guard !hasLoaded else { return }
             hasLoaded = true
+            if let held {
+                selectedChain = held.chain
+                selectedStandard = held.token.standard
+                identifierInput = held.token.contract
+                decimalsInput = held.token.decimals
+            }
             guard let editing else { return }
             selectedChain = editing.chainId
             selectedStandard = editing.tokenStandard

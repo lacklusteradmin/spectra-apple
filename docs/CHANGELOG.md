@@ -1,5 +1,21 @@
 # Changelog
 
+## Beta Commit 268
+
+- **A wallet's page has Tokens Held** (`WalletHeldTokensView` new,
+  `WalletAction.heldTokens`; core's `walletHeldTokens`)
+  - It lists every token the address holds: a tracked one by its symbol, any
+    other as Unknown Token by its contract.
+  - Add to Known Tokens opens the token form with the network, standard and
+    contract fixed and the places the network reported filled in
+    (`AddCustomTokenView`'s `held`, `HeldTokenDraft`).
+- **String tables synced from spectra** (`resources/strings/`: eight
+  sentences new; `Aggressive`, `Balanced` and `Conservative` removed)
+- Total: 5 .swift files changed (1 new), +113 −14 lines; resource files:
+  `resources/strings/` (3 tables); dependencies unchanged; `make lint` and
+  `check-ui` passing; tests passing in `make test-ios` 108 → 108 and
+  `make test-mac` 103 → 103.
+
 ## Beta Commit 267
 
 - **A chain or wallet badge is a rounded square, a coin or token badge a

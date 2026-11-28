@@ -86,16 +86,16 @@ struct AppStateTests: IsolatedAppStateSuite {
         let store = makeState()
         let state = try await bridge.ready().committedState()
         store.applyCoreState(state)
-        let initial = store.committedAppSettings.bitcoinStopGap
-        let next: UInt32 = initial == 30 ? 40 : 30
-        store.updateSetting(.bitcoinStopGap(value: next))
-        #expect(store.appSettings.bitcoinStopGap == next)
-        #expect(store.committedAppSettings.bitcoinStopGap == initial)
-        store.updateSetting(.bitcoinStopGap(value: initial))
-        #expect(store.committedAppSettings.bitcoinStopGap == initial)
+        let initial = store.committedAppSettings.largeMovementAlertPercentThreshold
+        let next: Double = initial == 30 ? 40 : 30
+        store.updateSetting(.largeMovementAlertPercentThreshold(value: next))
+        #expect(store.appSettings.largeMovementAlertPercentThreshold == next)
+        #expect(store.committedAppSettings.largeMovementAlertPercentThreshold == initial)
+        store.updateSetting(.largeMovementAlertPercentThreshold(value: initial))
+        #expect(store.committedAppSettings.largeMovementAlertPercentThreshold == initial)
         await store.stateCommands.awaitPending()
-        #expect(store.appSettings.bitcoinStopGap == initial)
-        #expect(store.committedAppSettings.bitcoinStopGap == initial)
+        #expect(store.appSettings.largeMovementAlertPercentThreshold == initial)
+        #expect(store.committedAppSettings.largeMovementAlertPercentThreshold == initial)
     }
 
     @Test func importCompletionPreservesAPartialSuccessNotice() async {

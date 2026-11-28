@@ -16,6 +16,7 @@ extension WalletAction {
         case .stake: AppLocalization.string("Staking")
         case .scanBlocks: AppLocalization.string("Sync Local Wallet")
         case .coins: AppLocalization.string("Addresses and Coins")
+        case .heldTokens: AppLocalization.string("Tokens Held")
         case .tokenApprovals: AppLocalization.string("Token Approvals")
         case .nfts: AppLocalization.string("NFTs")
         case .shieldedFunds: AppLocalization.string("Shielded Funds")
@@ -48,6 +49,7 @@ extension WalletAction {
         case .stake: "link.circle"
         case .scanBlocks: "square.stack.3d.down.right"
         case .coins: "list.bullet.rectangle"
+        case .heldTokens: "circle.hexagongrid"
         case .tokenApprovals: "checkmark.shield"
         case .nfts: "square.on.square"
         case .shieldedFunds: "eye.slash"

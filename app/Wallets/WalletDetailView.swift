@@ -186,9 +186,9 @@ struct WalletDetailView: View {
                 openURL(url)
             }
         case .addToNetwork, .rename, .revealPhrase, .exportKeys, .delete: isShowingManagePage = true
-        case .history, .multisig, .addKeys, .stake, .scanBlocks, .coins, .tokenApprovals, .nfts, .shieldedFunds,
-             .mwebFunds, .networkAccount, .accessKeys, .tokenStorage, .coinObjects, .tokenAccounts, .trustLines,
-             .signMessage, .verifyMessage:
+        case .history, .multisig, .addKeys, .stake, .scanBlocks, .coins, .heldTokens, .tokenApprovals, .nfts,
+             .shieldedFunds, .mwebFunds, .networkAccount, .accessKeys, .tokenStorage, .coinObjects, .tokenAccounts,
+             .trustLines, .signMessage, .verifyMessage:
             openedAction = action
         }
     }
@@ -209,6 +209,8 @@ struct WalletDetailView: View {
             WalletBlockScanView(store: store, wallet: displayedWallet)
         case .coins:
             WalletCoinsView(store: store, wallet: displayedWallet)
+        case .heldTokens:
+            WalletHeldTokensView(store: store, wallet: displayedWallet)
         case .tokenApprovals:
             WalletApprovalsView(store: store, wallet: displayedWallet)
         case .nfts:
