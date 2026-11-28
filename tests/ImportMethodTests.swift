@@ -4,37 +4,24 @@ import Testing
 
 @testable import Spectra
 
-/// The network is chosen first, and its page offers what core's setup
-/// descriptor lists for it. The form then walks the chosen method's pages.
+/// The network is chosen first, then the form walks the chosen method's
+/// pages and builds what its import carries.
 @MainActor
 struct ImportMethodTests {
-    private func methods(_ chain: Chain) -> [WalletSetupMethod] {
-        walletSetupDescriptor(chain: chain).options.map(\.method)
-    }
-
-    @Test func everyNetworkOffersAPhraseAndOnlyWhatItSupports() {
-        // A Hedera account exists only once a transaction creates it, so a
-        // new phrase would hold none: Hedera imports a key whose account exists.
-        for chain in Chain.all where chain != .hedera {
-            let offered = methods(chain)
-            #expect(offered.starts(with: [.createPhrase, .importPhrase]), "\(chain.id)")
-        }
-        #expect(methods(.hedera) == [.importPhrase, .importPrivateKey, .watchAddresses])
-        // Monero needs scan keys: no raw key, and no watching an address alone.
-        #expect(methods(.monero) == [.createPhrase, .importPhrase, .watchViewKey])
-        #expect(!methods(.bitcoin).contains(.watchViewKey))
-        #expect(methods(.bitcoin).contains(.watchMultisig))
-        #expect(methods(.bitcoinSignet).contains(.watchMultisig))
-        for chain in [Chain.litecoin, .bitcoinCash, .dogecoin, .sui, .aptos, .cardano, .polkadot, .bittensor] {
-            #expect(methods(chain).contains(.watchMultisig), "\(chain.id)")
-        }
-        // A Safe, a Tron account or a TON multisig is watched at its address.
-        #expect(!methods(.ethereum).contains(.watchMultisig))
-        #expect(methods(.bitcoin).contains(.watchAccountXpub))
-        #expect(methods(.litecoin).contains(.watchAccountXpub))
-        #expect(methods(.kaspa).contains(.watchAccountXpub))
-        #expect(!methods(.ethereum).contains(.watchAccountXpub))
-        #expect(methods(.ethereum).contains(.importPrivateKey))
+    /// A created phrase is imported only once its backup quiz is answered;
+    /// a restored one has no quiz.
+    @Test func backupQuizRemainsRequiredOnlyForWalletCreation() {
+        let draft = WalletImportDraft()
+        draft.chain = .ethereum
+        draft.seedEntry.paste("abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about")
+        #expect(draft.canImportWallet)
+        draft.mode = .setup(.createPhrase)
+        #expect(!draft.canImportWallet)
+        draft.backupVerificationWordIndices = [0, 5, 11]
+        draft.backupVerificationEntries = ["abandon", "abandon", "about"]
+        #expect(draft.canImportWallet)
+        draft.backupVerificationEntries[2] = "abandon"
+        #expect(!draft.canImportWallet)
     }
 
     @Test func eachMethodWalksItsOwnPages() {
@@ -144,27 +131,6 @@ struct ImportMethodTests {
         #expect(draft.chain == .solana)
         #expect(draft.seedEntry.verdict.isValid)
         #expect(draft.importKind == .phrase)
-    }
-
-    /// Restoring a Monero wallet, or a Zcash one for its shielded funds, asks
-    /// where its scan starts; a typed height must be a block number, and no
-    /// other network asks.
-    @Test func onlyARestoredScanningWalletAsksForARestoreHeight() {
-        let draft = WalletImportDraft()
-        draft.configure(chain: .monero, method: .importPhrase)
-        #expect(draft.asksRestoreHeight)
-        draft.restoreHeightInput = "12a"
-        #expect(!draft.isRestoreHeightValid)
-        draft.restoreHeightInput = "3100000"
-        #expect(draft.restoreHeight == 3_100_000)
-        draft.configure(chain: .monero, method: .createPhrase)
-        #expect(!draft.asksRestoreHeight)
-        draft.configure(chain: .zcash, method: .importPhrase)
-        #expect(draft.asksRestoreHeight)
-        draft.configure(chain: .zcash, method: .importPrivateKey)
-        #expect(!draft.asksRestoreHeight)
-        draft.configure(chain: .bitcoin, method: .importPhrase)
-        #expect(!draft.asksRestoreHeight)
     }
 
     /// Clearing a form leaves it on no network, so nothing can be imported

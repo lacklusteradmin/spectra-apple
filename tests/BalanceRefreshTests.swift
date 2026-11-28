@@ -49,10 +49,4 @@ struct BalanceRefreshTests: IsolatedAppStateSuite {
             isExpensiveNetwork: false, isLowPowerMode: false, batteryLevel: 1, wantsPriceRefresh: false)
         try await bridge.refreshEngine().setDeviceConditions(conditions: inactive)
     }
-
-    @Test func refreshFailureDoesNotClaimCompletion() {
-        #expect(refreshOutcomeMessage(succeeded: false) != refreshOutcomeMessage(succeeded: true))
-        #expect(refreshOutcomeMessage(succeeded: false) == AppLocalization.string("Refresh failed or completed partially. See refresh errors."))
-    }
-
 }

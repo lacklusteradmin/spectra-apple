@@ -257,7 +257,7 @@
 			mainGroup = 9074915A2F56D1E500D098D2;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				93C0DE022F80000100AAA001 /* XCLocalSwiftPackageReference "SpectraCore" */,
+				93C0DE022F80000100AAA001 /* XCLocalSwiftPackageReference "core-apple" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 907491642F56D1E500D098D2 /* Products */;
@@ -305,7 +305,7 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
-				"$(SRCROOT)/SpectraCore/build-inputs",
+				"$(SRCROOT)/core-apple/build-inputs",
 			);
 			name = "Check Core Package";
 			outputFileListPaths = (
@@ -314,7 +314,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "# A Release build ships the core it links, so it takes a release package.\nif [[ \"${CONFIGURATION}\" == Release ]] && ! grep -qx profile=release \"${SRCROOT}/SpectraCore/build-inputs\"; then\n  echo \"error: a Release build needs the release core package: run make apple PROFILE=release in spectra and copy its target/SpectraCore here\" >&2\n  exit 1\nfi\n";
+			shellScript = "# A Release build ships the core it links, so it takes a release package.\nif [[ \"${CONFIGURATION}\" == Release ]] && ! grep -qx profile=release \"${SRCROOT}/core-apple/build-inputs\"; then\n  echo \"error: a Release build needs the release core package: run make apple PROFILE=release in spectra and copy its target/core-apple here\" >&2\n  exit 1\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -512,7 +512,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sheny.Spectra;
+				PRODUCT_BUNDLE_IDENTIFIER = org.spectrawallet.Spectra;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -547,7 +547,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sheny.Spectra;
+				PRODUCT_BUNDLE_IDENTIFIER = org.spectrawallet.Spectra;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
@@ -573,7 +573,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "Yuan-Shen.SpectraTests";
+				PRODUCT_BUNDLE_IDENTIFIER = org.spectrawallet.SpectraTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -598,7 +598,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "Yuan-Shen.SpectraTests";
+				PRODUCT_BUNDLE_IDENTIFIER = org.spectrawallet.SpectraTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SUPPORTS_MACCATALYST = NO;
@@ -624,7 +624,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sheny.Spectra.SpectraLiveActivityExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.spectrawallet.Spectra.SpectraLiveActivityExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -651,7 +651,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.sheny.Spectra.SpectraLiveActivityExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = org.spectrawallet.Spectra.SpectraLiveActivityExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -707,9 +707,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		93C0DE022F80000100AAA001 /* XCLocalSwiftPackageReference "SpectraCore" */ = {
+		93C0DE022F80000100AAA001 /* XCLocalSwiftPackageReference "core-apple" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = SpectraCore;
+			relativePath = "core-apple";
 		};
 /* End XCLocalSwiftPackageReference section */
 

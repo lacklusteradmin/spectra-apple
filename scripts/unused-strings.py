@@ -14,7 +14,8 @@ namespace with an id (`"endpointCapability.\\(id)"`). The reverse holds
 too: a dotted key Swift spells out must be in the source table.
 
 Locales are checked against each other as well: a key set that drifts means
-one language silently falls back to another.
+one language silently falls back to another. The manifest names the locales:
+each one it declares has a table, and each table is one it declares.
 
 `<key>#one` is the singular form `AppLocalization.format(_:count:)` reads
 beside `<key>`: it is reachable through its key, and must not outlive it.
@@ -74,6 +75,17 @@ def scan():
     # Production strings with wrapped literals and indentation flattened.
     haystack = re.sub(r'\s+', ' ', CONTINUATION.sub('', '\n'.join(text for _, text in sources)))
     failures = []
+
+    manifest = json.loads((STRINGS / 'RuntimeStrings.manifest.json').read_text())
+    declared = set(manifest['availableLocales'])
+    shipped = {path.name.removeprefix('RuntimeStrings.').removesuffix('.json')
+               for path in locales('RuntimeStrings')}
+    if manifest['sourceLanguage'] not in declared:
+        failures.append(f"  {'RuntimeStrings.manifest.json':<36} source language {manifest['sourceLanguage']!r} is not declared")
+    for locale in sorted(declared - shipped):
+        failures.append(f"  {'RuntimeStrings.manifest.json':<36} declares {locale!r}, which has no table")
+    for locale in sorted(shipped - declared):
+        failures.append(f"  {f'RuntimeStrings.{locale}.json':<36} a table the manifest does not declare")
 
     bases = sorted({path.name.split('.')[0] for path in STRINGS.glob('*.*.json')
                     if not path.name.endswith('.manifest.json')})

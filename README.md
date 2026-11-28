@@ -48,15 +48,15 @@ make apple
 ```
 
 It compiles the Rust core for the iPhone, the arm64 simulator and the Mac, and
-writes `target/SpectraCore/`: a local Swift package of the static libraries and
+writes `target/core-apple/`: a local Swift package of the static libraries and
 the Swift bindings generated from them. It needs the current stable Rust;
 `rustup update` keeps it current.
 
-Copy `target/SpectraCore/` to the root of this repository, keeping its
+Copy `target/core-apple/` to the root of this repository, keeping its
 modification times: drag it in Finder, or
 
 ```sh
-cp -Rp <spectra>/target/SpectraCore .
+cp -Rp <spectra>/target/core-apple .
 ```
 
 replacing any copy already here. A copy with new times works, but makes Xcode

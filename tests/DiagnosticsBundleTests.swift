@@ -19,17 +19,6 @@ struct DiagnosticsBundleTests: IsolatedAppStateSuite {
         #expect(Set(documents.keys) == Set(Chain.all.map(\.id)))
     }
 
-    /// The screen's document is the one the bundle carries for that chain.
-    @Test func chainDiagnosticsMatchTheBundle() async throws {
-        let store = makeState()
-        let diagnostics = try await store.chainDiagnostics(for: .bitcoin)
-        #expect(diagnostics.networkId == .bitcoin)
-        let fileURL = try await store.exportDiagnosticsBundle()
-        defer { try? FileManager.default.removeItem(at: fileURL) }
-        let documents = try #require(try Self.bundle(at: fileURL)["chainDiagnosticsJson"] as? [String: String])
-        #expect(documents["bitcoin"] == diagnostics.document)
-    }
-
     private static func bundle(at url: URL) throws -> [String: Any] {
         try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
     }

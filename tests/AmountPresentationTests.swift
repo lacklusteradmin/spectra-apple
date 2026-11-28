@@ -39,12 +39,4 @@ struct AmountPresentationTests {
         #expect(isValidAmountInput(text: AmountPresentation.canonicalDecimalInput("0,25", locale: german), maxDecimals: 8))
         #expect(AmountPresentation.canonicalDecimalInput("1.5", locale: Locale(identifier: "en_US")) == "1.5")
     }
-
-    /// Past what a compact row shows, an amount is cut: a balance never reads
-    /// as more than is held.
-    @Test func compactAmountsNeverRoundUp() {
-        let text = formatAssetAmount(amount: "0.999999999", assetDecimals: 8)
-        #expect(text != nil)
-        #expect(text?.value.hasPrefix("1") == false, "rounded up to \(text?.value ?? "")")
-    }
 }

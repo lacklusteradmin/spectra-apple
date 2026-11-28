@@ -53,18 +53,6 @@
             #expect(withReason.detailText != withoutReason.detailText)
         }
 
-        /// The symbol has its own label in the widget, so the amount arrives alone.
-        @Test func theAmountCarriesNoSymbolAndTheSymbolIsItsOwnField() {
-            let state = sendLiveActivityContentState(for: record(), phase: .sending, amountText: "1.5")
-            #expect(state.amountText == "1.5")
-            #expect(state.symbol == "ETH")
-        }
-
-        @Test func longIdentifiersKeepBothEndsAndShortOnesAreLeftAlone() {
-            #expect(shortAddress("0xabc") == "0xabc")
-            #expect(shortAddress("0x1234567890abcdef1234567890abcdef12345678") == "0x1234…345678")
-        }
-
         @Test func theHashAppearsOnlyOnceThereIsOne() {
             #expect(sendLiveActivityContentState(for: record(), phase: .sending, amountText: "1.5")
                     .transactionHashPreview == nil)

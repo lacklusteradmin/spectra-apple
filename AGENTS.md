@@ -10,8 +10,8 @@ This repository is the iOS and macOS app. The Rust core and the CLI are the
 change that touches core or what the app shows of it. Rule 0, the architecture
 rules and Funds and keys there apply to everything here.
 
-- The app links `SpectraCore/`, a package spectra's `make apple` builds into
-  its `target/SpectraCore/`. Copy that directory here with its modification
+- The app links `core-apple/`, a package spectra's `make apple` builds into
+  its `target/core-apple/`. Copy that directory here with its modification
   times — drag it in Finder, or `cp -Rp` or `ditto` — and Xcode compiles no
   Rust. A plain `cp -R` works too, but new times make Xcode recompile every
   Swift file.
@@ -76,7 +76,7 @@ How to write it:
 - **No padding.** Leave out unchanged parts, unless a reader would think they
   changed; per-item visual detail, which `IOS-UI.md` and the code hold; lists
   of functions and call sites; mechanical edits such as an added property, a
-  rename or a rebuilt `SpectraCore/`; anything that repeats the headline. A
+  rename or a rebuilt `core-apple/`; anything that repeats the headline. A
   refactor that keeps behaviour is one line naming what moved where; how that
   was shown goes under `Measured:`.
 - **Names as they were.** A section names files and symbols as they were at
@@ -139,7 +139,7 @@ pre-existing without evidence.
 - Check APIs, syntax and generated bindings against **UniFFI 0.31.2 and Swift 6**
   before changing FFI or Swift code. See [SWIFT-BINDINGS.md](docs/SWIFT-BINDINGS.md)
   and spectra's `docs/FFI-BOUNDARY.md`.
-- Never hand-edit `SpectraCore/`. Change the Rust API in the core
+- Never hand-edit `core-apple/`. Change the Rust API in the core
   checkout and rebuild and copy the package. A Swift file that uses core says `import SpectraCore`.
 - [docs/IOS-UI.md](docs/IOS-UI.md) is the authority for Liquid Glass,
   typography, color, layout and corner radii.
@@ -228,14 +228,14 @@ then it moves to that app's own tables.
 ## Icons
 
 Never edit `app/Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
-generates its icons from two sources.
+generates its icons from two sources in spectra, both with their rules in
+spectra's `AGENTS.md`.
 
-- `icons/appicon/` holds the 1024-point app icon sources. They export as
-  1024×1024 PNGs to `AppIcon.appiconset`; keep that destination name. Exporting
-  them needs ImageMagick (`brew install imagemagick`).
-- The crypto icons are core's library in spectra's `icons/crypto/`, with its
-  rules in spectra's `AGENTS.md`. They export to the matching `crypto` asset
-  group, without a namespace.
+- spectra's `icons/appicon/` holds the 1024-point app icon sources. They
+  export as 1024×1024 PNGs to `AppIcon.appiconset`; keep that destination
+  name. Exporting them needs ImageMagick (`brew install imagemagick`).
+- The crypto icons are core's library in spectra's `icons/crypto/`. They
+  export to the matching `crypto` asset group, without a namespace.
 
 After editing either, export:
 

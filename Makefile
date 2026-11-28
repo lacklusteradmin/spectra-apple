@@ -10,13 +10,13 @@ IOS_TEST_DERIVED_DATA ?=
 # Macs are arm64 only, as the project's simulators are.
 MAC_DEST ?= platform=macOS,arch=arm64
 
-# The app links SpectraCore/, the package spectra's `make apple` builds, copied
+# The app links core-apple/, the package spectra's `make apple` builds, copied
 # here by hand. Nothing here builds core or assumes where its checkout is: what
 # reads core's source takes SPECTRA, a spectra checkout, absolute or relative to
 # this repository's root.
 export SPECTRA
 
-.PHONY: lint check-ui test-ios test-mac ios iosr mac macr
+.PHONY: lint check-ui test-ios test-mac ios ios-release mac mac-release
 
 # ── Verification ────────────────────────────────────────────────────
 # Four targets, each run by name: lint, check-ui, test-ios and test-mac.
@@ -33,6 +33,7 @@ lint:
 	@test -n "$(SPECTRA)" || { echo "error: the scans read core: make lint SPECTRA=<spectra checkout>" >&2; exit 2; }
 	python3 -B scripts/test-source-scan.py
 	@set -e; for scan in $(SOURCE_SCANS); do echo "$$scan"; python3 -B $$scan; done
+	SPECTRA="$(SPECTRA)" scripts/export-swift-icons.sh --check
 
 check-ui:
 	python3 -B scripts/check-design-tokens.py
@@ -59,14 +60,16 @@ test-mac:
 		-destination "$(MAC_DEST)" -collect-test-diagnostics never
 
 # ── Builds ──────────────────────────────────────────────────────────
+# Debug builds as ios and mac; the same in Release as ios-release and
+# mac-release. iOS builds for the simulator.
 ios:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Debug -destination "$(IOS_SIM_DEST)" build
 
-iosr:
+ios-release:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Release -destination "$(IOS_SIM_DEST)" build
 
 mac:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Debug -destination "$(MAC_DEST)" build
 
-macr:
+mac-release:
 	xcodebuild -project "$(XCODE_PROJECT)" -scheme "$(XCODE_SCHEME)" -configuration Release -destination "$(MAC_DEST)" build

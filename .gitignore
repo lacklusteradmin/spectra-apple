@@ -10,6 +10,6 @@ xcuserdata/
 # Python bytecode
 __pycache__/
 
-# The core package, copied from spectra's target/SpectraCore/
-/SpectraCore/
+# The core package, copied from spectra's target/core-apple/
+/core-apple/
 

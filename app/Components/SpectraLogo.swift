@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The app icon's five bars in a square of side `size`. Widths and gaps both
 /// shrink by the golden ratio; the geometry and the palette are those of
-/// `icons/appicon/`, and change with it.
+/// spectra's `icons/appicon/`, and change with it.
 struct SpectraMark: View {
     var size: CGFloat
     /// One colour for every bar. `nil` draws the icon's own palette.

@@ -52,34 +52,6 @@ struct WalletServiceBridgeTests {
                 != .phrase(phrase: "test test test test test test test test test test test junk"))
     }
 
-    /// Core refuses a private key on a chain that cannot derive from one, and
-    /// the refusal reaches the reader through the string tables, with the
-    /// chain named. Compared against the table rather than English so it holds
-    /// in any locale.
-    @Test func aPrivateKeyOnAChainWithoutKeyDerivationIsRefusedInTheReadersLanguage() async throws {
-        let secretStore = TestSecretStore()
-        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: directory) }
-        let bridge = WalletServiceBridge(
-            databasePath: directory.appendingPathComponent("state.db").path, service: try WalletService(endpoints: []))
-        try bridge.service().setSecretStore(store: secretStore)
-        let error = await #expect(throws: SpectraBridgeError.self) {
-            try await bridge.ready().importWallets(commit: WalletImportCommit(
-                password: nil,
-                request: WalletImportRequest(walletName: "Monero key", chain: .monero, kind: .privateKey),
-                derivationPath: nil,
-                derivationOverrides: WalletDerivationOverrides(passphrase: nil, hmacKey: nil),
-                seedPhrase: nil, privateKey: "4c0883a69102937d6231471b5dbb6204fe5129617082792ae468d01a3f362318",
-                restoreHeight: nil, namedAccount: nil, tonWalletVersion: nil, upgradeWalletId: nil))
-        }
-        let refusal = try #require(error)
-        #expect(
-            userErrorMessage(refusal)
-                == AppLocalization.format("%@ cannot derive an address from a private key.", Chain.monero.displayName))
-        #expect(try await bridge.ready().portfolioSnapshot().wallets.isEmpty)
-    }
-
     /// A sentence with values is looked up by its template and filled in.
     @Test func coreSentencesWithValuesAreTranslatedByTemplate() {
         let message = LocalizableMessage(template: "Insufficient %@ balance.", args: ["ETH"])

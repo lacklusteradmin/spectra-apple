@@ -4,11 +4,8 @@ import SwiftUI
 /// otherwise falls back to a solid circle with the first letter of
 /// `fallbackText`. No custom photos, no multi-letter disambiguation.
 struct CoinBadge: View {
-    /// The bundled artwork to draw, empty when the coin ships none. Not
-    /// private: `CoinBadgeArtworkTests` asserts every coin the app can hold
-    /// resolves to one that `PlatformImage(named:)` can load, and the resolution is
-    /// the whole of what broke.
-    let artworkName: String
+    /// The bundled artwork to draw, empty when the coin ships none.
+    private let artworkName: String
     private let fallbackText: String
     private let color: Color
     private let size: CGFloat

@@ -6,9 +6,9 @@ core's: spectra's `docs/FFI-BOUNDARY.md`.
 
 ## The core package
 
-The app links core as `SpectraCore/`, a local Swift package at this
+The app links core as `core-apple/`, a local Swift package at this
 repository's root that is not checked in. Xcode compiles no Rust. spectra's
-`make apple` builds the package into its `target/SpectraCore/`, with its
+`make apple` builds the package into its `target/core-apple/`, with its
 `scripts/build-apple-package.sh`, and a developer copies that directory here.
 It holds:
 
@@ -44,11 +44,11 @@ Change the Rust API in spectra, run `make apple` there, then copy the package
 here with its modification times, replacing the old one:
 
 ```sh
-cp -Rp <spectra>/target/SpectraCore .
+cp -Rp <spectra>/target/core-apple .
 ```
 
 A Finder drag or `ditto` keeps the times too. Then build: in Xcode, or with
-`make ios` or `make mac`. Never edit `SpectraCore/` by hand.
+`make ios` or `make mac`. Never edit `core-apple/` by hand.
 
 The build script rewrites the header and bindings only when their text
 changed, and a copy that keeps their times lets Xcode see that: a core edit
@@ -72,7 +72,7 @@ foreign callback protocols: their Swift implementations need no Swift caller.
 
 | Symptom | Check |
 |---|---|
-| Xcode reports the `SpectraCore` package or product missing | Run `make apple` in spectra and copy `target/SpectraCore/` here |
+| Xcode reports the `SpectraCore` package or product missing | Run `make apple` in spectra and copy `target/core-apple/` here |
 | `Cannot find type 'Foo' in scope` | `import SpectraCore` in that file; then rebuild and copy the package, and confirm the declaration is exported |
 | `… is not available due to missing import of defining module 'SpectraCore'` | `import SpectraCore` in that file |
 | `a Release build needs the release core package` | Run `make apple PROFILE=release` in spectra and copy the package |

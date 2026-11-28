@@ -24,7 +24,7 @@ which `make check-ui` runs.
 | File | Purpose |
 |---|---|
 | `unreachable-exports.py` | Finds exported Rust interfaces no production Swift calls. |
-| `unused-strings.py` | Finds unused text, core sentences the tables do not translate, and inconsistent translation keys across locales. |
+| `unused-strings.py` | Finds unused text, core sentences the tables do not translate, inconsistent translation keys across locales, and a locale the manifest declares with no table or a table it does not declare. |
 | `swift-shell-literals.py` | Finds hard-coded chain names and amount precision in Swift, where domain rules should come from core. |
 | `check-design-tokens.py` | Finds corner radii, spacing, literal colours, glass tints, glass shapes and divider opacities that bypass shared UI design tokens. |
 | `source_scan.py` | What the scans share: production-source selection for Rust and Swift (test fixtures do not count as runtime callers or copy producers), files listed inside the core checkout, call text with comments and declarations removed, and the report and exit status. |
@@ -40,7 +40,7 @@ Exporting app icons needs ImageMagick (`brew install imagemagick`).
 
 | File | Purpose |
 |---|---|
-| `export-swift-icons.sh` | Converts and synchronizes `icons/appicon/` and core's `icons/crypto/`, in the checkout `SPECTRA` names (it refuses without one), into the Xcode asset catalog, rendering app icons as PNGs: each source at 1024 points for iOS, and the light one again in the Mac's shape and sizes. |
+| `export-swift-icons.sh` | Converts and synchronizes core's `icons/appicon/` and `icons/crypto/`, in the checkout `SPECTRA` names (it refuses without one, or one lacking either), into the Xcode asset catalog, rendering app icons as PNGs: each source at 1024 points for iOS, and the light one again in the Mac's shape and sizes. A rendering has no PNG time chunks and is written only when its bytes differ from the catalog's. With `--check` it writes nothing and fails, naming each icon, when the `crypto` group is not an exact copy of core's library; `make lint` runs that. The app icon is left out of the check, since another ImageMagick may render other bytes. |
 
 ## Strings
 

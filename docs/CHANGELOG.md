@@ -1,5 +1,78 @@
 # Changelog
 
+## Beta Commit 265
+
+- **The app icon is exported from spectra's `icons/appicon/`**
+  (`scripts/export-swift-icons.sh`; `icons/appicon/` removed)
+  - The sources come from the checkout `SPECTRA` names, and the script
+    refuses one without them (before: this repository's `icons/appicon/`).
+  - A PNG is written when its rendering's bytes differ from the catalog's
+    (before: when its SVG was newer, which compares file times across two
+    checkouts).
+  - Renderings have no PNG time chunks, so one source always renders to the
+    same bytes; the catalog's ten PNGs lose theirs, with every pixel
+    unchanged.
+- **Core's package is linked from `core-apple/`** (`Spectra.xcodeproj`'s
+  local package reference and release-package check, `.gitignore`; before:
+  `SpectraCore/`; the package, product and module stay `SpectraCore`)
+- **The bundle IDs are under `org.spectrawallet`** (`Spectra.xcodeproj`:
+  `org.spectrawallet.Spectra`, its `SpectraLiveActivityExtension` and
+  `org.spectrawallet.SpectraTests`; the Mac keychain access group in
+  `Spectra.macOS.entitlements`)
+  - The IDs no longer carry a personal name (before: two personal prefixes).
+  - A build installed under the old ID is another app: its data and
+    Keychain items stay with it, and the renamed app starts with none.
+- **The test target tests what the app owns** (`tests/`; 46 tests removed,
+  with `AssetPrecisionBridgeTests.swift`, `CoinBadgeArtworkTests.swift` and
+  `WalletSetupPageCopyTests.swift`)
+  - 26 sent a rule core decides through the bridge (catalog and registry
+    facts, setup methods, derivation, settings and contacts, diagnostics),
+    which core's own tests check.
+  - 2 rules move to new core tests in spectra: which setup methods ask for a
+    restore height, and a label and description for every endpoint
+    capability in every locale.
+  - 5 move to `make lint`: the four asset-catalog icon tests to
+    `export-swift-icons.sh --check`, and the locale-manifest test to
+    `unused-strings.py`.
+  - 3 bridge round trips other tests already make, and 1 page-title test
+    `unused-strings.py` already covers, go.
+  - 9 restated a `switch`, a field or a two-line helper, or asserted
+    `!isEmpty` on `AppLocalization.string`, which returns the key it
+    misses; they go.
+- **`anUnparsedOverrideAsksForNoQuote` and
+  `aComposerOffScreenSchedulesNoRequests` fail without the guard they test**
+  (`SendPreviewAdoptionTests`; before: no holding was chosen, so another
+  guard returned first, and the second checked before the 350 ms pause)
+- **`make lint` fails when the asset catalog's crypto icons differ from core's
+  library** (`scripts/export-swift-icons.sh --check`, `Makefile`; the app
+  icon is not checked, since another ImageMagick may render other bytes)
+- **`make lint` fails when the locale manifest and the string tables
+  disagree** (`scripts/unused-strings.py`: a declared locale with no table, or
+  a table the manifest does not declare)
+- **`make ios-release` and `make mac-release` are the Release builds**
+  (`Makefile`; before: `make iosr` and `make macr`)
+- Measured: 2026-11-27, ImageMagick `compare` of the ten exported PNGs with
+  Beta Commit 264's: 0 pixels differ; a second export writes none.
+- Measured: 2026-11-28, on this Mac with the guards they target removed:
+  both rewritten `SendPreviewAdoptionTests` fail (3 issues); with an icon
+  changed, one removed and one added, `--check` names all three; with a
+  manifest declaring `ja` and not `zh-Hant`, `unused-strings.py` names both.
+- Tests: 1 new
+  - chain picker 1: a search with test networks hidden that shows one beside
+    its mainnet, or answers "No Results" for one it names alone (before: part
+    of the Peercoin picker test).
+- Docs: `AGENTS.md` (Repositories, CHANGELOG, Platform constraints, Icons),
+  `IOS-UI.md` (Design baseline: Logo), `README.md` (Building),
+  `SWIFT-BINDINGS.md` (The core package, Changing the Rust API, Common
+  errors), `scripts/README.md` (Code and resource checks, Icons).
+- Total: 17 .swift files changed (3 removed), +58 −795 lines; resource files:
+  `app/Assets.xcassets/AppIcon.appiconset/` (10 changed), `icons/appicon/`
+  (3 removed); config files: `Spectra.xcodeproj/project.pbxproj`,
+  `.gitignore`, `Makefile`, `app/Spectra.macOS.entitlements`; scripts
+  `scripts/export-swift-icons.sh`, `scripts/test-source-scan.py`,
+  `scripts/unused-strings.py`; `make lint` and `check-ui` passing; tests
+  passing in `make test-ios` 153 → 108 and `make test-mac` 146 → 103.
+
 ## Beta Commit 264
 
 - **47 crypto icons show their projects' current marks**

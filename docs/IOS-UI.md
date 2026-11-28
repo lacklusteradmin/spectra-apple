@@ -114,7 +114,7 @@ Official references:
   orange in a view; artwork with a fixed palette of its own ends the line with
   `design-tokens: artwork`.
 - **Artwork exception:** Decorative icon artwork may use custom fonts, color opacity, and glass effects.
-- **Logo:** `SpectraMark` draws the app icon's five bars and `SpectraLogo` sets them on the icon's black tile. Their geometry and palette are those of `icons/appicon/`: change the two together.
+- **Logo:** `SpectraMark` draws the app icon's five bars and `SpectraLogo` sets them on the icon's black tile. Their geometry and palette are those of spectra's `icons/appicon/`: change the two together.
 
 ## macOS
 

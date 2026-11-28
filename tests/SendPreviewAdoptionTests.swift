@@ -58,15 +58,20 @@ struct SendPreviewAdoptionTests: IsolatedAppStateSuite {
         #expect(flow.evmManualNonce == "9", "a typed value is not replaced")
     }
 
-    /// An override that does not parse asks core for nothing: the field says
-    /// what is wrong, and the last quote stays as the network's terms.
+    /// An override that does not parse asks core for nothing, with a holding
+    /// chosen and the rest of the form complete: the field says what is
+    /// wrong, and the last quote stays as the network's terms.
     @Test func anUnparsedOverrideAsksForNoQuote() async {
-        let store = makeState()
-        store.sendFlow.evmManualNonceEnabled = true
-        store.sendFlow.evmManualNonce = "not a number"
-        await store.sendFlow.refreshPreview()
-        #expect(store.sendFlow.previewError == nil)
-        #expect(!store.sendFlow.isPreparingPreview)
+        let flow = makeState().sendFlow
+        let ether = AssetHolding.fixture(name: "Ethereum", symbol: "ETH", chainId: .ethereum, amount: "1")
+        flow.selectedHolding = { ether }
+        flow.address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
+        flow.amount = "1"
+        flow.evmManualNonceEnabled = true
+        flow.evmManualNonce = "not a number"
+        await flow.refreshPreview()
+        #expect(flow.previewError == nil)
+        #expect(!flow.isPreparingPreview)
     }
 
     @Test func previewDiscardsStaleSuccessAndFailureForEveryFormEdit() {
@@ -118,13 +123,17 @@ struct SendPreviewAdoptionTests: IsolatedAppStateSuite {
         #expect(!flow.quoteIsCurrent)
     }
 
-    /// Off screen the composer asks core nothing: no recipient check, no
-    /// quote, however its form changes.
-    @Test func aComposerOffScreenSchedulesNoRequests() {
+    /// A composer off screen asks for nothing: with a holding chosen, typing
+    /// starts neither the recipient check nor the quote, even once the pause
+    /// a presented composer waits for has passed.
+    @Test func aComposerOffScreenSchedulesNoRequests() async throws {
         let flow = makeState().sendFlow
+        let ether = AssetHolding.fixture(name: "Ethereum", symbol: "ETH", chainId: .ethereum, amount: "1")
+        flow.selectedHolding = { ether }
         flow.address = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
         flow.amount = "1"
-        #expect(!flow.isResolvingRecipient && flow.currentRecipient == nil)
-        #expect(!flow.isPreparingPreview)
+        try await Task.sleep(for: .milliseconds(700))
+        #expect(!flow.isResolvingRecipient && flow.currentRecipient == nil && flow.recipientProblem == nil)
+        #expect(!flow.isPreparingPreview && flow.previewError == nil)
     }
 }

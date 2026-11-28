@@ -93,7 +93,7 @@ class AppSwiftTests(unittest.TestCase):
         with contextlib.chdir(REPOSITORY):
             paths = app_swift()
         self.assertIn(Path('app/App/WalletServiceBridge.swift'), paths)
-        self.assertFalse([path for path in paths if path.parts[0] in {'tests', 'SpectraCore'}])
+        self.assertFalse([path for path in paths if path.parts[0] in {'tests', 'core-apple'}])
         self.assertEqual(paths, sorted(paths))
 
 
