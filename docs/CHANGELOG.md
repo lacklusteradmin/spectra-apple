@@ -1,5 +1,21 @@
 # Changelog
 
+## Beta Commit 264
+
+- **47 crypto icons show their projects' current marks**
+  (`app/Assets.xcassets/crypto/`, from spectra's library; spectra's
+  `docs/audits/icons-2026-11-27/`)
+- **AERO draws Aero's token mark** (`app/Assets.xcassets/crypto/`:
+  `aero.imageset` replaces `aerodrome.imageset`; spectra's catalog lists the
+  Aero token in place of the legacy Aerodrome AERO)
+- **Blast's and USDB's icons are removed** (`app/Assets.xcassets/crypto/`:
+  `blast.imageset`, `usdb.imageset`; spectra no longer catalogues Blast,
+  which shut its L2 down on 2026-11-04)
+- Total: no .swift files changed; resource files:
+  `app/Assets.xcassets/crypto/` (47 changed, 1 new, 3 removed); `make lint`,
+  `check-ui` and `make test-mac` (146) passing; tests passing in `make
+  test-ios` 153 → 153.
+
 ## Beta Commit 263
 
 - **The string tables are spectra's, synced by a script**
