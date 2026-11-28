@@ -59,8 +59,8 @@ storage; its native formatter cache is presentation-only.
 `AssetPresentationCatalog` indexes core's immutable artwork and colours by
 deployment id; balances and display labels do not identify assets. Neither can
 authorize a domain mutation. `CoreReferenceTables` holds the process-lifetime
-copies of core's compile-time tables — the wikis, the staking entries, the
-input bounds, the endpoint catalog and the donation addresses — read once.
+copies of core's compile-time tables — the staking entries, the input
+bounds, the endpoint catalog and the donation addresses — read once.
 
 Every word on screen comes from `AppLocalization`, keyed by its English
 sentence or, for long copy, a dotted name such as `settings.aboutTitle`. A

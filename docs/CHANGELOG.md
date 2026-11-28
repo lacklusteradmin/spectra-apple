@@ -1,5 +1,43 @@
 # Changelog
 
+## Beta Commit 266
+
+- **Crypto Wiki removed** (`app/Wiki/`, Settings' Help & About row; a
+  coin's description is on its Known Tokens page, a chain's on its network
+  page in Add Wallet)
+- **A network's page in Add Wallet has an info button that opens what the
+  chain is** (`ChainDetailView` new, `WalletSetupMethodsView`)
+  - The page shows core's description, tags, family, consensus and state
+    model from `ChainEntry`; a testnet shows its mainnet's.
+  - The button is on the Add Keys page a watched wallet opens too.
+- **Known Tokens lists core's `CommittedState.knownTokens`**
+  (`TokenPreferencesState.tokens`, `TokenRegistrySettingsView`,
+  `TokenRegistryDetailView`, `SettingsTokenComponents.swift`)
+  - Native coins and test coins are listed, one row per token (before:
+    contract tokens only, grouped by token id here).
+  - The Network filter lists every network (before: networks that host
+    tokens), and a Tag filter offers Stablecoin and Meme.
+  - A token's page shows its description, tags and circulation model, and a
+    native deployment's standard reads "Native".
+  - A token's badge takes the token's colour (before: its network's).
+- **A native coin's page on Home has the Token Details button too**
+  (`AssetGroupDetailView`; before: tokens with a contract deployment only)
+- **The chain picker's Chain Info button and its gas-token sheet removed**
+  (`AllChainsSelectionView`, in Add Wallet and a contact's network picker)
+- **String tables synced from spectra** (`resources/strings/`:
+  `knownTokens.onChains` replaces `wiki.asset.onChains`, `Network Details`
+  new; `Crypto Wiki`, `Filter by tag`, `Search coins and chains` and the
+  seven strings of the chain picker's Chain Info sheet removed)
+- Tests: 0 new
+  - token screens: the render test also draws a native coin's page and a
+    chain's page.
+- Docs: `AGENTS.md` (Swift conventions), `ARCHITECTURE.md` (Presentation),
+  `IOS-UI.md` (Examples in the app).
+- Total: 20 .swift files changed (1 new, 3 removed), +223 −506 lines;
+  resource files: `resources/strings/` (3 tables); config files unchanged;
+  `make lint` and `check-ui` passing; tests passing in `make test-ios`
+  108 → 108 and `make test-mac` 103 → 103.
+
 ## Beta Commit 265
 
 - **The app icon is exported from spectra's `icons/appicon/`**

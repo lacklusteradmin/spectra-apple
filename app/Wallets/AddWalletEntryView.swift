@@ -52,7 +52,7 @@ struct AddWalletEntryView: View {
 /// One network's ways of adding a wallet, as core's setup descriptor lists
 /// them, each with the formats it accepts there. Opened from a watched
 /// wallet's page, the ways of giving that wallet its keys instead, as core
-/// offers them for it.
+/// offers them for it. Its info button says what the network is.
 struct WalletSetupMethodsView: View {
     let store: AppState
     let chain: Chain
@@ -97,6 +97,16 @@ struct WalletSetupMethodsView: View {
         // The header names the network; the bar would say it a second time.
         .navigationTitle(upgrading == nil ? "" : WalletAction.addKeys.title)
         .inlineNavigationTitle()
+        .toolbar {
+            ToolbarItem(placement: .barTrailing) {
+                NavigationLink {
+                    ChainDetailView(chain: chain)
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+                .accessibilityLabel(AppLocalization.string("Network Details"))
+            }
+        }
         .navigationDestination(
             isPresented: Binding(
                 get: { store.walletImport.isPresented && store.walletImport.editingWalletId == nil },

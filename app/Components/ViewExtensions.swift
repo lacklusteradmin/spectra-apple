@@ -71,7 +71,7 @@ extension Color {
 // action, and `.sensoryFeedback` would need a `@State` trigger per site that
 // exists only to be mutated — more state for the same tap. Feedback driven by
 // a value changing rather than by a tap does use `.sensoryFeedback`; see the
-// tag picker in `CryptoWikiViews`.
+// tag filter in `AllChainsSelectionView`.
 //
 // A Mac has no Taptic Engine under a click, so both calls do nothing there.
 

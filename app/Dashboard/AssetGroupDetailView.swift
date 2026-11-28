@@ -10,10 +10,9 @@ struct AssetGroupDetailView: View {
     private var assetGroup: DashboardAssetGroup? {
         store.cachedDashboardAssetGroups.first { $0.id == assetGroupId }
     }
-    /// Where a token is deployed is Known Tokens' job; a native coin has no
-    /// entry there, and no button.
+    /// What a token is and where it is deployed is Known Tokens' job.
     private var isKnownToken: Bool {
-        store.tokenPreferences.entries.contains { $0.token.tokenId == assetGroupId }
+        store.tokenPreferences.tokens.contains { $0.tokenId == assetGroupId }
     }
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -36,7 +35,7 @@ struct AssetGroupDetailView: View {
                 if isKnownToken {
                     ToolbarItem(placement: .barTrailing) {
                         NavigationLink {
-                            TokenRegistryDetailView(tokens: store.tokenPreferences, groupKey: assetGroupId)
+                            TokenRegistryDetailView(tokens: store.tokenPreferences, tokenId: assetGroupId)
                         } label: {
                             Image(systemName: "info.circle")
                         }

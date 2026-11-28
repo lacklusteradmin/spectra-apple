@@ -20,7 +20,6 @@ struct SettingsView: View {
         case operationalLogs
         case buyCryptoHelp
         case about
-        case cryptoWiki
         case donate
         case tor
         case resetWallet
@@ -59,7 +58,6 @@ struct SettingsView: View {
                         }
                         section(AppLocalization.string("Help & About")) {
                             settingsLink(AppLocalization.string("Where can I buy crypto?"), systemImage: "creditcard", route: .buyCryptoHelp)
-                            settingsLink(AppLocalization.string("Crypto Wiki"), systemImage: "books.vertical", route: .cryptoWiki)
                             reportProblemRow
                             settingsLink(AppLocalization.string("About Spectra"), systemImage: "info.circle", route: .about)
                             settingsLink(AppLocalization.string("Donate"), systemImage: "heart", route: .donate)
@@ -90,7 +88,6 @@ struct SettingsView: View {
                 case .operationalLogs: LogsView(store: store)
                 case .buyCryptoHelp: BuyCryptoHelpView()
                 case .about: AboutView()
-                case .cryptoWiki: CryptoWikiLibraryView()
                 case .donate: DonationsView()
                 case .tor: TorSettingsView(store: store)
                 case .resetWallet: ResetWalletWarningView(store: store)

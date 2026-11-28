@@ -169,7 +169,7 @@ pre-existing without evidence.
   core records and the catalogs built from them), `Components/` (shared views
   and design tokens), then one folder per feature — `Dashboard/`, `Wallets/`
   (with `Tools/`), `Send/`, `Receive/`, `History/`, `Staking/`, `Settings/`,
-  `Diagnostics/`, `Wiki/` — with a feature's state beside its views. The app
+  `Diagnostics/` — with a feature's state beside its views. The app
   target's `Assets.xcassets/`, `Info.plist` and `Spectra.macOS.entitlements`
   sit at its top level. The folder is an Xcode synchronized group: adding or
   moving a file under it needs no project edit, and file names stay unique

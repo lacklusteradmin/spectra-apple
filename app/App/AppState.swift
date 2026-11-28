@@ -236,7 +236,7 @@ final class AppState {
         }
         if settingCommandsInFlight == 0 { appSettings = state.settings }
         addressBook.adopt(state.addressBook)
-        tokenPreferences.adopt(state.tokenPreferences)
+        tokenPreferences.adopt(state.knownTokens)
         priceAlerts.adopt(state.priceAlerts)
         return true
     }

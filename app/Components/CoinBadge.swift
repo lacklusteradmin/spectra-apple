@@ -10,7 +10,7 @@ struct CoinBadge: View {
     private let color: Color
     private let size: CGFloat
 
-    /// From artwork core already named — the wiki's rows carry one per coin.
+    /// From artwork core already named — a known token and a chain carry one each.
     init(artworkName: String?, fallbackText: String, color: Color, size: CGFloat = 40) {
         self.artworkName = artworkName ?? ""
         self.fallbackText = fallbackText

@@ -11,10 +11,13 @@ extension AssetHolding {
     var standardLabel: String { tokenStandard?.name ?? AppLocalization.string("Native") }
 }
 
-extension TokenPreferenceEntry: @retroactive Identifiable {
-    public var id: String { token.deploymentId }
-    /// The chain hosting this token.
-    var hostingChain: Chain? { token.chainId.hostsTokens ? token.chainId : nil }
+extension KnownToken: @retroactive Identifiable {
+    public var id: String { tokenId }
+}
+
+extension TokenDeploymentEntry {
+    /// The deployment's protocol, or that it is the network's own coin.
+    var standardLabel: String { tokenStandard?.name ?? AppLocalization.string("Native") }
 }
 
 extension AssetHolding {

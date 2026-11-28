@@ -4,7 +4,7 @@ import SwiftUI
 
 struct AddCustomTokenView: View {
     let tokens: TokenPreferencesState
-    var editing: TokenPreferenceEntry? = nil
+    var editing: TokenDeploymentEntry? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var selectedChain: Chain? = Chain.tokenHostingChains.first
     /// The protocol the token is added under. Chosen, not guessed, where the
@@ -40,9 +40,9 @@ struct AddCustomTokenView: View {
             Section {
                 if let editing {
                     // A token keeps the network and protocol it was added under.
-                    LabeledContent(AppLocalization.string("Network"), value: editing.token.chainId.displayName)
-                    LabeledContent(AppLocalization.string("Standard"), value: editing.token.tokenStandard?.name ?? "")
-                    Text(editing.token.contract).font(.caption.monospaced()).textSelection(.enabled)
+                    LabeledContent(AppLocalization.string("Network"), value: editing.chainId.displayName)
+                    LabeledContent(AppLocalization.string("Standard"), value: editing.tokenStandard?.name ?? "")
+                    Text(editing.contract).font(.caption.monospaced()).textSelection(.enabled)
                 } else {
                     Picker(AppLocalization.string("Network"), selection: $selectedChain) {
                         Text(AppLocalization.string("Select a chain")).tag(nil as Chain?)
@@ -118,15 +118,15 @@ struct AddCustomTokenView: View {
             guard !hasLoaded else { return }
             hasLoaded = true
             guard let editing else { return }
-            selectedChain = editing.hostingChain
-            selectedStandard = editing.token.tokenStandard
+            selectedChain = editing.chainId
+            selectedStandard = editing.tokenStandard
             if selectedChain == nil { formMessage = AppLocalization.string("That network cannot hold tokens.") }
-            symbolInput = editing.token.symbol
-            nameInput = editing.token.name
-            identifierInput = editing.token.contract
-            coingeckoIdInput = editing.token.coingeckoId
-            coinpaprikaIdInput = editing.token.coinpaprikaId
-            decimalsInput = editing.token.decimals
+            symbolInput = editing.symbol
+            nameInput = editing.name
+            identifierInput = editing.contract
+            coingeckoIdInput = editing.coingeckoId
+            coinpaprikaIdInput = editing.coinpaprikaId
+            decimalsInput = editing.decimals
         }
     }
 }

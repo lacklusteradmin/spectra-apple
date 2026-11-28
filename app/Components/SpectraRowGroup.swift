@@ -43,7 +43,7 @@ where Data.Element: Identifiable {
                 Divider().opacity(SpectraLayout.dividerOpacity)
             }
             if !data.isEmpty {
-                // Lazy so a long list, such as the wiki's, builds only the rows on screen.
+                // Lazy so a long list, such as Known Tokens, builds only the rows on screen.
                 LazyVStack(spacing: 0) {
                     ForEach(Array(data.enumerated()), id: \.element.id) { index, element in
                         row(element)

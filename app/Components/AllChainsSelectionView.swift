@@ -23,7 +23,6 @@ struct AllChainsSelectionView<Footer: View>: View {
     @State private var order: ChainPickerOrder = .popular
     @State private var filter: ChainPickerFilter = .all
     @State private var showsTestNetworks = false
-    @State private var isShowingInfo = false
     private var trimmedQuery: String { chainSearchText.trimmingCharacters(in: .whitespacesAndNewlines) }
     private var rows: [ChainSelectionDescriptor] {
         descriptors.picked(filter: filter, query: trimmedQuery, order: order, showsTestNetworks: showsTestNetworks)
@@ -89,71 +88,6 @@ struct AllChainsSelectionView<Footer: View>: View {
         }
         .accessibilityLabel(AppLocalization.string("Sort and Filter"))
     }
-    @ViewBuilder
-    private var gasTokenInfoSheet: some View {
-        NavigationStack {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: SpectraLayout.Space.l) {
-                    VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                        Label(AppLocalization.string("Gas Token"), systemImage: "fuelpump.fill")
-                            .font(.headline)
-                            .foregroundStyle(.tint)
-                        Text(
-                            AppLocalization.string(
-                                "The symbol shown on the right of each chain is its gas token — the asset you need to pay transaction fees."
-                            )
-                        )
-                        .font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    .padding(SpectraLayout.Space.l)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: SpectraLayout.Radius.card, style: .continuous).fill(Color.accentColor.opacity(0.08))
-                    )
-                    VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                        Label(AppLocalization.string("L2s and Native Tokens"), systemImage: "square.stack.3d.up.fill")
-                            .font(.headline)
-                            .foregroundStyle(.tint)
-                        Text(
-                            AppLocalization.string(
-                                "Some L2 chains have a separate native token (e.g. ARB, OP) but use a different asset for gas fees (e.g. ETH). Spectra shows the gas token since that's what you'll need to keep funded for transactions."
-                            )
-                        )
-                        .font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    .padding(SpectraLayout.Space.l)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: SpectraLayout.Radius.card, style: .continuous).fill(Color.accentColor.opacity(0.08))
-                    )
-                    VStack(alignment: .leading, spacing: SpectraLayout.Space.s) {
-                        Label(AppLocalization.string("Missing a Chain?"), systemImage: "plus.circle.fill")
-                            .font(.headline)
-                            .foregroundStyle(.tint)
-                        Text(
-                            AppLocalization.string(
-                                "If you'd like a chain added, go to Settings → Report a Problem and let the developer know. New chains are added regularly."
-                            )
-                        )
-                        .font(.subheadline).foregroundStyle(.secondary)
-                    }
-                    .padding(SpectraLayout.Space.l)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(
-                        RoundedRectangle(cornerRadius: SpectraLayout.Radius.card, style: .continuous).fill(Color.accentColor.opacity(0.08))
-                    )
-                }
-                .spectraScreenPadding()
-            }
-            .navigationTitle(AppLocalization.string("Chain Info"))
-            .inlineNavigationTitle()
-            .toolbar {
-                ToolbarItem(placement: .barTrailing) {
-                    Button(AppLocalization.string("Done")) { isShowingInfo = false }
-                }
-            }
-        }
-    }
     var body: some View {
         ZStack {
             SpectraBackdrop().ignoresSafeArea()
@@ -179,14 +113,7 @@ struct AllChainsSelectionView<Footer: View>: View {
         .sensoryFeedback(.selection, trigger: showsTestNetworks)
         .toolbar {
             ToolbarItem(placement: .barTrailing) { toolbarMenu }
-            ToolbarItem(placement: .barTrailing) {
-                Button { isShowingInfo = true } label: {
-                    Image(systemName: "info.circle")
-                }
-                .accessibilityLabel(AppLocalization.string("Chain Info"))
-            }
         }
-        .pageSheet(isPresented: $isShowingInfo) { gasTokenInfoSheet }
     }
 }
 

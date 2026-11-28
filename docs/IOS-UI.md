@@ -237,7 +237,9 @@ Shared values and helpers live in:
   [AssetGroupDetailView.swift](../app/Dashboard/AssetGroupDetailView.swift):
   top-level tab, hero cards and asset detail rows.
 - [ReceiveView.swift](../app/Receive/ReceiveView.swift): business detail layout.
-- [ChainWikiDetailView.swift](../app/Wiki/ChainWikiDetailView.swift): compact interactive cards.
+- [ChainDetailView.swift](../app/Wallets/ChainDetailView.swift) and
+  [TokenRegistryDetailView.swift](../app/Settings/TokenRegistryDetailView.swift):
+  a hero card with tags over compact detail cards.
 - [HistoryView.swift](../app/History/HistoryView.swift) and
   [AddWalletEntryView.swift](../app/Wallets/AddWalletEntryView.swift): lists as
   `SpectraRowGroup` rows.

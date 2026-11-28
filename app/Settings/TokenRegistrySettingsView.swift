@@ -3,9 +3,9 @@ import SpectraCore
 import SwiftUI
 struct TokenRegistrySettingsView: View {
     let tokens: TokenPreferencesState
-    /// The chain filter; nil includes every chain.
-    private static let chainFilterOptions: [Chain?] =
-        [nil] + Chain.tokenHostingChains.map { Optional($0) }
+    /// The chain filter; nil includes every chain. Every network's own coin
+    /// is a known token, so every network is an option.
+    private static let chainFilterOptions: [Chain?] = [nil] + Chain.all.map { Optional($0) }
     private enum TokenRegistrySourceFilter: CaseIterable, Identifiable {
         case all
         case builtIn
@@ -22,8 +22,10 @@ struct TokenRegistrySettingsView: View {
     @State private var searchText: String = ""
     @State private var chainFilter: Chain? = nil
     @State private var sourceFilter: TokenRegistrySourceFilter = .all
+    @State private var tagFilter: TokenTag? = nil
+    private var isFiltered: Bool { chainFilter != nil || sourceFilter != .all || tagFilter != nil }
     var body: some View {
-        let groups = filteredGroups
+        let groups = filteredTokens
         ZStack {
             SpectraBackdrop().ignoresSafeArea()
             ScrollView(showsIndicators: false) {
@@ -32,11 +34,11 @@ struct TokenRegistrySettingsView: View {
                         TokenPreferenceErrorNotice(message: error) { tokens.error = nil }
                     }
                     if !groups.isEmpty {
-                        SpectraRowGroup(data: groups) { group in
+                        SpectraRowGroup(data: groups) { token in
                             NavigationLink {
-                                TokenRegistryDetailView(tokens: tokens, groupKey: group.key)
+                                TokenRegistryDetailView(tokens: tokens, tokenId: token.tokenId)
                             } label: {
-                                TokenRegistryGroupRowView(group: group)
+                                KnownTokenRowView(token: token)
                             }
                             .buttonStyle(.plain)
                         }
@@ -67,7 +69,7 @@ struct TokenRegistrySettingsView: View {
     }
     @ViewBuilder
     private func emptyState(isFilteredEmpty: Bool) -> some View {
-        if tokens.entries.isEmpty {
+        if tokens.tokens.isEmpty {
             ProgressView()
         } else if isFilteredEmpty {
             if searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
@@ -90,51 +92,45 @@ struct TokenRegistrySettingsView: View {
             Picker(AppLocalization.string("Source"), selection: $sourceFilter) {
                 ForEach(TokenRegistrySourceFilter.allCases) { filter in Text(filter.title).tag(filter) }
             }
-            if chainFilter != nil || sourceFilter != .all {
+            Picker(AppLocalization.string("Tag"), selection: $tagFilter) {
+                Text(AppLocalization.string("All")).tag(TokenTag?.none)
+                ForEach(TokenTag.filterOrder, id: \.self) { tag in Text(tag.title).tag(TokenTag?.some(tag)) }
+            }
+            if isFiltered {
                 Button(AppLocalization.string("Clear Filters")) {
                     chainFilter = nil
                     sourceFilter = .all
+                    tagFilter = nil
                 }
             }
         } label: {
-            Image(systemName: chainFilter != nil || sourceFilter != .all
+            Image(systemName: isFiltered
                 ? "line.3.horizontal.decrease.circle.fill"
                 : "line.3.horizontal.decrease.circle")
         }
         .accessibilityLabel(AppLocalization.string("Filters"))
     }
-    private var filteredGroups: [TokenRegistryGroup] {
-        // Core orders the list with one token's deployments together, so the
-        // groups and their rows keep that order as they are.
-        let allEntries = tokens.entries
-        let grouped = Dictionary(grouping: allEntries, by: \.token.tokenId)
-        var seen: Set<String> = []
-        let groups = allEntries.map(\.token.tokenId).filter { seen.insert($0).inserted }
-            .compactMap { key -> TokenRegistryGroup? in
-                guard let entries = grouped[key], let representative = entries.first else { return nil }
-                return TokenRegistryGroup(
-                    key: key, name: representative.token.name, symbol: representative.token.symbol, entries: entries)
-            }
-        let filtered: [TokenRegistryGroup] = groups.filter { group in
-            if let selectedChain = chainFilter, !group.entries.contains(where: { $0.token.chainId == selectedChain }) {
+    /// Core's list, in core's order, narrowed by the filters and the search.
+    private var filteredTokens: [KnownToken] {
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return tokens.tokens.filter { token in
+            if let selectedChain = chainFilter, !token.deployments.contains(where: { $0.chainId == selectedChain }) {
                 return false
             }
             switch sourceFilter {
             case .all: break
-            case .builtIn: guard group.entries.contains(where: { $0.isBuiltIn }) else { return false }
-            case .custom: guard group.entries.contains(where: { !$0.isBuiltIn }) else { return false }
+            case .builtIn: guard token.isBuiltIn else { return false }
+            case .custom: guard !token.isBuiltIn else { return false }
             }
-            let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if let tagFilter, !token.tags.contains(tagFilter) { return false }
             guard !query.isEmpty else { return true }
             let haystack =
-                ([group.symbol, group.name]
-                + group.entries.flatMap { entry in
-                    [entry.token.chainId.displayName,
-                     entry.token.tokenStandard?.name ?? "", entry.token.contract, entry.token.coingeckoId, entry.token.coinpaprikaId]
+                ([token.symbol, token.name, token.coingeckoId, token.coinpaprikaId]
+                + token.deployments.flatMap { entry in
+                    [entry.chainId.displayName, entry.tokenStandard?.name ?? "", entry.contract]
                 })
                 .joined(separator: " ").lowercased()
             return haystack.contains(query)
         }
-        return filtered
     }
 }

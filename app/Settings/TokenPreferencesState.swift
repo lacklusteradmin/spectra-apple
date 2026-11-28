@@ -13,8 +13,9 @@ import SpectraCore
 final class TokenPreferencesState {
     @ObservationIgnored private let commands: StateCommandQueue // Where edits go; not view state.
     @ObservationIgnored private let diagnostics: WalletDiagnosticsState // Logs failed commands.
-    /// Core's list as last adopted. Change it through `addCustom` or `removeCustom`.
-    private(set) var entries: [TokenPreferenceEntry] = []
+    /// Known Tokens as core last committed them. Change the user's through
+    /// `addCustom` or `removeCustom`.
+    private(set) var tokens: [KnownToken] = []
     /// Why core refused the last token-preference change, if it did.
     var error: String?
 
@@ -24,12 +25,12 @@ final class TokenPreferencesState {
     }
 
     /// The only writer of `entries`, called with each committed core state.
-    func adopt(_ entries: [TokenPreferenceEntry]) {
-        if self.entries != entries { self.entries = entries }
+    func adopt(_ tokens: [KnownToken]) {
+        if self.tokens != tokens { self.tokens = tokens }
     }
 
-    func removeCustom(_ entry: TokenPreferenceEntry) {
-        let command = StateCommand.removeCustomToken(chainId: entry.token.chainId, contract: entry.token.contract)
+    func removeCustom(_ token: TokenDeploymentEntry) {
+        let command = StateCommand.removeCustomToken(chainId: token.chainId, contract: token.contract)
         commands.enqueue(command) { [weak self] result in
             guard let self else { return }
             self.error = self.errorMessage(result)
@@ -43,13 +44,13 @@ final class TokenPreferencesState {
     /// network's only one when `nil` — or edit `editing`, which keeps its own.
     func addCustom(
         chain: Chain, standard: TokenStandard? = nil, symbol: String, name: String, contractAddress: String,
-        coingeckoId: String = "", coinpaprikaId: String = "", decimals: UInt32?, editing: TokenPreferenceEntry? = nil
+        coingeckoId: String = "", coinpaprikaId: String = "", decimals: UInt32?, editing: TokenDeploymentEntry? = nil
     ) async -> String? {
         let command: StateCommand
         if let editing {
             command = .updateCustomToken(
-                chainId: editing.token.chainId,
-                contract: editing.token.contract, symbol: symbol, name: name,
+                chainId: editing.chainId,
+                contract: editing.contract, symbol: symbol, name: name,
                 coingeckoId: coingeckoId, coinpaprikaId: coinpaprikaId, decimals: decimals)
         } else {
             command = .addCustomToken(
