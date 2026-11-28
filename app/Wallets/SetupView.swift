@@ -117,7 +117,7 @@ struct SetupView: View {
                 // The network this wallet is added on, chosen before the form,
                 // and how far through the form this page is.
                 HStack(spacing: SpectraLayout.Space.xs) {
-                    CoinBadge(artworkName: entry.artworkName, fallbackText: entry.coinSymbol, color: entry.color.color, size: 20)
+                    CoinBadge(artworkName: entry.artworkName, fallbackText: entry.coinSymbol, color: entry.color.color, size: 20, kind: .chain)
                     Text(chain.displayName).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
                     Spacer(minLength: SpectraLayout.Space.s)
                     stepIndicator

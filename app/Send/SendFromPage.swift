@@ -38,7 +38,7 @@ struct SendFromPage: View {
                     artworkName: badge.artworkName,
                     fallbackText: selectedWallet.familyName,
                     color: badge.color,
-                    size: 36
+                    size: 36, kind: .chain
                 )
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     Text(selectedWallet.name).font(.headline).lineLimit(1)

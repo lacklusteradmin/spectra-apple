@@ -114,7 +114,7 @@ private struct AddressBookContactRow: View {
                         artworkName: badge.artworkName,
                         fallbackText: entry.chainName,
                         color: badge.color,
-                        size: 36
+                        size: 36, kind: .chain
                     )
 
                     VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {

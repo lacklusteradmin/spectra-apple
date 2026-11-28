@@ -41,7 +41,7 @@ struct DonationsView: View {
     private func donationRow(chain: Chain, title: String, address: String) -> some View {
         let badge = AssetHolding.nativeChainBadge(for: chain) ?? (artworkName: nil, color: Color.mint)
         return CopyButton(value: address) {
-            CoinBadge(artworkName: badge.artworkName, fallbackText: title, color: badge.color, size: 36)
+            CoinBadge(artworkName: badge.artworkName, fallbackText: title, color: badge.color, size: 36, kind: .chain)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                 Text(title).font(.body.weight(.semibold)).foregroundStyle(Color.primary)
                 Text(address).font(.footnote.monospaced()).foregroundStyle(.secondary).lineLimit(1)

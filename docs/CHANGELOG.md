@@ -1,5 +1,28 @@
 # Changelog
 
+## Beta Commit 267
+
+- **A chain or wallet badge is a rounded square, a coin or token badge a
+  disc** (`CoinBadge.Kind`, `kind: .chain` wherever the mark is a chain's)
+  - A chain badge draws spectra's `icons/chain/` from the `chain` asset group
+    (before: the native coin's disc from `crypto`).
+  - A badge with no artwork falls back to its letter on its own shape
+    (before: always a circle).
+- **Send's review shows the network's mark beside the network's name**
+  (`SendAmountSummaryView`; before: the coin's mark in review, the
+  network's while sending)
+- **`scripts/export-swift-icons.sh` syncs and checks spectra's
+  `icons/chain/` into a `chain` asset group with a namespace**
+- **Icons synced from spectra** (`app/Assets.xcassets/`: `chain/` new, 92
+  icons; `arc`, `robinhood` and `ton` removed from `crypto/`)
+- Docs: `AGENTS.md` (Icons), `IOS-UI.md` (Design baseline, Corner radii),
+  `scripts/README.md` (Icons).
+- Total: 17 .swift files changed, +41 −24 lines; resource files:
+  `app/Assets.xcassets/chain/` (92 icons, new), 3 icons removed from
+  `crypto/`; config files: `scripts/export-swift-icons.sh`; `make lint`,
+  `check-ui`, `make ios` and `make mac` passing; tests passing in
+  `make test-ios` 108 → 108; `make test-mac` not run.
+
 ## Beta Commit 266
 
 - **Crypto Wiki removed** (`app/Wiki/`, Settings' Help & About row; a

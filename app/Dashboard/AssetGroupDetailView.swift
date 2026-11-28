@@ -191,7 +191,7 @@ private struct AssetBreakdownRow: View {
     let hidesBalance: Bool
     var body: some View {
         HStack(alignment: .center, spacing: SpectraLayout.Space.m) {
-            CoinBadge(artworkName: badgeArtworkName, fallbackText: badgeMark, color: badgeColor, size: 30)
+            CoinBadge(artworkName: badgeArtworkName, fallbackText: badgeMark, color: badgeColor, size: 30, kind: .chain)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                 Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Color.primary).lineLimit(1)
                 Text(subtitle).font(.caption2).foregroundStyle(.secondary)

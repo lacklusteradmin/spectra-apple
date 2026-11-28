@@ -40,7 +40,7 @@ Exporting app icons needs ImageMagick (`brew install imagemagick`).
 
 | File | Purpose |
 |---|---|
-| `export-swift-icons.sh` | Converts and synchronizes core's `icons/appicon/` and `icons/crypto/`, in the checkout `SPECTRA` names (it refuses without one, or one lacking either), into the Xcode asset catalog, rendering app icons as PNGs: each source at 1024 points for iOS, and the light one again in the Mac's shape and sizes. A rendering has no PNG time chunks and is written only when its bytes differ from the catalog's. With `--check` it writes nothing and fails, naming each icon, when the `crypto` group is not an exact copy of core's library; `make lint` runs that. The app icon is left out of the check, since another ImageMagick may render other bytes. |
+| `export-swift-icons.sh` | Converts and synchronizes core's `icons/appicon/`, `icons/crypto/` and `icons/chain/`, in the checkout `SPECTRA` names (it refuses without one, or one lacking any of them), into the Xcode asset catalog, the chain icons into a `chain` group with a namespace, rendering app icons as PNGs: each source at 1024 points for iOS, and the light one again in the Mac's shape and sizes. A rendering has no PNG time chunks and is written only when its bytes differ from the catalog's. With `--check` it writes nothing and fails, naming each icon, when the `crypto` or `chain` group is not an exact copy of core's library; `make lint` runs that. The app icon is left out of the check, since another ImageMagick may render other bytes. |
 
 ## Strings
 

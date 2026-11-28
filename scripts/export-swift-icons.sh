@@ -4,16 +4,17 @@
 #   <spectra>/icons/appicon/ → AppIcon.appiconset/ (SVG → 1024×1024 PNG, and the
 #                              light icon again in the Mac's shape and sizes)
 #   <spectra>/icons/crypto/  → crypto/             (SVG imageset, no namespace)
+#   <spectra>/icons/chain/   → chain/              (SVG imageset, namespace `chain/`)
 #
-# Both are core's, in the spectra checkout SPECTRA names (absolute or relative
-# to this repository's root), where the crypto library is normalized and
-# checked against the catalog's artwork names.
+# All are core's, in the spectra checkout SPECTRA names (absolute or relative
+# to this repository's root), where the crypto and chain libraries are
+# normalized and checked against the catalog's artwork names.
 #
-# Rules (both):
+# Rules (all):
 #   - Refuses a source with no SVGs: that is a wrong SPECTRA, not an empty
 #     library, and syncing it would remove every icon.
 #
-# Rules (crypto):
+# Rules (crypto and chain):
 #   - Creates a new .imageset for every SVG not yet in the catalog.
 #   - Updates the SVG inside an existing .imageset when the source has changed.
 #   - Removes .imageset folders that no longer have a matching source SVG.
@@ -27,8 +28,8 @@
 #     Mac's rounded rectangle inside its margin.
 #   - Never touches Contents.json.
 #
-# --check writes nothing: it fails, naming each icon, when the crypto group is
-# not an exact copy of core's library (`make lint` runs it). The app icon is
+# --check writes nothing: it fails, naming each icon, when the crypto or chain
+# group is not an exact copy of core's library (`make lint` runs it). The app icon is
 # left out: it is a rendering, and another ImageMagick may draw other bytes.
 set -euo pipefail
 
@@ -49,7 +50,8 @@ fi
 SPECTRA_ROOT="$(cd "$REPO_ROOT" && cd "$SPECTRA" && pwd)"
 APPICON_SRC="$SPECTRA_ROOT/icons/appicon"
 CRYPTO_SRC="$SPECTRA_ROOT/icons/crypto"
-for src in "$APPICON_SRC" "$CRYPTO_SRC"; do
+CHAIN_SRC="$SPECTRA_ROOT/icons/chain"
+for src in "$APPICON_SRC" "$CRYPTO_SRC" "$CHAIN_SRC"; do
   if ! compgen -G "$src/*.svg" >/dev/null; then
     echo "error: no icons in $src: SPECTRA must name a spectra checkout" >&2
     exit 2
@@ -58,6 +60,7 @@ done
 
 APPICON_DEST="$REPO_ROOT/app/Assets.xcassets/AppIcon.appiconset"
 CRYPTO_DEST="$REPO_ROOT/app/Assets.xcassets/crypto"
+CHAIN_DEST="$REPO_ROOT/app/Assets.xcassets/chain"
 
 RENDER_DIR="$(mktemp -d)"
 trap 'rm -rf "$RENDER_DIR"' EXIT
@@ -76,18 +79,32 @@ require_convert() {
   fi
 }
 
+# A group folder's Contents.json. A namespaced group's images are named
+# `<group>/<name>`, so its file names may repeat another group's.
 ensure_group_contents() {
-  local dir="$1"
+  local dir="$1" namespace="$2"
   mkdir -p "$dir"
-  if [[ ! -f "$dir/Contents.json" ]]; then
-    cat > "$dir/Contents.json" <<'JSON'
-{
+  local contents
+  if ((namespace)); then
+    contents='{
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "provides-namespace" : true
+  }
+}'
+  else
+    contents='{
   "info" : {
     "author" : "xcode",
     "version" : 1
   }
-}
-JSON
+}'
+  fi
+  if [[ ! -f "$dir/Contents.json" ]] || [[ "$(cat "$dir/Contents.json")" != "$contents" ]]; then
+    printf '%s\n' "$contents" > "$dir/Contents.json"
   fi
 }
 
@@ -114,10 +131,10 @@ JSON
 
 # Sync a flat directory of SVGs into an xcassets group folder.
 sync_svg_group() {
-  local src="$1" dest="$2" label="$3"
+  local src="$1" dest="$2" label="$3" namespace="$4"
   local added=0 updated=0 removed=0
 
-  ensure_group_contents "$dest"
+  ensure_group_contents "$dest" "$namespace"
 
   for svg_path in "$src"/*.svg; do
     [[ -e "$svg_path" ]] || continue
@@ -266,7 +283,12 @@ sync_macicon() {
 
 if ((CHECK)); then
   echo "checking crypto..."
-  check_svg_group "$CRYPTO_SRC" "$CRYPTO_DEST" "crypto"
+  crypto=0
+  check_svg_group "$CRYPTO_SRC" "$CRYPTO_DEST" "crypto" || crypto=$?
+  echo "checking chain..."
+  chain=0
+  check_svg_group "$CHAIN_SRC" "$CHAIN_DEST" "chain" || chain=$?
+  ((crypto == 0 && chain == 0))
   exit
 fi
 
@@ -275,4 +297,7 @@ sync_appicon "$APPICON_SRC" "$APPICON_DEST"
 sync_macicon "$APPICON_SRC" "$APPICON_DEST"
 
 echo "syncing crypto..."
-sync_svg_group "$CRYPTO_SRC" "$CRYPTO_DEST" "crypto"
+sync_svg_group "$CRYPTO_SRC" "$CRYPTO_DEST" "crypto" 0
+
+echo "syncing chain..."
+sync_svg_group "$CHAIN_SRC" "$CHAIN_DEST" "chain" 1

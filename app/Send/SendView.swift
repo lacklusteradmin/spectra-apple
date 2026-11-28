@@ -397,7 +397,7 @@ private struct SavedSendRow: View {
         let chain = artifact.chainId
         let badge = AssetHolding.nativeChainBadge(for: chain) ?? (nil, Color.secondary)
         HStack(spacing: SpectraLayout.Space.m) {
-            CoinBadge(artworkName: badge.artworkName, fallbackText: artifact.symbol, color: badge.color, size: 28)
+            CoinBadge(artworkName: badge.artworkName, fallbackText: artifact.symbol, color: badge.color, size: 28, kind: .chain)
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                 Text(verbatim: AmountPresentation.exactAmount(artifact.amount, symbol: artifact.symbol))
                     .font(.subheadline.weight(.semibold))

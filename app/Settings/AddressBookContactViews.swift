@@ -155,7 +155,7 @@ struct NewAddressBookContactView: View {
                     artworkName: badge.artworkName,
                     fallbackText: chainName,
                     color: badge.color,
-                    size: 34
+                    size: 34, kind: .chain
                 )
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     Text(AppLocalization.string("Chain"))
@@ -253,7 +253,7 @@ struct AddressBookContactView: View {
                 artworkName: badge.artworkName,
                 fallbackText: contact.chainName,
                 color: badge.color,
-                size: 56
+                size: 56, kind: .chain
             )
 
             VStack(spacing: SpectraLayout.Space.xs) {

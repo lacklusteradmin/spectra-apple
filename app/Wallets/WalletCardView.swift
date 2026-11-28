@@ -22,7 +22,7 @@ struct WalletCardView: View, Equatable {
             HStack(spacing: SpectraLayout.Space.m) {
                 CoinBadge(
                     artworkName: presentation.badgeArtworkName, fallbackText: presentation.badgeMark,
-                    color: presentation.badgeColor, size: 36)
+                    color: presentation.badgeColor, size: 36, kind: .chain)
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     Text(presentation.walletName).font(.headline).foregroundStyle(Color.primary)
                     // Watching is said on the network line: a badge on the

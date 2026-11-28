@@ -3,7 +3,6 @@ import SwiftUI
 
 /// Amounts supplied by the reviewed preview or immutable artifact, without a new quote.
 struct SendAmountSummaryView: View {
-    let artworkName: String?
     let symbol: String
     let chain: Chain
     let amount: String
@@ -63,8 +62,8 @@ struct SendAmountSummaryView: View {
     private var networkLabel: some View {
         HStack(spacing: SpectraLayout.Space.s) {
             CoinBadge(
-                artworkName: artworkName, fallbackText: symbol,
-                color: chain.entry?.color.color ?? .gray, size: 24)
+                artworkName: chain.entry?.artworkName, fallbackText: chain.displayName,
+                color: chain.entry?.color.color ?? .gray, size: 24, kind: .chain)
                 .accessibilityHidden(true)
             Text(verbatim: chain.displayName)
                 .font(.subheadline)

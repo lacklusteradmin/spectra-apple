@@ -243,7 +243,7 @@ struct WalletDetailView: View {
             CoinBadge(
                 artworkName: presentation.walletBadge.artworkName,
                 fallbackText: presentation.wallet.familyName,
-                color: presentation.walletBadge.color, size: 56
+                color: presentation.walletBadge.color, size: 56, kind: .chain
             )
             VStack(alignment: .leading, spacing: SpectraLayout.Space.xs) {
                 HStack(alignment: .firstTextBaseline, spacing: SpectraLayout.Space.s) {

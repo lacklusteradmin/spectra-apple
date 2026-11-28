@@ -136,7 +136,6 @@ struct SendStagesView: View {
 
     private var amountSummary: some View {
         SendAmountSummaryView(
-            artworkName: AssetHolding.nativeChainBadge(for: artifact.chainId)?.artworkName,
             symbol: artifact.symbol, chain: artifact.chainId, amount: artifact.amount,
             status: progress.status, isReceipt: progress.status == .confirmed)
     }

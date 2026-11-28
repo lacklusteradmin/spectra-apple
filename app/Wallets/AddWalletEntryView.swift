@@ -130,7 +130,7 @@ struct WalletSetupMethodsView: View {
         if let entry = chain.entry {
             let row = ChainSelectionDescriptor(chain: chain, entry: entry)
             HStack(spacing: SpectraLayout.Space.m) {
-                CoinBadge(artworkName: row.artworkName, fallbackText: row.symbol, color: row.color, size: 48)
+                CoinBadge(artworkName: row.artworkName, fallbackText: row.symbol, color: row.color, size: 48, kind: .chain)
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     Text(row.title).font(.title2.weight(.bold)).foregroundStyle(Color.primary)
                     Text(row.tagLine).font(.subheadline).foregroundStyle(.secondary)

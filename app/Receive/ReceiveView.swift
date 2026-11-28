@@ -223,7 +223,7 @@ private struct ReceiveAddressView: View {
                         artworkName: badge.artworkName,
                         fallbackText: coin.chainName,
                         color: badge.color,
-                        size: 36
+                        size: 36, kind: .chain
                     )
                 }
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {

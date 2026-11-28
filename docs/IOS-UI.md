@@ -115,6 +115,7 @@ Official references:
   `design-tokens: artwork`.
 - **Artwork exception:** Decorative icon artwork may use custom fonts, color opacity, and glass effects.
 - **Logo:** `SpectraMark` draws the app icon's five bars and `SpectraLogo` sets them on the icon's black tile. Their geometry and palette are those of spectra's `icons/appicon/`: change the two together.
+- **Coin and chain badges:** `CoinBadge` draws a coin or token on a disc, from the `crypto` asset group, and a chain, or a wallet by its chain, on a rounded square, from the `chain` group (`kind: .chain`), so a chain is never drawn like its native coin. A badge whose mark comes from a chain (`nativeChainBadge`, a `ChainEntry`) is a chain badge; one whose mark comes from a token or deployment is a coin badge. The square's corner is the app icon's, 0.225 of the side, continuous.
 
 ## macOS
 
@@ -194,7 +195,7 @@ The radius communicates hierarchy, in three steps:
 | `Radius.card` | 20pt | Every card — tab, hero, detail, list and notice banner — and the only glass radius: `spectraCardFill`, `spectraElevatedFill`, `spectraDetailCard` |
 | `Radius.inner` | 14pt | Surfaces inside a card: inputs, address blocks, tiles, chips and pills; `spectraInsetFill` |
 | `Radius.control` | 10pt | Dense controls and single-character slots inside a card |
-| size-relative | — | Icon artwork such as the `SpectraLogo` backing |
+| size-relative | — | Icon artwork such as the `SpectraLogo` backing and a chain's `CoinBadge` |
 
 Write the token, never the number. A component's own internal geometry is not a
 step on this scale — `SpectraShimmer` rounds a 12–14pt placeholder bar by 6pt,

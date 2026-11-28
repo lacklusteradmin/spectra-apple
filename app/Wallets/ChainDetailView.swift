@@ -23,7 +23,7 @@ struct ChainDetailView: View {
     private func heroCard(_ entry: ChainEntry) -> some View {
         VStack(alignment: .leading, spacing: SpectraLayout.Space.m) {
             HStack(spacing: SpectraLayout.Space.m) {
-                CoinBadge(artworkName: entry.artworkName, fallbackText: entry.coinSymbol, color: entry.color.color, size: 52)
+                CoinBadge(artworkName: entry.artworkName, fallbackText: entry.coinSymbol, color: entry.color.color, size: 52, kind: .chain)
                 Text(entry.name).font(.title3.weight(.semibold))
                 Spacer(minLength: 0)
             }

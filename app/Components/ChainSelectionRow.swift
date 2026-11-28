@@ -26,7 +26,7 @@ struct ChainSelectionRow: View {
             HStack(spacing: SpectraLayout.Space.m) {
                 CoinBadge(
                     artworkName: descriptor.artworkName, fallbackText: descriptor.symbol,
-                    color: descriptor.color, size: 36
+                    color: descriptor.color, size: 36, kind: .chain
                 )
                 VStack(alignment: .leading, spacing: SpectraLayout.Space.xxs) {
                     Text(descriptor.title)

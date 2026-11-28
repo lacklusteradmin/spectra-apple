@@ -228,16 +228,20 @@ then it moves to that app's own tables.
 ## Icons
 
 Never edit `app/Assets.xcassets/` by hand: `scripts/export-swift-icons.sh`
-generates its icons from two sources in spectra, both with their rules in
+generates its icons from three sources in spectra, all with their rules in
 spectra's `AGENTS.md`.
 
 - spectra's `icons/appicon/` holds the 1024-point app icon sources. They
   export as 1024×1024 PNGs to `AppIcon.appiconset`; keep that destination
   name. Exporting them needs ImageMagick (`brew install imagemagick`).
-- The crypto icons are core's library in spectra's `icons/crypto/`. They
-  export to the matching `crypto` asset group, without a namespace.
+- The crypto icons are core's library in spectra's `icons/crypto/`, each coin
+  and token on a disc. They export to the matching `crypto` asset group,
+  without a namespace.
+- The chain icons are core's library in spectra's `icons/chain/`, each chain
+  on a rounded square. They export to the `chain` asset group, with a
+  namespace: `CoinBadge(kind: .chain)` draws `chain/<artwork name>`.
 
-After editing either, export:
+After editing any of them, export:
 
 ```sh
 SPECTRA=<spectra checkout> scripts/export-swift-icons.sh
